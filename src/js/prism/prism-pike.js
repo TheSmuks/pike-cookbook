@@ -1,8 +1,8 @@
-import Prism from 'prismjs';
+// Pike language definition for Prism.js
+// This file defines syntax highlighting for the Pike programming language
 
-// Pike language definition
-if (typeof Prism !== 'undefined') {
-  Prism.languages.pike = {
+// Create the Pike language definition
+const pikeLanguage = {
     'comment': [
       { pattern: /\/\/.*|\/\*[\s\S]*?\*\//, greedy: true },
       { pattern: /#.*$/, greedy: true }
@@ -34,9 +34,14 @@ if (typeof Prism !== 'undefined') {
   };
 
   // Support nested interpolation expressions
-  if (Prism.languages.pike.string.inside?.interpolation?.inside?.expression) {
-    Prism.languages.pike.string.inside.interpolation.inside.expression.inside = Prism.languages.pike;
+  if (pikeLanguage.string.inside && pikeLanguage.string.inside.interpolation && pikeLanguage.string.inside.interpolation.inside && pikeLanguage.string.inside.interpolation.inside.expression) {
+    pikeLanguage.string.inside.interpolation.inside.expression.inside = pikeLanguage;
   }
+};
+
+// Auto-register if Prism is available globally
+if (typeof window !== 'undefined' && window.Prism && !window.Prism.languages.pike) {
+  window.Prism.languages.pike = pikeLanguage;
 }
 
-export default Prism.languages.pike;
+export default pikeLanguage;
