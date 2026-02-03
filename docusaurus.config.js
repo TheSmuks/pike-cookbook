@@ -47,9 +47,6 @@ const config = {
     ],
   ],
 
-  // Client modules to load Prism Pike grammar
-  clientModules: [require.resolve('./src/theme/prism-pike')],
-
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({

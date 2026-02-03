@@ -7,9 +7,12 @@ export default function prismIncludeLanguages(PrismObject) {
   const {additionalLanguages} = prism;
 
   // Load additional languages from config
+  // Skip 'pike' as it's registered below
   globalThis.Prism = PrismObject;
   additionalLanguages.forEach((lang) => {
-    require(`prismjs/components/prism-${lang}`);
+    if (lang !== 'pike') {
+      require(`prismjs/components/prism-${lang}`);
+    }
   });
   delete globalThis.Prism;
 
