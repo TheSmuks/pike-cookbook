@@ -1,0 +1,184 @@
+.autodoc {
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Base tag styling */
+.tag {
+  font-weight: 600;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+  font-size: 0.9em;
+}
+
+/* Meta keywords - purple/pink theme */
+.tag-decl {
+  background-color: #f3e8ff;
+  color: #7c3aed;
+  border: 1px solid #c4b5fd;
+}
+
+.tag-class,
+.tag-endclass {
+  background-color: #fce7f3;
+  color: #be185d;
+  border: 1px solid #f9a8d4;
+}
+
+.tag-module,
+.tag-endmodule {
+  background-color: #fdf4ff;
+  color: #a21caf;
+  border: 1px solid #e879f9;
+}
+
+/* Parameter tags - blue theme */
+.tag-param {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+
+/* Return tags - green theme */
+.tag-return,
+.tag-returns {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+/* Exception tags - red theme */
+.tag-throws {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
+/* Reference tags - indigo theme */
+.tag-seealso {
+  background-color: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #a5b4fc;
+}
+
+/* Example tags - cyan theme */
+.tag-example {
+  background-color: #cffafe;
+  color: #0e7490;
+  border: 1px solid #67e8f9;
+}
+
+/* Note tags - amber theme */
+.tag-note {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
+
+/* Deprecated tags - gray theme */
+.tag-deprecated {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+  text-decoration: line-through;
+}
+
+/* Bugs tags - orange theme */
+.tag-bugs {
+  background-color: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+/* Block keywords - teal theme */
+.tag-dl,
+.tag-enddl {
+  background-color: #ccfbf1;
+  color: #0f766e;
+  border: 1px solid #5eead4;
+}
+
+.tag-mapping,
+.tag-endmapping {
+  background-color: #d1fae5;
+  color: #047857;
+  border: 1px solid #6ee7b7;
+}
+
+.tag-array,
+.tag-endarray {
+  background-color: #ecfccb;
+  color: #3f6212;
+  border: 1px solid #bef264;
+}
+
+.tag-item {
+  background-color: #f0fdf4;
+  color: #166534;
+  border: 1px solid #86efac;
+  font-weight: 500;
+}
+
+.tag-member {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #6ee7b7;
+}
+
+.tag-index {
+  background-color: #f5f3ff;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+
+/* Inline markup styling */
+.inlineMarkup {
+  padding: 0.1em 0.2em;
+  border-radius: 2px;
+}
+
+.markup-i {
+  font-style: italic;
+  color: #6b7280;
+}
+
+.markup-b {
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.markup-tt {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+  background-color: #f3f4f6;
+  color: #dc2626;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.markup-ref {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+  background-color: #ede9fe;
+  color: #6d28d9;
+  font-size: 0.9em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}
+
+.markup-xml {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New',
+    monospace;
+  background-color: #fef2f2;
+  color: #991b1b;
+  font-size: 0.85em;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  border: 1px solid #fecaca;
+}
