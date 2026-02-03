@@ -19,13 +19,29 @@ export default function prismIncludeLanguages(PrismObject) {
   // Register Pike language with comprehensive syntax highlighting
   PrismObject.languages.pike = {
     // Comments: //, /* */, and #! shebang
-    // Note: AutoDoc tags are matched separately below
+    // AutoDoc comments (//!) get special highlighting for tags
     'comment': [
+      {
+        // AutoDoc comments - must come BEFORE generic // pattern
+        pattern: /\/\/![^\n]*/,
+        greedy: true,
+        inside: {
+          'autodoc-inline': {
+            pattern: /@(?:i|b|tt|ref|xml)\{[^@]*@/,
+            alias: 'variable'
+          },
+          'autodoc-tag': {
+            pattern: /@(?:param|return|returns|throws|throw|seealso|example|note|deprecated|bugs|decl|class|endclass|module|endmodule|type|member|item|index|dl|enddl|mapping|endmapping|array|endarray|namespace|endnamespace|enum|endenum|constant|inherit|typedef|directive|fixme|todo|ol|endol|ul|endul|li|table|endtable|row|col|image|url|expr|code)\b/,
+            alias: 'keyword'
+          }
+        }
+      },
       {
         pattern: /\/\*[\s\S]*?\*\//,
         greedy: true
       },
       {
+        // Generic // comments (must come AFTER //! comments)
         pattern: /\/\/.*/,
         greedy: true
       },
@@ -34,18 +50,6 @@ export default function prismIncludeLanguages(PrismObject) {
         greedy: true
       }
     ],
-
-    // AutoDoc inline markup: @i{...@}, @b{...@}, @tt{...@}, @ref{...@}, @xml{...@}
-    'autodoc-inline': {
-      pattern: /@(?:i|b|tt|ref|xml)\{[^@]*@/,
-      alias: 'variable'
-    },
-
-    // AutoDoc tags: @param, @returns, @throws, @seealso, etc.
-    'autodoc-tag': {
-      pattern: /@(?:param|return|returns|throws|throw|seealso|example|note|deprecated|bugs|decl|class|endclass|module|endmodule|type|member|item|index|dl|enddl|mapping|endmapping|array|endarray|namespace|endnamespace|enum|endenum|constant|inherit|typedef|directive|fixme|todo|ol|endol|ul|endul|li|table|endtable|row|col|image|url|expr|code)\b/,
-      alias: 'keyword'
-    },
 
     // Preprocessor directives
     'preprocessor': {
