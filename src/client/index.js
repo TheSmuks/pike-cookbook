@@ -49,13 +49,28 @@ if (typeof document !== 'undefined') {
 
 // Search close button functionality
 function initSearchCloseButton() {
-  // Function to inject close button
+  // Function to inject close button and wrapper
   function injectCloseButton() {
     const modal = document.querySelector('.searchBar_RVTs');
     if (!modal) return;
 
-    // Check if close button already exists
-    if (modal.querySelector('.search-modal-close-btn')) return;
+    // Find the search input
+    const searchInput = modal.querySelector('.navbar__search-input');
+    if (!searchInput) return;
+
+    // Check if wrapper already exists, if not create it
+    let wrapper = modal.querySelector('.search-input-wrapper');
+    if (!wrapper) {
+      wrapper = document.createElement('div');
+      wrapper.className = 'search-input-wrapper';
+
+      // Insert wrapper before input, then move input into wrapper
+      searchInput.parentNode.insertBefore(wrapper, searchInput);
+      wrapper.appendChild(searchInput);
+    }
+
+    // Check if close button already exists in wrapper
+    if (wrapper.querySelector('.search-modal-close-btn')) return;
 
     // Create close button
     const closeBtn = document.createElement('button');
@@ -64,60 +79,90 @@ function initSearchCloseButton() {
     closeBtn.innerHTML = '×';
     closeBtn.setAttribute('type', 'button');
 
-    // Add click handler to close the modal
+    // Helper to close modal
+    const closeModal = () => {
+      searchInput.blur();
+      searchInput.value = '';
+      searchInput.setAttribute('aria-expanded', 'false');
+      modal.style.display = 'none';
+
+      // Small delay to allow blur to propagate
+      setTimeout(() => {
+        const body = document.querySelector('body');
+        if (body) body.classList.remove('search-modal-open');
+      }, 10);
+    };
+
+    // Add click handler to close button
     closeBtn.addEventListener('click', function(e) {
       e.preventDefault();
       e.stopPropagation();
-
-      // Find the search input and blur it to close the dropdown
-      const searchInput = document.querySelector('.navbar__search-input');
-      if (searchInput) {
-        searchInput.blur();
-        searchInput.value = '';
-        searchInput.setAttribute('aria-expanded', 'false');
-      }
-
-      // Hide the modal
-      modal.style.display = 'none';
+      closeModal();
     });
 
-    // Append button to modal
-    modal.appendChild(closeBtn);
+    // Close on backdrop click
+    modal.addEventListener('click', function(e) {
+      // Only close if the click was exactly on the modal backdrop, not its children
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Close on Escape key
+    const handleEsc = (e) => {
+      if (e.key === 'Escape' && modal.style.display !== 'none') {
+        closeModal();
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+
+    // Append button to wrapper so it's positioned relative to the input
+    wrapper.appendChild(closeBtn);
   }
 
   // Function to observe search modal opening
   function observeSearchModal() {
-    const searchInput = document.querySelector('.navbar__search-input');
-    if (!searchInput) return;
+    // Initial check
+    const modal = document.querySelector('.searchBar_RVTs');
+    if (modal && modal.style.display !== 'none') {
+      injectCloseButton();
+    }
 
-    // Use MutationObserver to watch for modal opening
-    const observer = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
-          const isExpanded = searchInput.getAttribute('aria-expanded') === 'true';
-          if (isExpanded) {
-            // Show modal if it's hidden
-            const modal = document.querySelector('.searchBar_RVTs');
-            if (modal) {
-              modal.style.display = '';
-              setTimeout(injectCloseButton, 50);
+    // Observe changes to the search input state
+    const searchInput = document.querySelector('.navbar__search-input');
+    if (searchInput) {
+      const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
+            const isExpanded = searchInput.getAttribute('aria-expanded') === 'true';
+            if (isExpanded) {
+              const modal = document.querySelector('.searchBar_RVTs');
+              if (modal) {
+                modal.style.display = '';
+                setTimeout(injectCloseButton, 50);
+              }
             }
+          }
+        });
+      });
+      observer.observe(searchInput, { attributes: true });
+    }
+
+    // Also observe the body for when the search modal is added/removed from DOM
+    const bodyObserver = new MutationObserver(function(mutations) {
+      mutations.forEach(function(mutation) {
+        if (mutation.addedNodes.length) {
+          const hasModal = Array.from(mutation.addedNodes).some(node =>
+            node.classList && node.classList.contains('searchBar_RVTs')
+          );
+          if (hasModal) {
+            setTimeout(injectCloseButton, 50);
           }
         }
       });
     });
 
-    observer.observe(searchInput, { attributes: true });
-
-    // Also observe modal being added to DOM
-    const modalObserver = new MutationObserver(function() {
-      const modal = document.querySelector('.searchBar_RVTs');
-      if (modal && modal.style.display !== 'none') {
-        setTimeout(injectCloseButton, 50);
-      }
-    });
-
-    modalObserver.observe(document.body, { childList: true, subtree: true });
+    bodyObserver.observe(document.body, { childList: true, subtree: false });
   }
 
   observeSearchModal();
