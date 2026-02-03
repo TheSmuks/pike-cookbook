@@ -555,14 +555,14 @@ blockquote {
    ======================================== */
 
 /* AutoDoc tags - purple/magenta for visibility */
-.prism-code .token.comment .token.autodoc-tag {
+.prism-code .token.autodoc-comment .token.autodoc-tag {
   color: #8250df;
   font-weight: 700;
   font-style: normal;
 }
 
 /* AutoDoc inline markup - blue/cyan */
-.prism-code .token.comment .token.autodoc-inline {
+.prism-code .token.autodoc-comment .token.autodoc-inline {
   color: #0550ae;
   font-weight: 600;
   font-style: normal;
@@ -572,13 +572,13 @@ blockquote {
    AutoDoc Tag Syntax Highlighting - Dark Mode
    ======================================== */
 
-[data-theme='dark'] .prism-code .token.comment .token.autodoc-tag {
+[data-theme='dark'] .prism-code .token.autodoc-comment .token.autodoc-tag {
   color: #d2a8ff;
   font-weight: 700;
   font-style: normal;
 }
 
-[data-theme='dark'] .prism-code .token.comment .token.autodoc-inline {
+[data-theme='dark'] .prism-code .token.autodoc-comment .token.autodoc-inline {
   color: #79c0ff;
   font-weight: 600;
   font-style: normal;
