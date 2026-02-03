@@ -556,16 +556,16 @@ blockquote {
 
 /* AutoDoc tags - purple/magenta for visibility */
 .prism-code .token.comment .token.autodoc-tag {
-  color: #8250df;
-  font-weight: 700;
-  font-style: normal;
+  color: #8250df !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
 }
 
 /* AutoDoc inline markup - blue/cyan */
 .prism-code .token.comment .token.autodoc-inline {
-  color: #0550ae;
-  font-weight: 600;
-  font-style: normal;
+  color: #0550ae !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
 }
 
 /* ========================================
@@ -573,13 +573,13 @@ blockquote {
    ======================================== */
 
 [data-theme='dark'] .prism-code .token.comment .token.autodoc-tag {
-  color: #d2a8ff;
-  font-weight: 700;
-  font-style: normal;
+  color: #d2a8ff !important;
+  font-weight: 700 !important;
+  font-style: normal !important;
 }
 
 [data-theme='dark'] .prism-code .token.comment .token.autodoc-inline {
-  color: #79c0ff;
-  font-weight: 600;
-  font-style: normal;
+  color: #79c0ff !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
 }
