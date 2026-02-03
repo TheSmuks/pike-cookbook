@@ -317,10 +317,276 @@ blockquote {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Search */
+/* ========================================
+   Search Modal Overlay - Centered Modal Style
+   ======================================== */
+
+/* Search container - maintains positioning */
 .navbarSearchContainer_Bca1 {
   margin-left: auto;
   margin-right: 1rem;
+  position: relative;
+}
+
+/* Search input styling */
+.navbar__search-input.searchInput_YFbd.input_FOTf {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Search dropdown wrapper - transform to modal overlay */
+.searchBar_RVTs {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding-top: 25vh !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+  z-index: 1000 !important;
+  animation: fadeIn 0.2s ease-out !important;
+}
+
+/* Dropdown menu - modal appearance */
+.dropdownMenu_qbY6.with-1 {
+  position: absolute !important;
+  top: calc(25vh + 66px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 660px !important;
+  max-width: 90vw !important;
+  max-height: 60vh !important;
+  margin: 0 !important;
+  padding: 12px !important;
+  background: var(--ifm-background-color) !important;
+  border: 1px solid var(--ifm-border-color) !important;
+  border-radius: 12px !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.2),
+    0 10px 10px -5px rgba(0, 0, 0, 0.1) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  animation: slideDown 0.25s ease-out !important;
+  z-index: 1001 !important;
+  display: block !important;
+}
+
+/* Ensure suggestions are visible */
+.dropdownMenu_qbY6.with-1 .dataset_QiCy-1 {
+  display: block !important;
+}
+
+/* Dropdown options styling */
+.dropdownMenu_qbY6.with-1 [role="option"] {
+  padding: 12px 16px !important;
+  margin: 4px 0 !important;
+  border-radius: 8px !important;
+  transition: all 0.15s ease-in-out !important;
+  cursor: pointer !important;
+  font-size: 15px !important;
+  display: block !important;
+}
+
+.dropdownMenu_qbY6.with-1 [role="option"]:hover {
+  background-color: var(--ifm-color-emphasis-100) !important;
+}
+
+.dropdownMenu_qbY6.with-1 [role="option"][aria-selected="true"] {
+  background-color: var(--ifm-color-emphasis-200) !important;
+}
+
+/* "See all results" link */
+.dropdownMenu_qbY6.with-1 a {
+  margin: 10px 0 !important;
+  padding: 14px 18px !important;
+  border-radius: 10px !important;
+  text-align: center !important;
+  background-color: var(--ifm-color-emphasis-100) !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.dropdownMenu_qbY6.with-1 a:hover {
+  background-color: var(--ifm-color-emphasis-200) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Highlighted search terms */
+.dropdownMenu_qbY6.with-1 mark {
+  background-color: transparent !important;
+  color: var(--ifm-color-primary) !important;
+  font-weight: 600 !important;
+  padding: 0 2px !important;
+  border-radius: 2px !important;
+}
+
+/* Search input when modal is open - large, square, centered */
+.searchBar_RVTs .navbar__search-input {
+  position: absolute !important;
+  top: 25vh !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 660px !important;
+  max-width: 90vw !important;
+  height: 56px !important;
+  padding: 0 60px 0 50px !important;
+  font-size: 18px !important;
+  border: 2px solid var(--ifm-color-primary) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.15),
+    0 2px 6px rgba(0, 0, 0, 0.1) !important;
+  background: var(--ifm-background-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 18px center !important;
+}
+
+/* Search input placeholder styling */
+.searchBar_RVTs .navbar__search-input::placeholder {
+  color: var(--ifm-color-emphasis-400) !important;
+}
+
+/* Close button (X) - positioned at right side of search bar */
+.searchBar_RVTs .searchClearButton_qk4g {
+  position: absolute !important;
+  top: calc(25vh + 10px) !important;
+  right: calc(50% - 320px) !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  background: var(--ifm-color-emphasis-100) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  color: var(--ifm-color-emphasis-700) !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  z-index: 1002 !important;
+}
+
+.searchBar_RVTs .searchClearButton_qk4g:hover {
+  background: var(--ifm-color-emphasis-200) !important;
+  transform: scale(1.05) !important;
+}
+
+.searchBar_RVTs .searchClearButton_qk4g::before {
+  content: '×' !important;
+  font-weight: 300 !important;
+}
+
+/* Any other clear button variants */
+.searchBar_RVTs button:not(.search-modal-close-btn) {
+  position: absolute !important;
+  top: calc(25vh + 10px) !important;
+  right: calc(50% - 320px) !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin: 0 !important;
+  background: var(--ifm-color-emphasis-100) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  color: var(--ifm-color-emphasis-700) !important;
+  font-size: 20px !important;
+  z-index: 1002 !important;
+}
+
+.searchBar_RVTs button:not(.search-modal-close-btn):hover {
+  background: var(--ifm-color-emphasis-200) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Custom close button (X) - will be injected by JavaScript */
+.search-modal-close-btn {
+  position: absolute !important;
+  top: calc(25vh + 10px) !important;
+  right: calc(50% - 320px) !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: var(--ifm-color-emphasis-100) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  color: var(--ifm-color-emphasis-700) !important;
+  font-size: 28px !important;
+  font-weight: 300 !important;
+  line-height: 1 !important;
+  z-index: 1003 !important;
+}
+
+.search-modal-close-btn:hover {
+  background: var(--ifm-color-emphasis-200) !important;
+  transform: scale(1.05) !important;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .searchBar_RVTs {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme='dark'] .dropdownMenu_qbY6.with-1 {
+  background: var(--ifm-background-surface-color) !important;
+  border-color: var(--ifm-border-color) !important;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.5),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme='dark'] .searchBar_RVTs .navbar__search-input {
+  background: var(--ifm-background-surface-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 18px center !important;
+  border-color: var(--ifm-color-primary) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .searchBar_RVTs {
+    padding-top: 10vh !important;
+  }
+
+  .dropdownMenu_qbY6.with-1 {
+    width: 95vw !important;
+    max-height: 75vh !important;
+  }
+
+  .searchBar_RVTs .navbar__search-input {
+    width: 90vw !important;
+    top: 8px !important;
+  }
+
+  .searchBar_RVTs button {
+    top: 8px !important;
+    right: calc(50% - 43vw) !important;
+  }
 }
 
 /* Scrollbar styling for webkit browsers */
