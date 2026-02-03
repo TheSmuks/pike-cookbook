@@ -1,0 +1,1161 @@
+---
+id: referencesandrecords
+title: References and Records
+sidebar_label: References and Records
+---
+
+## Introduction
+
+```pike
+// Pike 8 - Reference basics
+#pragma strict_types
+
+// Arrays are reference types
+array(int) arr1 = ({1, 2, 3});
+array(int) arr2 = arr1;  // Both point to same array
+arr2[0] = 99;            // Modifies the shared array
+write("arr1[0]: %d\n", arr1[0]);  // Output: 99
+
+// Basic types are value types
+int x = 5;
+int y = x;     // Copy of the value
+y = 10;
+write("x: %d, y: %d\n", x, y);  // Output: x: 5, y: 10
+
+// Mappings are reference types
+mapping(string:int) m1 = (["apple": 1]);
+mapping(string:int) m2 = m1;
+m2["apple"] = 2;
+write("m1[\"apple\"]: %d\n", m1["apple"]);  // Output: 2
+```
+
+## Taking References to Arrays
+
+```pike
+// Pike 8 - Array references
+#pragma strict_types
+import ADT;
+
+// Simple array assignment creates a reference
+array(string) fruits = ({"apple", "banana", "cherry"});
+array(string) ref = fruits;  // Reference to same array
+ref[0] = "apricot";
+write("fruits[0]: %s\n", fruits[0]);  // Output: apricot
+
+// Using modern ADT.Array for explicit array operations
+Array arr = Array();
+arr->push("first");
+arr->push("second");
+write("Array contents: %s\n", arr->cast(array));  // Output: ({ "first", "second" })
+
+// Array of arrays (nested structures)
+array(array(int)) matrix = ({
+    ({1, 2, 3}),
+    ({4, 5, 6}),
+    ({7, 8, 9})
+});
+
+array(int) row = matrix[0];  // Reference to first row
+row[0] = 99;
+write("matrix[0][0]: %d\n", matrix[0][0]);  // Output: 99
+
+// Safe indexing with ->? operator (Pike 8)
+array(int) maybe_empty = ({});
+int|zero val = maybe_empty->[0];  // Safe indexing returns UNDEFINED or 0
+write("Safe access: %d\n", val ?: 0);  // 0 if out of bounds
+```
+
+## Making Hashes of Arrays
+
+```pike
+// Pike 8 - Hash of arrays
+#pragma strict_types
+
+// Mapping with array values
+mapping(string:array(string)) employees = ([
+    "engineering": (["alice", "bob", "charlie"]),
+    "sales": (["david", "eve"]),
+    "marketing": (["frank"])
+]);
+
+// Access and modify
+employees["engineering"] += (["david"]);  // Add to array
+write("Engineering team: %s\n", employees["engineering"] * ", ");
+
+// Safe indexing with ->?
+array(string)|zero dept = employees->["engineering"];
+if (dept) {
+    write("Department exists\n");
+}
+
+// Initialize hash of arrays dynamically
+mapping(string:array(int)) scores = ([]);
+
+void add_score(string category, int score) {
+    if (!scores[category]) {
+        scores[category] = ({});
+    }
+    scores[category] += ({score});
+}
+
+add_score("player1", 100);
+add_score("player1", 150);
+add_score("player2", 200);
+
+// Display all scores
+foreach (scores; string category; array(int) arr) {
+    write("%s: %s\n", category, arr * ", ");
+}
+```
+
+## Taking References to Hashes
+
+```pike
+// Pike 8 - Mapping references
+#pragma strict_types
+
+// Mapping reference
+mapping(string:int) colors = ([
+    "red": 0xFF0000,
+    "green": 0x00FF00,
+    "blue": 0x0000FF
+]);
+
+mapping(string:int) ref = colors;  // Reference to same mapping
+ref["red"] = 0x110000;
+write("colors[\"red\"]: %x\n", colors["red"]);  // Output: 110000
+
+// Mapping of mappings
+mapping(string:mapping(string:int)) user_data = ([
+    "user1": (["age": 25, "score": 100]),
+    "user2": (["age": 30, "score": 150])
+]);
+
+mapping(string:int)|zero data = user_data->["user1"];
+if (data) {
+    data["score"] = 200;
+    write("Modified score: %d\n", user_data["user1"]["score"]);  // Output: 200
+}
+
+// Copy mapping (shallow copy)
+mapping(string:int) copy = colors + ([]);
+copy["green"] = 0x001100;
+write("Original green: %x, Copy green: %x\n",
+      colors["green"], copy["green"]);
+
+// Deep copy function
+mapping(string:mapping(string:int)) deep_copy(mapping(string:mapping(string:int)) m) {
+    mapping(string:mapping(string:int)) result = ([]);
+    foreach (m; string key; mapping(string:int) val) {
+        result[key] = val + ([]);  // Shallow copy of inner mapping
+    }
+    return result;
+}
+```
+
+## Taking References to Functions
+
+```pike
+// Pike 8 - Function references
+#pragma strict_types
+
+// Simple function reference
+int add(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
+}
+
+// Store function in variable
+function(int,int:int) operation = add;
+write("5 + 3 = %d\n", operation(5, 3));  // Output: 8
+
+// Change function reference
+operation = multiply;
+write("5 * 3 = %d\n", operation(5, 3));  // Output: 15
+
+// Higher-order function
+array(int) apply_op(array(int) arr, function(int:int) func) {
+    return map(arr, func);
+}
+
+// Lambda functions
+array(int) nums = ({1, 2, 3, 4, 5});
+array(int) doubled = apply_op(nums, lambda(int x) { return x * 2; });
+array(int) squared = apply_op(nums, lambda(int x) { return x * x; });
+
+write("Doubled: %s\n", doubled * ", ");    // Output: 2, 4, 6, 8, 10
+write("Squared: %s\n", squared * ", ");    // Output: 1, 4, 9, 16, 25
+
+// Array of functions
+array(function(int,int:int)) ops = ({
+    lambda(int a, int b) { return a + b; },
+    lambda(int a, int b) { return a - b; },
+    lambda(int a, int b) { return a * b; }
+});
+
+foreach (ops; int i; function(int,int:int) op) {
+    write("op[%d](10, 5) = %d\n", i, op(10, 5));
+}
+```
+
+## Taking References to Scalars
+
+```pike
+// Pike 8 - Simulating scalar references
+#pragma strict_types
+
+// Using single-element array as reference
+array(int) ref = ({10});
+void modify_ref(array(int) r) {
+    r[0] = 20;
+}
+modify_ref(ref);
+write("ref[0]: %d\n", ref[0]);  // Output: 20
+
+// Using mapping as reference
+mapping(string:int) container = (["value": 100]);
+void modify_container(mapping(string:int) c) {
+    c["value"] = 200;
+}
+modify_container(container);
+write("container[\"value\"]: %d\n", container["value"]);  // Output: 200
+
+// Return multiple values via mapping
+mapping(string:mixed) divide(int a, int b) {
+    if (b == 0) {
+        error("Division by zero");
+    }
+    return ([
+        "quotient": a / b,
+        "remainder": a % b
+    ]);
+}
+
+mapping(string:mixed) result = divide(17, 5);
+write("17 / 5 = %d, remainder %d\n",
+      result["quotient"], result["remainder"]);  // Output: 17 / 5 = 3, remainder 2
+```
+
+## Creating Arrays of Scalar References
+
+```pike
+// Pike 8 - Arrays of container references
+#pragma strict_types
+
+// Array of single-element arrays (simulating references)
+array(array(int)) refs = ({});
+for (int i = 0; i < 5; i++) {
+    refs += ({ ({i}) });  // Each element is an array containing one value
+}
+
+// Modify through "references"
+refs[0][0] = 99;
+refs[2][0] = 88;
+
+foreach (refs; int i; array(int) ref) {
+    write("refs[%d] = %d\n", i, ref[0]);
+}
+// Output:
+// refs[0] = 99
+// refs[1] = 1
+// refs[2] = 88
+// refs[3] = 3
+// refs[4] = 4
+
+// Practical example: updating multiple values
+array(mapping(string:int)) counters = ({
+    (["value": 0]),
+    (["value": 0]),
+    (["value": 0])
+});
+
+void increment_all(array(mapping(string:int)) counters) {
+    foreach (counters; int i; mapping(string:int) c) {
+        c["value"]++;
+    }
+}
+
+increment_all(counters);
+write("Counters: %s\n", counters->value * ", ");  // Output: 1, 1, 1
+```
+
+## Using Closures Instead of Objects
+
+```pike
+// Pike 8 - Closures for encapsulation
+#pragma strict_types
+
+// Counter using closure
+function(int:void) create_counter(int start) {
+    int count = start;
+    return lambda(int delta) {
+        count += delta;
+        write("Count: %d\n", count);
+    };
+}
+
+function(int:void) counter1 = create_counter(0);
+function(int:void) counter2 = create_counter(100);
+
+counter1(1);   // Output: Count: 1
+counter1(1);   // Output: Count: 2
+counter2(10);  // Output: Count: 110
+counter1(5);   // Output: Count: 7
+
+// Getter/setter using closure
+mapping(string:function) create_property(mixed initial_value) {
+    mixed value = initial_value;
+    return ([
+        "get": lambda() {
+            return value;
+        },
+        "set": lambda(mixed new_val) {
+            value = new_val;
+        }
+    ]);
+}
+
+mapping(string:function) prop = create_property("initial");
+write("Value: %s\n", prop["get"]());  // Output: Value: initial
+prop["set"]("modified");
+write("Value: %s\n", prop["get"]());  // Output: Value: modified
+
+// Private state with accessors
+function(void:mixed|int|string) create_bank_account(int initial) {
+    int balance = initial;
+    string owner = "unknown";
+
+    return lambda(mixed|int|string|void arg) {
+        if (stringp(arg)) {
+            // Set owner
+            owner = arg;
+            return owner;
+        } else if (intp(arg)) {
+            // Deposit/withdraw
+            balance += arg;
+            return balance;
+        } else {
+            // Get balance
+            return balance;
+        }
+    };
+}
+
+function(mixed:int|string) account = create_bank_account(100);
+write("Balance: %d\n", account());         // Output: Balance: 100
+account(50);                                 // Deposit
+write("Balance: %d\n", account());         // Output: Balance: 150
+account("Alice");                           // Set owner
+write("Owner: %s\n", account("check"));    // This won't work as shown, needs type checking
+```
+
+## Creating References to Methods
+
+```pike
+// Pike 8 - Method references
+#pragma strict_types
+
+class Calculator {
+    int add(int a, int b) {
+        return a + b;
+    }
+
+    int multiply(int a, int b) {
+        return a * b;
+    }
+
+    int apply(function(int,int:int) op, int a, int b) {
+        return op(a, b);
+    }
+}
+
+Calculator calc = Calculator();
+
+// Direct method call
+write("add: %d\n", calc->add(5, 3));        // Output: add: 8
+
+// Method reference
+function(int,int:int) method = calc->add;
+write("method(5, 3): %d\n", method(5, 3));  // Output: method(5, 3): 8
+
+// Pass method as argument
+write("apply multiply: %d\n", calc->apply(calc->multiply, 4, 3));  // Output: 12
+
+// Array of method references
+array(function(int,int:int)) ops = ({
+    calc->add,
+    calc->multiply
+});
+
+foreach (ops; int i; function(int,int:int) op) {
+    write("Operation %d: 5, 3 -> %d\n", i, op(5, 3));
+}
+
+// Callback pattern
+class Processor {
+    array(int) process(array(int) data, function(int:int) func) {
+        return map(data, func);
+    }
+}
+
+Processor proc = Processor();
+array(int) numbers = ({1, 2, 3, 4, 5});
+
+// Using lambda as callback
+array(int) result = proc->process(numbers, lambda(int x) { return x * 2; });
+write("Doubled: %s\n", result * ", ");  // Output: 2, 4, 6, 8, 10
+```
+
+## Constructing Records
+
+```pike
+// Pike 8 - Records using mappings and classes
+#pragma strict_types
+
+// Simple record using mapping
+mapping(string:mixed) create_person(string name, int age, string city) {
+    return ([
+        "name": name,
+        "age": age,
+        "city": city
+    ]);
+}
+
+mapping(string:mixed) person1 = create_person("Alice", 30, "NYC");
+mapping(string:mixed) person2 = create_person("Bob", 25, "LA");
+
+write("%s is %d years old\n", person1["name"], person1["age"]);
+
+// Record using class (type-safe)
+class Person {
+    string name;
+    int age;
+    string city;
+
+    void create(string name, int age, string city) {
+        this->name = name;
+        this->age = age;
+        this->city = city;
+    }
+
+    string get_summary() {
+        return sprintf("%s (%d) from %s", name, age, city);
+    }
+
+    void birthday() {
+        age++;
+    }
+}
+
+Person p1 = Person("Charlie", 35, "Chicago");
+Person p2 = Person("Diana", 28, "Boston");
+
+write("Person: %s\n", p1->get_summary());  // Output: Person: Charlie (35) from Chicago
+p1->birthday();
+write("After birthday: %d\n", p1->age);    // Output: After birthday: 36
+
+// Array of records
+array(Person) people = ({
+    Person("Eve", 22, "Seattle"),
+    Person("Frank", 40, "Denver"),
+    Person("Grace", 31, "Austin")
+});
+
+foreach (people; int i; Person p) {
+    write("%d: %s\n", i, p->get_summary());
+}
+
+// Record with validation
+class Employee {
+    private string _name;
+    private int _id;
+    private float _salary;
+
+    void create(string name, int id, float salary) {
+        if (salary < 0) {
+            error("Salary cannot be negative");
+        }
+        _name = name;
+        _id = id;
+        _salary = salary;
+    }
+
+    string name() { return _name; }
+    int id() { return _id; }
+    float salary() { return _salary; }
+
+    void raise(float percent) {
+        if (percent < 0) {
+            error("Raise percent cannot be negative");
+        }
+        _salary *= (1.0 + percent / 100.0);
+    }
+}
+
+Employee emp = Employee("Alice", 1001, 50000.0);
+emp->raise(10.0);
+write("New salary: %.2f\n", emp->salary());  // Output: New salary: 55000.00
+```
+
+## Reading and Writing Hash Records to Text Files
+
+```pike
+// Pike 8 - Reading/writing records to files
+#pragma strict_types
+
+constant DATA_FILE = "records.txt";
+
+// Write records as simple key-value pairs
+void write_records(array(mapping(string:string)) records, string filename) {
+    Stdio.File file = Stdio.File();
+    if (!file->open(filename, "wct")) {
+        error("Cannot open file for writing: " + strerror(file->errno()));
+    }
+
+    foreach (records; int i; mapping(string:string) record) {
+        foreach (record; string key; string value) {
+            file->write("%s=%s\n", key, value);
+        }
+        file->write("---\n");  // Record separator
+    }
+
+    file->close();
+}
+
+// Read records from file
+array(mapping(string:string)) read_records(string filename) {
+    Stdio.File file = Stdio.File();
+    if (!file->open(filename, "r")) {
+        error("Cannot open file for reading: " + strerror(file->errno()));
+    }
+
+    array(mapping(string:string)) records = ({});
+    mapping(string:string) current = ([]);
+
+    foreach (file->line_iterator(1); ; string line) {
+        line = String.trim_whites(line);
+        if (line == "" || line == "---") {
+            if (sizeof(current)) {
+                records += ({ current });
+                current = ([]);
+            }
+            continue;
+        }
+
+        array(string) parts = line / "=";
+        if (sizeof(parts) == 2) {
+            current[parts[0]] = parts[1];
+        }
+    }
+
+    if (sizeof(current)) {
+        records += ({ current });
+    }
+
+    file->close();
+    return records;
+}
+
+// Usage
+array(mapping(string:string)) employees = ({
+    (["name": "Alice", "id": "1001", "dept": "Engineering"]),
+    (["name": "Bob", "id": "1002", "dept": "Sales"]),
+    (["name": "Charlie", "id": "1003", "dept": "Marketing"])
+});
+
+write_records(employees, DATA_FILE);
+array(mapping(string:string)) loaded = read_records(DATA_FILE);
+
+foreach (loaded; int i; mapping(string:string) emp) {
+    write("Employee %d: %s (%s) - %s\n",
+          i, emp["name"], emp["id"], emp["dept"]);
+}
+
+// JSON format (requires external module or manual encoding)
+void write_json(array(mapping(string:mixed)) data, string filename) {
+    Stdio.File file = Stdio.File(filename, "wct");
+
+    file->write("[\n");
+    foreach (data; int i; mapping(string:mixed) record) {
+        file->write("  {\n");
+        array(string) keys = indices(record);
+        foreach (keys; int j; string key) {
+            mixed value = record[key];
+            string value_str = stringp(value) ? sprintf("\"%s\"", value) : sprintf("%d", value);
+            file->write("    \"%s\": %s%s\n", key, value_str, j < sizeof(keys)-1 ? "," : "");
+        }
+        file->write("  }%s\n", i < sizeof(data)-1 ? "," : "");
+    }
+    file->write("]\n");
+    file->close();
+}
+```
+
+## Printing Data Structures
+
+```pike
+// Pike 8 - Printing data structures
+#pragma strict_types
+
+// Simple arrays and mappings
+array(int) nums = ({1, 2, 3, 4, 5});
+mapping(string:int) colors = (["red": 1, "green": 2, "blue": 3]);
+
+write("Array: %s\n", (string)nums);        // Output: Array: ({1, 2, 3, 4, 5})
+write("Mapping: %s\n", (string)colors);     // Output: Mapping: (["blue": 3, "green": 2, "red": 1])
+
+// Using %O for detailed output
+write("Detailed array: %O\n", nums);
+write("Detailed mapping: %O\n", colors);
+
+// Pretty print function
+string pretty_print(mixed data, int|void indent) {
+    indent = indent || 0;
+    string ind = " " * indent;
+
+    if (arrayp(data)) {
+        array(string) parts =({});
+        parts += ({ind + "({\n"});
+        foreach (data; int i; mixed val) {
+            parts += ({pretty_print(val, indent + 2)});
+            if (i < sizeof(data) - 1) {
+                parts[-1] += ",";
+            }
+            parts[-1] += "\n";
+        }
+        parts += ({ind + "})"});
+        return parts * "";
+    } else if (mappingp(data)) {
+        array(string) parts =({});
+        parts += ({ind + "([\n"});
+        array(string) keys = indices(data);
+        foreach (keys; int i; string key) {
+            parts += ({sprintf("%s%s: %s", ind + "  ", key,
+                               pretty_print(data[key], 0))});
+            if (i < sizeof(keys) - 1) {
+                parts[-1] += ",";
+            }
+            parts[-1] += "\n";
+        }
+        parts += ({ind + "])"});
+        return parts * "";
+    } else {
+        return sprintf("%O", data);
+    }
+}
+
+// Complex nested structure
+mapping(string:mixed) complex = ([
+    "users": ({
+        (["name": "Alice", "age": 30]),
+        (["name": "Bob", "age": 25])
+    }),
+    "settings": ([
+        "theme": "dark",
+        "notifications": true
+    ])
+]);
+
+write("Complex structure:\n%s\n", pretty_print(complex));
+
+// Using Stdio.File.write for formatted output
+void debug_dump(string label, mixed data) {
+    write("=== %s ===\n", label);
+    write("%O\n", data);
+    write("===================\n\n");
+}
+
+debug_dump("Numbers array", nums);
+debug_dump("Colors mapping", colors);
+
+// Pretty print with indices
+void print_with_indices(array(mixed) arr) {
+    foreach (arr; int i; mixed val) {
+        write("[%d] %O\n", i, val);
+    }
+}
+
+array(string) fruits = ({"apple", "banana", "cherry"});
+print_with_indices(fruits);
+// Output:
+// [0] "apple"
+// [1] "banana"
+// [2] "cherry"
+```
+
+## Copying Data Structures
+
+```pike
+// Pike 8 - Copying data structures
+#pragma strict_types
+
+// Shallow copy of array
+array(int) original = ({1, 2, 3});
+array(int) shallow = original + ({});  // Add empty array to create copy
+shallow[0] = 99;
+write("Original[0]: %d, Shallow[0]: %d\n", original[0], shallow[0]);
+// Output: Original[0]: 1, Shallow[0]: 99
+
+// Shallow copy of mapping
+mapping(string:int) m_original = (["a": 1, "b": 2]);
+mapping(string:int) m_shallow = m_original + ([]);  // Add empty mapping
+m_shallow["a"] = 99;
+write("Original['a']: %d, Shallow['a']: %d\n",
+      m_original["a"], m_shallow["a"]);
+
+// Deep copy function
+mixed deep_copy(mixed data) {
+    if (arrayp(data)) {
+        array(mixed) result =({});
+        foreach (data; int i; mixed val) {
+            result += ({deep_copy(val)});
+        }
+        return result;
+    } else if (mappingp(data)) {
+        mapping(mixed:mixed) result = ([]);
+        foreach (data; mixed key; mixed val) {
+            result[deep_copy(key)] = deep_copy(val);
+        }
+        return result;
+    } else if (multisetp(data)) {
+        multiset(mixed) result = (<>);
+        foreach (data; mixed val; ) {
+            result[deep_copy(val)] = true;
+        }
+        return result;
+    } else {
+        return data;  // Basic types are immutable
+    }
+}
+
+// Test deep copy with nested structure
+array(array(int)) nested = ({
+    ({1, 2, 3}),
+    ({4, 5, 6})
+});
+
+array(array(int)) nested_copy = deep_copy(nested);
+nested_copy[0][0] = 999;
+
+write("Original[0][0]: %d\n", nested[0][0]);        // Output: 1
+write("Copy[0][0]: %d\n", nested_copy[0][0]);        // Output: 999
+
+// Deep copy with complex mapping
+mapping(string:mixed) complex = ([
+    "numbers": ({1, 2, 3}),
+    "nested": (["inner": (["data": "value"])])
+]);
+
+mapping(string:mixed) complex_copy = deep_copy(complex);
+complex_copy["nested"]["inner"]["data"] = "modified";
+
+write("Original data: %s\n", complex["nested"]["inner"]["data"]);      // Output: value
+write("Copy data: %s\n", complex_copy["nested"]["inner"]["data"]);    // Output: modified
+
+// Copy-on-write pattern for arrays
+class CowArray {
+    private array(mixed) _data;
+
+    void create(array(mixed) initial) {
+        _data = initial;
+    }
+
+    array(mixed) get_data() {
+        return _data;
+    }
+
+    void modify(int index, mixed value) {
+        // Copy on first modification
+        _data = _data + ({});  // Shallow copy
+        _data[index] = value;
+    }
+}
+```
+
+## Storing Data Structures to Disk
+
+```pike
+// Pike 8 - Storing data structures with encode_value
+#pragma strict_types
+
+constant DATA_FILE = "datastore.dat";
+
+// Save data structure to disk
+void save_data(mixed data, string filename) {
+    string encoded = encode_value(data);
+    Stdio.File file = Stdio.File(filename, "wct");
+    if (!file) {
+        error("Cannot open file for writing");
+    }
+    file->write(encoded);
+    file->close();
+    write("Saved data to %s (%d bytes)\n", filename, sizeof(encoded));
+}
+
+// Load data structure from disk
+mixed load_data(string filename) {
+    Stdio.File file = Stdio.File(filename, "r");
+    if (!file) {
+        error("Cannot open file for reading");
+    }
+    string encoded = file->read();
+    file->close();
+    mixed data = decode_value(encoded);
+    write("Loaded data from %s\n", filename);
+    return data;
+}
+
+// Complex data structure
+mapping(string:mixed) app_data = ([
+    "version": "1.0",
+    "users": ({
+        (["name": "Alice", "age": 30, "scores": ({90, 85, 95})]),
+        (["name": "Bob", "age": 25, "scores": ({80, 75, 85})])
+    }),
+    "settings": ([
+        "theme": "dark",
+        "language": "en",
+        "autosave": true
+    ])
+]);
+
+// Save and load
+save_data(app_data, DATA_FILE);
+mapping(string:mixed) loaded = load_data(DATA_FILE);
+
+write("Loaded version: %s\n", loaded["version"]);
+write("Loaded users: %d\n", sizeof(loaded["users"]));
+
+// Encode with codec for custom object support
+mixed save_with_codec(mixed data) {
+    // Use default codec
+    return encode_value(data, Codec());
+}
+
+mixed load_with_codec(string data) {
+    return decode_value(data, Codec());
+}
+
+// Incremental saves using History ADT
+import ADT.History;
+
+class HistoryStore {
+    private History _history = History();
+    private string _filename;
+
+    void create(string filename) {
+        _filename = filename;
+    }
+
+    void save(mixed data) {
+        _history->push_history(deep_copy(data));
+        save_data(_history->current(), _filename);
+    }
+
+    mixed|zero load() {
+        mixed data = load_data(_filename);
+        _history->push_history(data);
+        return data;
+    }
+
+    mixed|zero undo() {
+        return _history->pop_history();
+    }
+
+    private mixed deep_copy(mixed data) {
+        if (arrayp(data)) {
+            return map(data, deep_copy);
+        } else if (mappingp(data)) {
+            mapping(mixed:mixed) result = ([]);
+            foreach (data; mixed k; mixed v) {
+                result[deep_copy(k)] = deep_copy(v);
+            }
+            return result;
+        }
+        return data;
+    }
+}
+```
+
+## Transparently Persistent Data Structures
+
+```pike
+// Pike 8 - Transparently persistent data
+#pragma strict_types
+
+class PersistentMap {
+    private mapping(string:mixed) _data = ([]);
+    private string _filename;
+    private bool _dirty = false;
+
+    void create(string filename) {
+        _filename = filename;
+        load();
+    }
+
+    void load() {
+        if (Stdio.file_size(_filename) > 0) {
+            mixed decoded = decode_value(Stdio.read_file(_filename));
+            if (mappingp(decoded)) {
+                _data = decoded;
+            }
+        }
+        _dirty = false;
+    }
+
+    void save() {
+        if (_dirty) {
+            Stdio.write_file(_filename, encode_value(_data));
+            _dirty = false;
+        }
+    }
+
+    mixed `[](string key) {
+        return _data[key];
+    }
+
+    void `[]=(string key, mixed value) {
+        _data[key] = value;
+        _dirty = true;
+    }
+
+    array(string) _indices() {
+        return indices(_data);
+    }
+
+    array(mixed) _values() {
+        return values(_data);
+    }
+
+    void destroy() {
+        save();  // Auto-save on destruction
+    }
+}
+
+// Usage
+PersistentMap store = PersistentMap("persistent.dat");
+store["username"] = "alice";
+store["login_count"] = 5;
+store->save();  // Explicit save
+
+// Later session
+PersistentMap store2 = PersistentMap("persistent.dat");
+write("Username: %s\n", store2["username"]);       // Output: alice
+write("Logins: %d\n", store2["login_count"]);      // Output: 5
+
+// Persistent cache with TTL
+class PersistentCache {
+    private mapping(string:mapping) _cache = ([]);
+    private string _filename;
+    private int _default_ttl = 3600;
+
+    void create(string filename, int|void default_ttl) {
+        _filename = filename;
+        if (default_ttl) {
+            _default_ttl = default_ttl;
+        }
+        load();
+    }
+
+    void set(string key, mixed value, int|void ttl) {
+        ttl = ttl || _default_ttl;
+        _cache[key] = ([
+            "value": value,
+            "expires": time() + ttl
+        ]);
+        flush();
+    }
+
+    mixed|zero get(string key) {
+        if (!_cache[key]) {
+            return UNDEFINED;
+        }
+
+        mapping entry = _cache[key];
+        if (entry["expires"] < time()) {
+            // Expired
+            m_delete(_cache, key);
+            flush();
+            return UNDEFINED;
+        }
+
+        return entry["value"];
+    }
+
+    void flush() {
+        Stdio.write_file(_filename, encode_value(_cache));
+    }
+
+    void load() {
+        if (Stdio.file_size(_filename) > 0) {
+            mixed data = decode_value(Stdio.read_file(_filename));
+            if (mappingp(data)) {
+                _cache = data;
+                // Clean expired entries
+                cleanup_expired();
+            }
+        }
+    }
+
+    void cleanup_expired() {
+        int now = time();
+        foreach (indices(_cache), string key) {
+            if (_cache[key]["expires"] < now) {
+                m_delete(_cache, key);
+            }
+        }
+        flush();
+    }
+}
+```
+
+## Program: Binary Trees
+
+```pike
+// Pike 8 - Binary Search Tree
+#pragma strict_types
+
+class TreeNode {
+    mixed value;
+    TreeNode|zero left;
+    TreeNode|zero right;
+
+    void create(mixed v) {
+        value = v;
+        left = UNDEFINED;
+        right = UNDEFINED;
+    }
+}
+
+class BinarySearchTree {
+    private TreeNode|zero _root = UNDEFINED;
+
+    void insert(mixed value) {
+        _root = _insert(_root, value);
+    }
+
+    private TreeNode _insert(TreeNode|zero node, mixed value) {
+        if (!node) {
+            return TreeNode(value);
+        }
+
+        if (value < node->value) {
+            node->left = _insert(node->left, value);
+        } else if (value > node->value) {
+            node->right = _insert(node->right, value);
+        }
+        // If equal, don't insert duplicates
+
+        return node;
+    }
+
+    bool contains(mixed value) {
+        return _contains(_root, value);
+    }
+
+    private bool _contains(TreeNode|zero node, mixed value) {
+        if (!node) {
+            return false;
+        }
+
+        if (value == node->value) {
+            return true;
+        } else if (value < node->value) {
+            return _contains(node->left, value);
+        } else {
+            return _contains(node->right, value);
+        }
+    }
+
+    array(mixed) inorder() {
+        array(mixed) result = ({});
+        _inorder(_root, result);
+        return result;
+    }
+
+    private void _inorder(TreeNode|zero node, array(mixed) result) {
+        if (node) {
+            _inorder(node->left, result);
+            result += ({node->value});
+            _inorder(node->right, result);
+        }
+    }
+
+    int get_depth() {
+        return _depth(_root);
+    }
+
+    private int _depth(TreeNode|zero node) {
+        if (!node) {
+            return 0;
+        }
+        return 1 + max(_depth(node->left), _depth(node->right));
+    }
+
+    int get_size() {
+        return _size(_root);
+    }
+
+    private int _size(TreeNode|zero node) {
+        if (!node) {
+            return 0;
+        }
+        return 1 + _size(node->left) + _size(node->right);
+    }
+
+    void pretty_print() {
+        _print(_root, 0, "Root: ");
+    }
+
+    private void _print(TreeNode|zero node, int level, string prefix) {
+        if (node) {
+            write("%s%s\n", "  " * level + prefix, node->value);
+            _print(node->left, level + 1, "L--- ");
+            _print(node->right, level + 1, "R--- ");
+        }
+    }
+}
+
+// Usage example
+BinarySearchTree bst = BinarySearchTree();
+
+array(int) values = ({50, 30, 70, 20, 40, 60, 80});
+foreach (values, int val) {
+    bst->insert(val);
+}
+
+write("BST Structure:\n");
+bst->pretty_print();
+
+write("\nInorder traversal: %s\n", bst->inorder() * ", ");
+write("Depth: %d\n", bst->get_depth());
+write("Size: %d\n", bst->get_size());
+
+write("\nSearch tests:\n");
+foreach (({20, 40, 60, 99}), int val) {
+    write("Contains %d: %s\n", val, bst->contains(val) ? "yes" : "no");
+}
+
+// Serialize/deserialize BST
+string serialize_tree(BinarySearchTree tree) {
+    return encode_value(tree->inorder());
+}
+
+BinarySearchTree deserialize_tree(string data) {
+    array(int) values = decode_value(data);
+    BinarySearchTree tree = BinarySearchTree();
+    foreach (values, int val) {
+        tree->insert(val);
+    }
+    return tree;
+}
+
+// Test serialization
+write("\nSerialization test:\n");
+string serialized = serialize_tree(bst);
+BinarySearchTree restored = deserialize_tree(serialized);
+write("Restored inorder: %s\n", restored->inorder() * ", ");
+```

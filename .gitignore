@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+bun.lock
+
+# Build outputs
+build/
+.dist/
+
+# Docusaurus
+.docusaurus/
+
+# OMC state files
+.omc/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Debug files
+debug_*.py
+*.md.bak
+
+# HTML backups
+*.html.bak
+
+# Progress reports
+PROGRESS_REPORT.md
+COMPLETION_SUMMARY.md
+CONTINUE.md
+DOCU_SAURUS_THEME_SUMMARY.md
+PIKE8_STYLE_GUIDE.md
+PLEAC_INVENTORY_REPORT.md
+QUICK_START.md
+SOCKETS_COMPLETION_REPORT.md
+THEME_FILES.md
+
+# Converted HTML files (keep original source)
+pleac_pike/*.html.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
