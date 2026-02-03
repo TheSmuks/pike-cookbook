@@ -80,7 +80,7 @@ module.exports = {
       type: 'category',
       label: 'Network & Web',
       collapsible: true,
-      collapsed: true,
+      collapsed: false,
       items: [
         {
           type: 'doc',
@@ -108,7 +108,7 @@ module.exports = {
       type: 'category',
       label: 'Advanced Topics',
       collapsible: true,
-      collapsed: true,
+      collapsed: false,
       items: [
         {
           type: 'doc',

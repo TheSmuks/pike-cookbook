@@ -36,6 +36,7 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/smuks/pike-cookbook/tree/main/',
+          sidebarCollapsible: false,
         },
         blog: false,
         theme: {
