@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkpike_cookbook=self.webpackChunkpike_cookbook||[]).push([[634],{192(o,k,e){e.r(k),e.d(k,{default:()=>t});e(6540);var r=e(6347),c=e(6025),s=e(4848);function t(){var o=(0,c.Ay)("/docs/intro");return(0,s.jsx)(r.rd,{to:o})}}}]);
