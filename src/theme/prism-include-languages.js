@@ -26,13 +26,15 @@ export default function prismIncludeLanguages(PrismObject) {
         pattern: /\/\/!.*/,
         greedy: true,
         inside: {
-          'autodoc-tag': {
-            pattern: /@(?:param|return|returns|throws|throw|seealso|example|note|deprecated|bugs|decl|class|endclass|module|endmodule|type|member|item|index|dl|enddl|mapping|endmapping|array|endarray|namespace|endnamespace|enum|endenum|constant|inherit|typedef|directive|fixme|todo|ol|endol|ul|endul|li|table|endtable|row|col|image|url|tt|i|b|ref|xml|expr|code|)\b/,
-            alias: 'keyword'
-          },
+          // Inline markup MUST come first - matches @i{...@}, @b{...@}, etc.
           'autodoc-inline': {
             pattern: /@(?:i|b|tt|ref|xml)\{[^@]*@/,
             alias: 'variable'
+          },
+          // Standalone tags - @param, @returns, etc. (excludes inline-only tags)
+          'autodoc-tag': {
+            pattern: /@(?:param|return|returns|throws|throw|seealso|example|note|deprecated|bugs|decl|class|endclass|module|endmodule|endmodule|type|member|item|index|dl|enddl|mapping|endmapping|array|endarray|namespace|endnamespace|enum|endenum|constant|inherit|typedef|directive|fixme|todo|ol|endol|ul|endul|li|table|endtable|row|col|image|url|expr|code|)\b/,
+            alias: 'keyword'
           }
         }
       },
