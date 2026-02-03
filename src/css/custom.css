@@ -375,6 +375,156 @@ blockquote {
   }
 }
 
+/* ========================================
+   Pike Syntax Highlighting - Light Mode
+   ======================================== */
+
+/* Keywords - bold blue */
+.prism-code .token.keyword {
+  color: #0550ae;
+  font-weight: 600;
+}
+
+/* Type keywords - teal (distinct from control keywords) */
+.prism-code .token.type-keyword {
+  color: #0969da;
+  font-weight: 600;
+}
+
+/* Strings - green */
+.prism-code .token.string {
+  color: #0a3622;
+}
+
+/* String interpolation - orange highlight */
+.prism-code .token.string .token.interpolation {
+  color: #bc4c00;
+  font-weight: 500;
+}
+
+/* Comments - italic gray */
+.prism-code .token.comment {
+  color: #6e7781;
+  font-style: italic;
+}
+
+/* Numbers - purple */
+.prism-code .token.number {
+  color: #6639ba;
+}
+
+/* Booleans - dark magenta */
+.prism-code .token.boolean {
+  color: #cf222e;
+  font-weight: 600;
+}
+
+/* Operators - crimson */
+.prism-code .token.operator {
+  color: #cf222e;
+}
+
+/* Functions - purple */
+.prism-code .token.function {
+  color: #8250df;
+}
+
+/* Class names - dark blue */
+.prism-code .token.class-name {
+  color: #0550ae;
+  font-weight: 500;
+}
+
+/* Built-in functions - burnt orange */
+.prism-code .token.builtin {
+  color: #953800;
+  font-weight: 500;
+}
+
+/* Punctuation - dark gray */
+.prism-code .token.punctuation {
+  color: #24292f;
+}
+
+/* Variables - brown/rust */
+.prism-code .token.variable {
+  color: #24292f;
+}
+
+/* Preprocessor directives - purple */
+.prism-code .token.preprocessor,
+.prism-code .token.property {
+  color: #6639ba;
+}
+
+/* ========================================
+   Pike Syntax Highlighting - Dark Mode
+   ======================================== */
+
+[data-theme='dark'] .prism-code .token.keyword {
+  color: #ff7b72;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .prism-code .token.type-keyword {
+  color: #79c0ff;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .prism-code .token.string {
+  color: #a5d6ff;
+}
+
+[data-theme='dark'] .prism-code .token.string .token.interpolation {
+  color: #ffa657;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .prism-code .token.comment {
+  color: #8b949e;
+  font-style: italic;
+}
+
+[data-theme='dark'] .prism-code .token.number {
+  color: #d2a8ff;
+}
+
+[data-theme='dark'] .prism-code .token.boolean {
+  color: #ff7b72;
+  font-weight: 600;
+}
+
+[data-theme='dark'] .prism-code .token.operator {
+  color: #ff7b72;
+}
+
+[data-theme='dark'] .prism-code .token.function {
+  color: #d2a8ff;
+}
+
+[data-theme='dark'] .prism-code .token.class-name {
+  color: #79c0ff;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .prism-code .token.builtin {
+  color: #ffa657;
+  font-weight: 500;
+}
+
+[data-theme='dark'] .prism-code .token.punctuation {
+  color: #c9d1d9;
+}
+
+[data-theme='dark'] .prism-code .token.variable {
+  color: #c9d1d9;
+}
+
+[data-theme='dark'] .prism-code .token.preprocessor,
+[data-theme='dark'] .prism-code .token.property {
+  color: #d2a8ff;
+}
+
 /* Dark mode specific adjustments */
 [data-theme='dark'] code {
   background-color: rgba(255, 255, 255, 0.1);
