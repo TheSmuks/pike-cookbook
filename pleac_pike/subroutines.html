@@ -1,0 +1,1991 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Subroutines</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Directories"
+HREF="directories.html"><LINK
+REL="NEXT"
+TITLE="References and Records"
+HREF="referencesandrecords.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="directories.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SUBROUTINES"
+>10. Subroutines</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN536"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Here, in this simple example, 'greeted', is used as a 'global'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">variable. In a more complex program, however, this would not be
+</span>
+<span class="comment-delimiter">// </span><span class="comment">the case [subsequent sections exlain why]
+</span>
+<span class="type">int</span> greeted<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">void</span> hello<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"hi there!, this procedure has been called %d times\n"</span>, ++greeted<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> how_many_greetings<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> greeted<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  hello<span class="punctuation">();</span>
+  <span class="type">int</span> greetings = how_many_greetings<span class="punctuation">();</span>
+  write<span class="punctuation">(</span><span class="string">"bye there!, there have been %d greetings so far\n"</span>, greetings<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Alternate means of defining functions [could, optionally, have also
+</span>
+<span class="comment-delimiter">// </span><span class="comment">included type information in 'function' declaration]; could also
+</span>
+<span class="comment-delimiter">// </span><span class="comment">have been done within scope of 'main'
+</span>
+
+<span class="type">int</span> greeted<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">function</span> hello = <span class="keyword">lambda</span><span class="punctuation">()</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"hi there!, this procedure has been called %d times\n"</span>, ++greeted<span class="punctuation">);</span>
+  <span class="punctuation">};</span>
+
+<span class="type">function</span> how_many_greetings = <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> greeted<span class="punctuation">;</span> <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  hello<span class="punctuation">();</span>
+  <span class="type">int</span> greetings = how_many_greetings<span class="punctuation">();</span>
+  write<span class="punctuation">(</span><span class="string">"bye there!, there have been %d greetings so far\n"</span>, greetings<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN539"
+>Accessing Subroutine Arguments</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Subroutine parameters are named, that is, access to these items from
+</span>
+<span class="comment-delimiter">// </span><span class="comment">within a function is reliant on their being named in the parameter
+</span>
+<span class="comment-delimiter">// </span><span class="comment">list [together with mandatory type information], something which is
+</span>
+<span class="comment-delimiter">// </span><span class="comment">in line with many other commonly-used languages
+</span>
+
+<span class="type">float</span> hypotenuse<span class="punctuation">(</span><span class="type">float</span> side1, <span class="type">float</span> side2<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Arguments passed to this function are accessable as, 'side1',
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">and 'side2', respectively, and each is expected to be a 'float'
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">type
+</span>
+  <span class="keyword">return</span> side1 * side1 + side2 * side2<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">'side1' -&gt; 3.0
+</span>
+<span class="comment-delimiter">// </span><span class="comment">'side2' -&gt; 4.0
+</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">However, Pike also allows parameters [and return types where applicable]:
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* To have one of a set of types [see (1)]
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* To have a generic type [see (2)]
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* To be optional, in which case any arguments are packaged as an
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">array, and array notation needed to access each item [see (3)]
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(1). Here the function will accept either 'int' or 'float'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">arguments, and perform runtime type checking to identify what is
+</span>
+<span class="comment-delimiter">// </span><span class="comment">supplied
+</span>
+<span class="type">float</span> hypotenuse<span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span> side1, <span class="type">int</span>|<span class="type">float</span> side2<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">If 'int' arguments passed. convert to 'float'
+</span>
+  <span class="type">float</span> s1 = intp<span class="punctuation">(</span>side1<span class="punctuation">)</span> ? <span class="punctuation">(</span><span class="type">float</span><span class="punctuation">)</span> side1 : side1<span class="punctuation">;</span>
+  <span class="type">float</span> s2 = intp<span class="punctuation">(</span>side2<span class="punctuation">)</span> ? <span class="punctuation">(</span><span class="type">float</span><span class="punctuation">)</span> side2 : side2<span class="punctuation">;</span>
+
+  <span class="keyword">return</span> s1 * s1 + s2 * s2<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Both are legal calls
+</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3</span>, <span class="number">4</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(2). Here the function still expects to be called with two arguments 
+</span>
+<span class="comment-delimiter">// </span><span class="comment">but each may be of *any* type [admittedly a very contrived example
+</span>
+<span class="comment-delimiter">// </span><span class="comment">of little utility except for illustrative value]. Such a function
+</span>
+<span class="comment-delimiter">// </span><span class="comment">is almost entirely reliant on careful runtime type checking if it
+</span>
+<span class="comment-delimiter">// </span><span class="comment">is to behave reliably
+</span>
+<span class="type">float</span> hypotenuse<span class="punctuation">(</span><span class="type">mixed</span> side1, <span class="type">mixed</span> side2<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>stringp<span class="punctuation">(</span>side1<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>arrayp<span class="punctuation">(</span>side1<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>objectp<span class="punctuation">(</span>side1<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+  ...  
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">All are legal calls
+</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3</span>, <span class="number">4</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="string">"3"</span>, <span class="string">"4"</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(({</span><span class="number">3</span><span class="punctuation">})</span>, <span class="punctuation">({</span><span class="number">4</span><span class="punctuation">}));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(3). Here, the function is defined to accept two, mandatory
+</span>
+<span class="comment-delimiter">// </span><span class="comment">parameters [still accessable via name], then a set of zero or more
+</span>
+<span class="comment-delimiter">// </span><span class="comment">optional parameters, which are accessable within the function body
+</span>
+<span class="comment-delimiter">// </span><span class="comment">via an array [the placeholder, 'args', represents an array of zero
+</span>
+<span class="comment-delimiter">// </span><span class="comment">or more elements each corresponding to one of the passed arguments
+</span>
+<span class="type">float</span> hypotenuse<span class="punctuation">(</span><span class="type">float</span> side1, <span class="type">mixed</span> side2, <span class="type">mixed</span> ... args<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Mandatory parameters still accessable as usual
+</span>
+  ... side1 ... side2 ...
+
+  <span class="comment-delimiter">// </span><span class="comment">Total number of arguments passed to function determinable via:
+</span>
+  <span class="type">int</span> total_passed_args = query_num_arg<span class="punctuation">();</span>
+  
+  <span class="comment-delimiter">// </span><span class="comment">'args' contains all optional arguments: 0 - N
+</span>
+  <span class="type">int</span> optional_args = sizeof<span class="punctuation">(</span>args<span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Process variable arguments ...
+</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>args, <span class="type">mixed</span> arg<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    ... <span class="keyword">if</span> <span class="punctuation">(</span>strinp<span class="punctuation">(</span>arg<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+
+  ...
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">All are legal calls
+</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span>, <span class="string">"a"</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span>, <span class="keyword">lambda</span><span class="punctuation">(){</span> <span class="keyword">return</span> <span class="number">5</span><span class="punctuation">;</span> <span class="punctuation">}</span>, <span class="string">"fff"</span><span class="punctuation">);</span>
+<span class="type">float</span> diag = hypotenuse<span class="punctuation">(</span><span class="number">3.0</span>, <span class="number">4.0</span>, <span class="number">1</span>, <span class="string">"x"</span>, <span class="punctuation">({</span> <span class="number">6</span>, <span class="number">7</span>, <span class="number">9</span> <span class="punctuation">}));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Modifies copy
+</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> int_all<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> arr<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> retarr = copy_value<span class="punctuation">(</span>arr<span class="punctuation">);</span>
+  <span class="type">int</span> i<span class="punctuation">;</span> <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i &lt; sizeof<span class="punctuation">(</span>retarr<span class="punctuation">);</span> ++i<span class="punctuation">)</span> <span class="punctuation">{</span> retarr<span class="punctuation">[</span>i<span class="punctuation">]</span> = <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr<span class="punctuation">[</span>i<span class="punctuation">];</span> <span class="punctuation">}</span>
+  <span class="keyword">return</span> retarr<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Modifies original
+</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> trunc_all<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> arr<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> i<span class="punctuation">;</span> <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i &lt; sizeof<span class="punctuation">(</span>arr<span class="punctuation">);</span> ++i<span class="punctuation">)</span> <span class="punctuation">{</span> arr<span class="punctuation">[</span>i<span class="punctuation">]</span> = <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr<span class="punctuation">[</span>i<span class="punctuation">];</span> <span class="punctuation">}</span>
+  <span class="keyword">return</span> arr<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> nums = <span class="punctuation">({</span><span class="number">1.4</span>, <span class="number">3.5</span>, <span class="number">6.7</span><span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Copy modified - 'ints' and 'nums' separate arrays
+</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span>|<span class="type">float</span><span class="punctuation">)</span> ints = int_all<span class="punctuation">(</span>nums<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, nums<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, ints<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Original modified - 'ints' acts as alias for 'nums'
+</span>
+ints = trunc_all<span class="punctuation">(</span>nums<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, nums<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, ints<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN542"
+>Making Variables Private to a Function</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="type">void</span> some_func<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Variables declared within a function are local to that function
+</span>
+  <span class="type">mixed</span> variable = something<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Assuming these are defined at file level, that is, outside of 'main'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">or any other function they are accessable by every other member of
+</span>
+<span class="comment-delimiter">// </span><span class="comment">the same file [and if this file (read: class or program) is the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">only one comprising the 'system', they are effectively 'global']
+</span>
+<span class="type">string</span> name = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span> <span class="type">int</span> age = <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> argv<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">];</span>
+
+<span class="type">int</span> c = fetch_time<span class="punctuation">();</span>
+
+<span class="type">int</span> condition<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> run_check<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  ...
+  condition = <span class="number">1</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> check_x<span class="punctuation">(</span><span class="type">int</span> x<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> y = <span class="string">"whatever"</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Whilst 'run_check' has access to 'name', 'age', and 'c' [because
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">these are declared at a higher scope], it does not have access to
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">'y' or any other locally defined variable
+</span>
+  run_check<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">'run_check' will have updated 'condition'
+</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>condition<span class="punctuation">)</span> write<span class="punctuation">(</span><span class="string">"got x: %d\n"</span>, x<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN545"
+>Creating Persistent Private Variables</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike does not implement C style 'static' variables [i.e. persisent
+</span>
+<span class="comment-delimiter">// </span><span class="comment">local variables], nor does it implement C++ style 'class variables'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">[oddly enough, also implemented in C++ via use of the 'static'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">keyword], both of which could be used to implement solutions to the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">problems presented in this section. Also, there is no direct
+</span>
+<span class="comment-delimiter">// </span><span class="comment">equivalent to Perl's 'BEGIN' block [closest equivalent is the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">class 'create' method]. So, to solve a problem like implementing a
+</span>
+<span class="comment-delimiter">// </span><span class="comment">'counter':
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Use Pike's OOP facilities [simple, natural]
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Use closures [somewhat unwieldly, but possible]
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">OOP Approach
+</span>
+<span class="keyword">class</span> <span class="function-name">Counter</span>
+<span class="punctuation">{</span>
+  <span class="keyword">private</span> <span class="type">int</span> counter<span class="punctuation">;</span>
+
+  <span class="keyword">static</span> <span class="type">void</span> create<span class="punctuation">(</span><span class="type">int</span> start<span class="punctuation">)</span> <span class="punctuation">{</span> counter = start<span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="keyword">public</span> <span class="type">int</span> next<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> ++counter<span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="keyword">public</span> <span class="type">int</span> prev<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> --counter<span class="punctuation">;</span> <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  Counter counter = Counter<span class="punctuation">(</span><span class="number">42</span><span class="punctuation">);</span>
+
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter-&gt;next<span class="punctuation">());</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter-&gt;prev<span class="punctuation">());</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">A refinement of the previous implementation that mimics 'static'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">variables
+</span>
+
+<span class="keyword">class</span> <span class="function-name">Static</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">'static' variable that is shared by all instance of 'Counter'
+</span>
+  <span class="type">int</span> counter<span class="punctuation">;</span>
+
+  <span class="keyword">class</span> <span class="function-name">Counter</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">public</span> <span class="type">int</span> next<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> ++counter<span class="punctuation">;</span> <span class="punctuation">}</span>
+    <span class="keyword">public</span> <span class="type">int</span> prev<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> --counter<span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+
+  Counter make<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> Counter<span class="punctuation">();</span> <span class="punctuation">}</span>
+
+  <span class="keyword">public</span> <span class="type">void</span> create<span class="punctuation">(</span><span class="type">int</span> counter_<span class="punctuation">)</span> <span class="punctuation">{</span> counter = counter_<span class="punctuation">;</span> <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  Static mkst = Static<span class="punctuation">(</span><span class="number">42</span><span class="punctuation">);</span>
+
+  <span class="constant">Static</span>.Counter counter_1 = mkst-&gt;make<span class="punctuation">();</span>
+  <span class="constant">Static</span>.Counter counter_2 = mkst-&gt;make<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Same value of, 'counter', is accessed by each object
+</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter_1-&gt;next<span class="punctuation">());</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter_1-&gt;next<span class="punctuation">());</span>
+
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter_2-&gt;next<span class="punctuation">());</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, counter_2-&gt;prev<span class="punctuation">());</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Closure Approach [Admittedly somewhat contrived: a Scheme overdose ;) !]
+</span>
+
+<span class="type">function</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">int</span><span class="punctuation">))</span> make_counter<span class="punctuation">(</span><span class="type">int</span> start<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> counter = start<span class="punctuation">;</span>
+  <span class="type">int</span> next_counter<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> ++counter<span class="punctuation">;</span> <span class="punctuation">};</span>
+  <span class="type">int</span> prev_counter<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> --counter<span class="punctuation">;</span> <span class="punctuation">};</span>
+  
+  <span class="keyword">return</span>
+    <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> op<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="keyword">if</span> <span class="punctuation">(</span>op == <span class="string">"next"</span><span class="punctuation">)</span> <span class="keyword">return</span> next_counter<span class="punctuation">;</span>
+      <span class="keyword">if</span> <span class="punctuation">(</span>op == <span class="string">"prev"</span><span class="punctuation">)</span> <span class="keyword">return</span> prev_counter<span class="punctuation">;</span>
+      <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+    <span class="punctuation">};</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> next_counter<span class="punctuation">(</span><span class="type">function</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">int</span><span class="punctuation">))</span> counter<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> counter<span class="punctuation">(</span><span class="string">"next"</span><span class="punctuation">)();</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> prev_counter<span class="punctuation">(</span><span class="type">function</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">int</span><span class="punctuation">))</span> counter<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> counter<span class="punctuation">(</span><span class="string">"prev"</span><span class="punctuation">)();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">function</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">int</span><span class="punctuation">))</span> counter = make_counter<span class="punctuation">(</span><span class="number">42</span><span class="punctuation">);</span>
+
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, next_counter<span class="punctuation">(</span>counter<span class="punctuation">));</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, prev_counter<span class="punctuation">(</span>counter<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN548"
+>Determining Current Function Name</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">It's possible to obtain a great deal of program metadata through the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">following sets of library functions:
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* 'this_object', and the sets of 'object_...' and 'program_...'
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">functions
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* 'Program' module [provides object inheritance metadata]
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">The use of, 'this_object', in particular, allows the current object
+</span>
+<span class="comment-delimiter">// </span><span class="comment">instance to be interrogated like a hash table i.e. all variables and
+</span>
+<span class="comment-delimiter">// </span><span class="comment">methods are accessable as hash table entries.
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">Unfortunately, however, it doesn't appear possible to obtain the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">current method / function name, at least, not without resorting
+</span>
+<span class="comment-delimiter">// </span><span class="comment">to tricks like embedding a string in each method explicitly naming
+</span>
+<span class="comment-delimiter">// </span><span class="comment">it.
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">An example of program metadata use appears in chapter 'Objects and
+</span>
+<span class="comment-delimiter">// </span><span class="comment">Ties'. Since the function name cannot, AFAICT, be obtained, the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">current section is not implemented.
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN551"
+>Passing Arrays and Hashes by Reference</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Procedure parameters are passed by reference [read: the handle or
+</span>
+<span class="comment-delimiter">// </span><span class="comment">address (or whatever) of an object is passed and is used to uniquely
+</span>
+<span class="comment-delimiter">// </span><span class="comment">identify that object], so there is no special treatment required.
+</span>
+<span class="comment-delimiter">// </span><span class="comment">If an argument represents a mutable object then care should be taken
+</span>
+<span class="comment-delimiter">// </span><span class="comment">to not mutate the object within the function, either by making a copy
+</span>
+<span class="comment-delimiter">// </span><span class="comment">of the object [e.g. use 'copy_value' to clone it], or by using a
+</span>
+<span class="comment-delimiter">// </span><span class="comment">'read-only' control structure like 'foreach' [if applicable] to
+</span>
+<span class="comment-delimiter">// </span><span class="comment">access it
+</span>
+
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> array_diff<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> a, <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> b<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Ensure an array copy is made ...
+</span>
+  <span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ret = sizeof<span class="punctuation">(</span>a<span class="punctuation">)</span> != sizeof<span class="punctuation">(</span>b<span class="punctuation">)</span> ? <span class="number">0</span> : copy_value<span class="punctuation">(</span>a<span class="punctuation">);</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>!ret<span class="punctuation">)</span> ret<span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">... transformed, and returned
+</span>
+  <span class="keyword">for</span> <span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i &lt; sizeof<span class="punctuation">(</span>ret<span class="punctuation">);</span> ++i<span class="punctuation">)</span> <span class="punctuation">{</span> ret<span class="punctuation">[</span>i<span class="punctuation">]</span> -= b<span class="punctuation">[</span>i<span class="punctuation">];</span> <span class="punctuation">};</span> <span class="keyword">return</span> ret<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> add_vec_pair<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> a, <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> b<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> vecsize = sizeof<span class="punctuation">(</span>a<span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Ensure an array copy is made ...
+</span>
+  <span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ret = vecsize != sizeof<span class="punctuation">(</span>b<span class="punctuation">)</span> ? <span class="number">0</span> : allocate<span class="punctuation">(</span>vecsize<span class="punctuation">);</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>!ret<span class="punctuation">)</span> ret<span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">... transformed, and returned
+</span>
+  <span class="keyword">for</span> <span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i &lt; vecsize<span class="punctuation">;</span> ++i<span class="punctuation">)</span> <span class="punctuation">{</span> ret<span class="punctuation">[</span>i<span class="punctuation">]</span> = a<span class="punctuation">[</span>i<span class="punctuation">]</span> + b<span class="punctuation">[</span>i<span class="punctuation">];</span> <span class="punctuation">};</span> <span class="keyword">return</span> ret<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> a = <span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span><span class="punctuation">})</span>, b = <span class="punctuation">({</span><span class="number">5</span>, <span class="number">8</span><span class="punctuation">});</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> c = add_vec_pair<span class="punctuation">(</span>a, b<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, c<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN554"
+>Detecting Return Context</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Just as for subroutine parameters, Pike allows variation in return
+</span>
+<span class="comment-delimiter">// </span><span class="comment">types, where it may be of a specific type, one of a set of types, or
+</span>
+<span class="comment-delimiter">// </span><span class="comment">a generic return type. Whilst the Perl examples require that the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">user to nominate a return type when the function is called, in Pike
+</span>
+<span class="comment-delimiter">// </span><span class="comment">it is handled in one of two ways:
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Ensure function and receiving variable type match [see (1)]
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Use generic receiving variable, and type check [see (2)]
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(1). Subroutine has set of return types. Whilst type checking
+</span>
+<span class="comment-delimiter">// </span><span class="comment">does occur [thus user code only need handle these known types
+</span>
+<span class="comment-delimiter">// </span><span class="comment">because other types won't be allowed], caller/ receiver needs to
+</span>
+<span class="comment-delimiter">// </span><span class="comment">type check so as correctly handle known cases
+</span>
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>|<span class="type">string</span> mysub<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  ...
+  <span class="keyword">return</span> <span class="number">5</span><span class="punctuation">;</span>
+  ...
+  <span class="keyword">return</span> <span class="punctuation">({</span><span class="number">5</span><span class="punctuation">});</span>
+  ...
+  <span class="keyword">return</span> <span class="string">"5"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>|<span class="type">string</span> receiver = mysub<span class="punctuation">();</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>intp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>arrayp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>stringp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+...
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(2). Subroutine has generic return type, so no type checking occurs.
+</span>
+<span class="comment-delimiter">// </span><span class="comment">It is up to the caller / receiver to thoroughly type check lest
+</span>
+<span class="comment-delimiter">// </span><span class="comment">some unforseen type be returned and possibly mishandled
+</span>
+<span class="type">mixed</span> mysub<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  ...
+  <span class="keyword">return</span> <span class="number">5</span><span class="punctuation">;</span>
+  ...
+  <span class="keyword">return</span> <span class="punctuation">({</span><span class="number">5</span><span class="punctuation">});</span>
+  ...
+  <span class="keyword">return</span> <span class="string">"5"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">mixed</span> receiver = mysub<span class="punctuation">();</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>intp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>arrayp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>stringp<span class="punctuation">(</span>receiver<span class="punctuation">))</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+...
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN557"
+>Passing by Named Parameter</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike doesn't directly support named / keyword parameters, but these
+</span>
+<span class="comment-delimiter">// </span><span class="comment">can be easily mimiced using an array of mappings as function arguments
+</span>
+<span class="comment-delimiter">// </span><span class="comment">The mappings, themselves, could be implemented via a custom class
+</span>
+<span class="comment-delimiter">// </span><span class="comment">[see (1)], or via the 'mapping'type [see (2) - Perl examples]
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(1)
+</span>
+<span class="keyword">class</span> <span class="function-name">KeyedValue</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> key<span class="punctuation">;</span> <span class="type">mixed</span> value<span class="punctuation">;</span>
+
+  <span class="keyword">static</span> <span class="type">void</span> create<span class="punctuation">(</span><span class="type">string</span> key_, <span class="type">mixed</span> value_<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    key = key_<span class="punctuation">;</span> value = value_<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> the_func<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span>KeyedValue<span class="punctuation">)</span> keyargs<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>keyargs, KeyedValue kv<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"Key: %10s|Value: %10O\n"</span>, kv-&gt;key, kv-&gt;value<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span>KeyedValue<span class="punctuation">)</span> keyargs =
+    aggregate<span class="punctuation">(</span>KeyedValue<span class="punctuation">(</span><span class="string">"name"</span>, <span class="string">"Bob"</span><span class="punctuation">)</span>,
+              KeyedValue<span class="punctuation">(</span><span class="string">"age"</span>, <span class="number">36</span><span class="punctuation">)</span>,
+              KeyedValue<span class="punctuation">(</span><span class="string">"income"</span>, <span class="number">51000</span><span class="punctuation">));</span>
+
+  the_func<span class="punctuation">(</span>keyargs<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">(2)
+</span>
+<span class="keyword">class</span> <span class="function-name">RaceTime</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> time<span class="punctuation">;</span> <span class="type">string</span> dim<span class="punctuation">;</span>
+
+  <span class="keyword">static</span> <span class="type">void</span> create<span class="punctuation">(</span><span class="type">int</span> time_, <span class="type">string</span> dim_<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    time = time_<span class="punctuation">;</span> dim = dim_<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> the_func<span class="punctuation">(</span><span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : RaceTime<span class="punctuation">)</span> ... args<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> start_time, finish_time, increment_time<span class="punctuation">;</span>
+  <span class="type">string</span> start_dim, finish_dim, increment_dim<span class="punctuation">;</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>args, <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : RaceTime<span class="punctuation">)</span> arg<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    arg<span class="punctuation">[</span><span class="string">"start"</span><span class="punctuation">]</span> &amp;&amp; <span class="punctuation">(</span>start_time = arg<span class="punctuation">[</span><span class="string">"start"</span><span class="punctuation">]</span>-&gt;time, start_dim = arg<span class="punctuation">[</span><span class="string">"start"</span><span class="punctuation">]</span>-&gt;dim<span class="punctuation">);</span>
+    arg<span class="punctuation">[</span><span class="string">"finish"</span><span class="punctuation">]</span> &amp;&amp; <span class="punctuation">(</span>finish_time = arg<span class="punctuation">[</span><span class="string">"finish"</span><span class="punctuation">]</span>-&gt;time, finish_dim = arg<span class="punctuation">[</span><span class="string">"finish"</span><span class="punctuation">]</span>-&gt;dim<span class="punctuation">);</span>
+    arg<span class="punctuation">[</span><span class="string">"increment"</span><span class="punctuation">]</span> &amp;&amp; <span class="punctuation">(</span>increment_time = arg<span class="punctuation">[</span><span class="string">"increment"</span><span class="punctuation">]</span>-&gt;time, increment_dim = arg<span class="punctuation">[</span><span class="string">"increment"</span><span class="punctuation">]</span>-&gt;dim<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+
+  write<span class="punctuation">(</span><span class="string">"times: start %d, finish %d, increment %d\n"</span>,
+        start_time, finish_time, increment_time<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : RaceTime<span class="punctuation">))</span> named_args =
+    <span class="punctuation">({</span>
+      <span class="punctuation">([</span><span class="string">"increment"</span> : RaceTime<span class="punctuation">(</span><span class="number">20</span>, <span class="string">"s"</span><span class="punctuation">)])</span>,
+      <span class="punctuation">([</span><span class="string">"start"</span> : RaceTime<span class="punctuation">(</span><span class="number">5</span>, <span class="string">"m"</span><span class="punctuation">)])</span>,
+      <span class="punctuation">([</span><span class="string">"finish"</span> : RaceTime<span class="punctuation">(</span><span class="number">3</span>, <span class="string">"m"</span><span class="punctuation">)])</span> <span class="punctuation">});</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Package arguments as array for passing to function
+</span>
+  the_func<span class="punctuation">(</span>@named_args<span class="punctuation">);</span>
+
+  named_args =
+    <span class="punctuation">({</span>
+      <span class="punctuation">([</span><span class="string">"start"</span> : RaceTime<span class="punctuation">(</span><span class="number">5</span>, <span class="string">"m"</span><span class="punctuation">)])</span>,
+      <span class="punctuation">([</span><span class="string">"finish"</span> : RaceTime<span class="punctuation">(</span><span class="number">30</span>, <span class="string">"m"</span><span class="punctuation">)])</span> <span class="punctuation">});</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Ditto
+</span>
+  the_func<span class="punctuation">(</span>@named_args<span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Pass argument(s) directly in argument list
+</span>
+  the_func<span class="punctuation">(([</span><span class="string">"finish"</span> : RaceTime<span class="punctuation">(</span><span class="number">30</span>, <span class="string">"m"</span><span class="punctuation">)]));</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN560"
+>Skipping Selected Return Values</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">It is languages that support pattern matching, such as Prolog, Oz and
+</span>
+<span class="comment-delimiter">// </span><span class="comment">SML, that tend to offer such facilities. These languages all offer
+</span>
+<span class="comment-delimiter">// </span><span class="comment">a 'match all and throw away' operator that can be used in place of 
+</span>
+<span class="comment-delimiter">// </span><span class="comment">an identifier name(s), and have the resultant value(s) be discarded.
+</span>
+<span class="comment-delimiter">// </span><span class="comment">Such a facility helps keep code uncluttered because only values
+</span>
+<span class="comment-delimiter">// </span><span class="comment">that are required need to be named.
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">Pike does not implement pattern matching, so does not sport such an
+</span>
+<span class="comment-delimiter">// </span><span class="comment">operator, nor any equivalent facility. Thus, none of the examples in
+</span>
+<span class="comment-delimiter">// </span><span class="comment">this section are directly implementable.
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN563"
+>Returning More Than One Array or Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike supports the return of a single value from a function. Where
+</span>
+<span class="comment-delimiter">// </span><span class="comment">multiple values need to be returned, they can be packaged as an
+</span>
+<span class="comment-delimiter">// </span><span class="comment">aggregate such as an array or mapping, and *that* item returned.
+</span>
+<span class="comment-delimiter">// </span><span class="comment">The caller / receiver would, of course, be responsible for
+</span>
+<span class="comment-delimiter">// </span><span class="comment">appropriately extracting required elements from that returned item
+</span>
+<span class="comment-delimiter">// </span><span class="comment">(this process could be hardcoded, or generalised using extensive
+</span>
+<span class="comment-delimiter">// </span><span class="comment">runtime type checking). Alternatively, a custom class encapsulating
+</span>
+<span class="comment-delimiter">// </span><span class="comment">the return values can be used and an instance of that item returned
+</span>
+<span class="comment-delimiter">// </span><span class="comment">and processed
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> somefunc<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr = <span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span><span class="punctuation">});</span>
+  <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">int</span><span class="punctuation">)</span> hash = <span class="punctuation">([</span><span class="string">"x"</span> : <span class="number">1</span>, <span class="string">"y"</span> : <span class="number">2</span>, <span class="string">"z"</span> : <span class="number">3</span><span class="punctuation">]);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Return an array containing an array and a hash
+</span>
+  <span class="keyword">return</span> aggregate<span class="punctuation">(</span>arr, hash<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Get return array
+</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> arr = somefunc<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Extract and process elements
+</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>arr, <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"Return item has type: %t, value: %O\n"</span>, item, item<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="keyword">class</span> <span class="function-name">RetValues</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr<span class="punctuation">;</span> <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">int</span><span class="punctuation">)</span> hash<span class="punctuation">;</span>
+
+  <span class="keyword">static</span> <span class="type">void</span> create<span class="punctuation">()</span>
+  <span class="punctuation">{</span>
+    arr = aggregate<span class="punctuation">(</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span><span class="punctuation">);</span>
+    hash = aggregate_mapping<span class="punctuation">(</span><span class="string">"x"</span>, <span class="number">1</span>, <span class="string">"y"</span>, <span class="number">2</span>, <span class="string">"z"</span>, <span class="number">3</span><span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+  
+RetValues somefunc<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> RetValues<span class="punctuation">();</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+RetValues rv = RetValues<span class="punctuation">();</span>
+
+write<span class="punctuation">(</span><span class="string">"Return item has type: %t, value: %O\n"</span>, rv-&gt;arr, rv-&gt;arr<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"Return item has type: %t, value: %O\n"</span>, rv-&gt;hash, rv-&gt;hash<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN566"
+>Returning Failure</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike offers a very simple, consistent means of 'returning failure':
+</span>
+<span class="comment-delimiter">// </span><span class="comment">return 0 [representing 'false'] when a task does not succeed, otherwise
+</span>
+<span class="comment-delimiter">// </span><span class="comment">return whatever was the expected value. This design is extensively
+</span>
+<span class="comment-delimiter">// </span><span class="comment">used in the Pike library, and is well supported by the language in
+</span>
+<span class="comment-delimiter">// </span><span class="comment">that:
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Alternate return types may be specified
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* A 'mixed' return type, indicating possible return of any type
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">value, may be used
+</span>
+
+<span class="type">void</span> die<span class="punctuation">(</span><span class="type">string</span> msg, <span class="type">void</span>|<span class="type">int</span><span class="punctuation">(</span><span class="number">1</span>..<span class="number">256</span><span class="punctuation">)</span> rc<span class="punctuation">)</span> <span class="punctuation">{</span> werror<span class="punctuation">(</span>msg + NEWLINE<span class="punctuation">);</span> exit<span class="punctuation">(</span>rc ? rc : PROBLEM<span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> afunc<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  ...
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>ok<span class="punctuation">)</span>
+    <span class="comment-delimiter">// </span><span class="comment">... return an array ...
+</span>
+  <span class="keyword">else</span>
+    <span class="comment-delimiter">// </span><span class="comment">failure, so return 0
+</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> arr = afunc<span class="punctuation">();</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>!arr<span class="punctuation">)</span> die<span class="punctuation">(</span><span class="string">"Error with 'afunc' ..."</span><span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">ok, so use 'arr' ...
+</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN569"
+>Prototyping Functions</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Whether Pike is seen to support prototyping depends on the definition
+</span>
+<span class="comment-delimiter">// </span><span class="comment">of this term used:
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Prototyping along the lines used in Ada, Modula X, and even C / C++,
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">in which a procedure's interface is declared separately from its
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">implementation, is *not* supported
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">// </span><span class="comment">* Prototyping in which, as part of the procedure definition, parameter
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">information must be supplied. This is a requirement in Pike in that
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">parameter number, names and type, must be given. Return types must
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">also be specified, but there is an exeption when using lambdas
+</span>
+
+<span class="type">void</span> func_with_no_arg<span class="punctuation">()</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+
+<span class="type">void</span> func_with_one_arg<span class="punctuation">(</span><span class="type">int</span> arg1<span class="punctuation">)</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+
+<span class="type">void</span> func_with_two_arg<span class="punctuation">(</span><span class="type">int</span> arg1, <span class="type">string</span> arg2<span class="punctuation">)</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+
+<span class="type">void</span> func_with_three_arg<span class="punctuation">(</span><span class="type">int</span> arg1, <span class="type">string</span> arg2, <span class="type">float</span> arg3<span class="punctuation">)</span> <span class="punctuation">{</span> ...<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Return type, 'void', specified 
+</span>
+<span class="type">function</span> f = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> arg1 : <span class="type">void</span><span class="punctuation">)</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Return type not specified, defaults to 'mixed'
+</span>
+<span class="type">function</span> g = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> arg1<span class="punctuation">)</span> <span class="punctuation">{</span> ... <span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN572"
+>Handling Exceptions</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Like so many modern languages, Pike implements exception handling
+</span>
+<span class="comment-delimiter">// </span><span class="comment">using the 'catch' and 'throw' keywords 
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Not exactly like the Perl example, but a way of immediately exiting
+</span>
+<span class="comment-delimiter">// </span><span class="comment">from an application [note: using, 'exit', prevents any of the 'atexit'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">call backs from executing, so application cleanup may be compromised]
+</span>
+
+<span class="type">void</span> die<span class="punctuation">(</span><span class="type">string</span> msg, <span class="type">void</span>|<span class="type">int</span><span class="punctuation">(</span><span class="number">1</span>..<span class="number">256</span><span class="punctuation">)</span> rc<span class="punctuation">)</span> <span class="punctuation">{</span> werror<span class="punctuation">(</span>msg + NEWLINE<span class="punctuation">);</span> exit<span class="punctuation">(</span>rc ? rc : PROBLEM<span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+die<span class="punctuation">(</span><span class="string">"some message"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> rmAll<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filelist<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">'result' will be 0 if the 'catch' block succeeds
+</span>
+  <span class="type">mixed</span> result = <span class="keyword">catch</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>filelist, <span class="type">string</span> filename<span class="punctuation">)</span> <span class="punctuation">{</span> rm<span class="punctuation">(</span>filename<span class="punctuation">)</span> || <span class="keyword">throw</span><span class="punctuation">(</span>PROBLEM<span class="punctuation">);</span> <span class="punctuation">}</span>
+  <span class="punctuation">};</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Return value of 'catch' block can be tested, and appropriate
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">action taken; here, a non-zero return code will be returned
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">[like many library functions] to indicate failure
+</span>
+  <span class="keyword">return</span> result == OK<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Attempt to remove the following files ...
+</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> files = <span class="punctuation">({</span><span class="string">"..."</span>, <span class="string">"..."</span>, <span class="string">"..."</span><span class="punctuation">});</span>
+
+rmAll<span class="punctuation">(</span>files<span class="punctuation">)</span> || die<span class="punctuation">(</span><span class="string">"Could not remove all files - exiting"</span><span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN575"
+>Saving Global Values</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Global variable
+</span>
+<span class="type">int</span> age = <span class="number">18</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">void</span> print_age<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Global value, 'age', is accessed
+</span>
+  write<span class="punctuation">(</span><span class="string">"Age is %d\n"</span>, age<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">A local variable named, 'age' will act to 'shadow' the globally
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">defined version, thus any changes to, 'age', will not affect
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">the global version
+</span>
+  <span class="type">int</span> age = <span class="number">5</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 18, the current value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Local version is altered, *not* global version
+</span>
+  age = <span class="number">23</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 18, the current value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Global variable
+</span>
+<span class="type">int</span> age = <span class="number">18</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">void</span> print_age<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Global value, 'age', is accessed
+</span>
+  write<span class="punctuation">(</span><span class="string">"Age is %d\n"</span>, age<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Here no local version declared: any changes affect global version
+</span>
+  age = <span class="number">5</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 5, the new value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Global version again altered
+</span>
+  age = <span class="number">23</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 23, the new value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Global variable
+</span>
+<span class="type">int</span> age = <span class="number">18</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="type">void</span> print_age<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Global value, 'age', is accessed
+</span>
+  write<span class="punctuation">(</span><span class="string">"Age is %d\n"</span>, age<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Global version value saved into local version
+</span>
+  <span class="type">int</span> age = <span class="keyword">global</span>::age<span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 18, the new value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Global version this time altered
+</span>
+  <span class="keyword">global</span>::age = <span class="number">23</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 23, the new value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Global version value restored from saved local version
+</span>
+  <span class="keyword">global</span>::age = age<span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Prints 18, the restored value of the global version
+</span>
+  print_age<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN578"
+>Redefining a Function</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Define functions - will be considered constant / unchangeable
+</span>
+<span class="type">void</span> grow<span class="punctuation">()</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"grow\n"</span><span class="punctuation">);</span> <span class="punctuation">}</span>
+<span class="type">void</span> shrink<span class="punctuation">()</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"shrink\n"</span><span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Execute functions: 'grow', 'shrink' output respectively
+</span>
+grow<span class="punctuation">();</span> shrink<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Attempt to redefine, 'grow' fails because it is considered a
+</span>
+<span class="comment-delimiter">// </span><span class="comment">constant value:
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+<span class="comment-delimiter">//   </span><span class="comment">grow = shrink;
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">However, it is possible to bind 'shrink' to a new local variable
+</span>
+<span class="comment-delimiter">// </span><span class="comment">called, 'grow'
+</span>
+<span class="type">function</span> grow = shrink<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Execute functions: 'shrink', 'shrink' output respectively because
+</span>
+<span class="comment-delimiter">// </span><span class="comment">local 'grow' shadows global version, and it is referencing the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">code for 'shrink'
+</span>
+grow<span class="punctuation">();</span> shrink<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Define functions by assigning lambdas to global variables
+</span>
+<span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">void</span><span class="punctuation">)</span> grow = <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"grow\n"</span><span class="punctuation">);</span> <span class="punctuation">}</span>
+<span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">void</span><span class="punctuation">)</span> shrink = <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"shrink\n"</span><span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Execute functions: 'grow', 'shrink' output respectively
+</span>
+grow<span class="punctuation">();</span> shrink<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Attempt to redefine, 'grow' successful since a simple variable
+</span>
+<span class="comment-delimiter">// </span><span class="comment">assignment is being performed
+</span>
+grow = shrink<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Execute functions: 'shrink', 'shrink' output respectively - 'grow'
+</span>
+<span class="comment-delimiter">// </span><span class="comment">has, effectively, been 'redefined' [note: reference to original
+</span>
+<span class="comment-delimiter">// </span><span class="comment">'grow' code has been lost (but it could have been saved, then
+</span>
+<span class="comment-delimiter">// </span><span class="comment">restored)]
+</span>
+grow<span class="punctuation">();</span> shrink<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="type">function</span> barney = <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> ... <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">...
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">'fred' is now an alias for the code attached to 'barney'
+</span>
+<span class="type">function</span> fred = barney<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------
+</span>
+
+<span class="type">function</span> red = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> text<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="string">"&lt;FONT COLOR='red'&gt;"</span> + text + <span class="string">"&lt;/FONT&gt;"</span><span class="punctuation">;</span>
+  <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, red<span class="punctuation">(</span><span class="string">"careful here"</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">function</span> colour_font = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> colour, <span class="type">string</span> text<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="string">"&lt;FONT COLOR='"</span> + colour + <span class="string">"'&gt;"</span> + text + <span class="string">"&lt;/FONT&gt;"</span><span class="punctuation">;</span>
+  <span class="punctuation">};</span>
+
+<span class="type">function</span> red = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> text<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> colour_font<span class="punctuation">(</span><span class="string">"red"</span>, text<span class="punctuation">);</span> <span class="punctuation">};</span>
+<span class="type">function</span> green = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> text<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> colour_font<span class="punctuation">(</span><span class="string">"green"</span>, text<span class="punctuation">);</span> <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">... more 'colour' functions ...
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----
+</span>
+
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, red<span class="punctuation">(</span><span class="string">"careful here"</span><span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, green<span class="punctuation">(</span><span class="string">"careful there"</span><span class="punctuation">));</span>
+<span class="comment-delimiter">// </span><span class="comment">... 
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Pike offers the 'compile' family of functions that allow for the
+</span>
+<span class="comment-delimiter">// </span><span class="comment">runtime compilation and [in combinaton with other Pike functions]
+</span>
+<span class="comment-delimiter">// </span><span class="comment">the subsequent execution, of Pike code, obtained either as a
+</span>
+<span class="comment-delimiter">// </span><span class="comment">dynamically-generated string, or loaded from file / URL. This,
+</span>
+<span class="comment-delimiter">// </span><span class="comment">AFAICT, is the Pike feature closest to that of the 'eval' function
+</span>
+<span class="comment-delimiter">// </span><span class="comment">found in languages like Scheme. The example here is rather
+</span>
+<span class="comment-delimiter">// </span><span class="comment">contrived and unwieldly, but it does show how code is generated,
+</span>
+<span class="comment-delimiter">// </span><span class="comment">compiled, and executed, and it *does* closely follow the Perl code
+</span>
+<span class="comment-delimiter">//</span><span class="comment">
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Assemble text needed to build function
+</span>
+<span class="type">string</span> build_colour_func<span class="punctuation">(</span><span class="type">string</span> colour<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Could also use library function, 'sprintf', to build string
+</span>
+  <span class="type">string</span> bodytext = <span class="string">"\"&lt;FONT COLOR='"</span> + colour + <span class="string">"'&gt;\" + text + \"&lt;/FONT&gt;\""</span><span class="punctuation">;</span>
+  <span class="keyword">return</span> <span class="string">"string "</span> + colour + <span class="string">"(string text) { return "</span> + bodytext + <span class="string">"; };"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">1. Generate source code. A function is built for each colour by
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">calling, 'build_colour_func', and all the text collected into
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">'cf_text'
+</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> colours =
+    <span class="punctuation">({</span><span class="string">"red"</span>, <span class="string">"blue"</span>, <span class="string">"green"</span>, <span class="string">"yellow"</span>, <span class="string">"orange"</span>, <span class="string">"purple"</span>, <span class="string">"violet"</span><span class="punctuation">});</span>
+
+  <span class="type">string</span> cf_text = <span class="string">""</span><span class="punctuation">;</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>colours, <span class="type">string</span> colour<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    cf_text += build_colour_func<span class="punctuation">(</span>colour<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">2. Compile generated source code, and make it accessable to the
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">current program. These two steps are, here, combined for brevity,
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">but consist of the following:
+</span>
+  <span class="comment-delimiter">//</span><span class="comment">
+</span>
+  <span class="comment-delimiter">//        </span><span class="comment">program prog = compile_string(cf_text);
+</span>
+  <span class="comment-delimiter">//        </span><span class="comment">object cf_code = prog();
+</span>
+  <span class="comment-delimiter">//</span><span class="comment">
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">The latter step sees the code's 'create' method called for
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">initialisation, and also makes items accessable via:
+</span>
+  <span class="comment-delimiter">//</span><span class="comment">
+</span>
+  <span class="comment-delimiter">//        </span><span class="comment">cf_code[ITEMNAME]
+</span>
+  <span class="comment-delimiter">//  </span><span class="comment">
+</span>
+  <span class="comment-delimiter">//    </span><span class="comment">For example, the function, 'red', may be:
+</span>
+  <span class="comment-delimiter">//        </span><span class="comment">referenced -&gt; cf_code["red"]
+</span>
+  <span class="comment-delimiter">//        </span><span class="comment">applied    -&gt; cf_code["red"](" ... ")
+</span>
+  <span class="comment-delimiter">//  </span><span class="comment">
+</span>
+  <span class="type">object</span> cf_code = compile_string<span class="punctuation">(</span>cf_text<span class="punctuation">)();</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">3. Apply the generated functions
+</span>
+  <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> colours_and_text = 
+    <span class="punctuation">([</span><span class="string">"red"</span>:<span class="string">"baron"</span>, <span class="string">"blue"</span>:<span class="string">"zephyr"</span>, <span class="string">"green"</span>:<span class="string">"beret"</span>,
+      <span class="string">"yellow"</span>:<span class="string">"ribbon"</span>, <span class="string">"orange"</span>:<span class="string">"county"</span>, <span class="string">"purple"</span>:<span class="string">"haze"</span>,
+      <span class="string">"violet"</span>:<span class="string">"temper"</span><span class="punctuation">]);</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>indices<span class="punctuation">(</span>colours_and_text<span class="punctuation">)</span>, <span class="type">string</span> colour<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="comment-delimiter">// </span><span class="comment">Get relevant function
+</span>
+    <span class="type">function</span> colour_func = cf_code<span class="punctuation">[</span>colour<span class="punctuation">];</span>
+
+    <span class="comment-delimiter">// </span><span class="comment">Apply function with relevant argument(s)
+</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, colour_func<span class="punctuation">(</span>colours_and_text<span class="punctuation">[</span>colour<span class="punctuation">]));</span>
+
+    <span class="comment-delimiter">// </span><span class="comment">Or, above lines can be replaced with:
+</span>
+    <span class="comment-delimiter">//     </span><span class="comment">write("%s\n", cf_code[colour](colours_and_text[colour]));
+</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>    
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN581"
+>Trapping Undefined Function Calls with AUTOLOAD</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+<font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Trapping undefined function calls with `-&gt;()
+</span>
+<span class="comment-delimiter">// </span><span class="comment">In your class:
+</span>
+
+<span class="keyword">class </span>ColorFactory<span class="punctuation">{</span>
+  <span class="keyword">protected </span><span class="type">mapping</span>(<span class="type">string</span>:<span class="type">function</span>) functions = <span class="punctuation">([]);</span>
+
+  <span class="type">function</span> `-&gt;<span class="punctuation">(</span><span class="type">string</span> fun<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>!functions-&gt;fun<span class="punctuation">)</span>
+      functions<span class="punctuation">[</span>fun<span class="punctuation">]</span> = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span>|<span class="type">void</span> ... args<span class="punctuation">)</span>
+                     <span class="punctuation">{</span>
+                       <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"&lt;FONT COLOR=%s&gt;%{%s %}&lt;/FONT&gt;"</span>, fun, args<span class="punctuation">);</span>
+                     <span class="punctuation">};</span>
+    <span class="keyword">return</span> functions<span class="punctuation">[</span>fun<span class="punctuation">];</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Then use it:
+</span>
+
+<span class="type">object</span> cf = ColorFactory()<span class="punctuation">;</span>
+write<span class="punctuation">(</span>cf-&gt;chartreuse<span class="punctuation">(</span><span class="string">"stuff"</span><span class="punctuation">));</span>
+<span class="comment-delimiter">// </span><span class="comment">Output: &lt;FONT COLOR=chartreuse&gt;stuff &lt;/FONT&gt;
+</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN584"
+>Nesting Subroutines</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Alternate, though identically-behaving, nested subroutine definitions
+</span>
+
+<span class="type">int</span> outer<span class="punctuation">(</span><span class="type">int</span> arg<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> x = arg + <span class="number">35</span><span class="punctuation">;</span>
+  <span class="type">int</span> inner<span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> x * <span class="number">19</span><span class="punctuation">;</span> <span class="punctuation">};</span>
+  <span class="keyword">return</span> x + inner<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">int</span> outer<span class="punctuation">(</span><span class="type">int</span> arg<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> x = arg + <span class="number">35</span><span class="punctuation">;</span>
+  <span class="type">function</span><span class="punctuation">(</span><span class="type">void</span> : <span class="type">int</span><span class="punctuation">)</span> inner = <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> x * <span class="number">19</span><span class="punctuation">;</span> <span class="punctuation">};</span>
+  <span class="keyword">return</span> x + inner<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">function</span> outer = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> arg<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">int</span> x = arg + <span class="number">35</span><span class="punctuation">;</span>
+    <span class="keyword">return</span> <span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> x * <span class="number">19</span><span class="punctuation">;</span> <span class="punctuation">})()</span> + x<span class="punctuation">;</span>
+  <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="type">function</span><span class="punctuation">(</span><span class="type">int</span> : <span class="type">int</span><span class="punctuation">)</span> outer = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> arg<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">int</span> x = arg + <span class="number">35</span><span class="punctuation">;</span>
+    <span class="keyword">return</span> <span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span> <span class="keyword">return</span> x * <span class="number">19</span><span class="punctuation">;</span> <span class="punctuation">})()</span> + x<span class="punctuation">;</span>
+  <span class="punctuation">};</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN587"
+>Program: Sorting Your Mail</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+<font color="#f5deb3" size="+1"><span class="keyword">#pragma </span>strict_types
+<span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Program: Sorting Your Mail
+</span>
+<span class="comment-delimiter">// </span><span class="comment">Simple sort by subject (bysub1.pike)
+</span>
+
+<span class="keyword">int</span>(<span class="type">void</span>:<span class="type">int</span>) main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span>(<span class="type">string</span>) msgs = <span class="punctuation">({});</span>
+  <span class="type">array</span>(<span class="type">string</span>) sub = <span class="punctuation">({});</span>
+  <span class="type">int</span> msgno = -<span class="number">1</span><span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Read stdin paragraph by paragraph
+</span>  <span class="type">string</span> paragraph<span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span><span class="type">string</span> contents = Stdio.stdin-&gt;read()<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>contents / <span class="string">"\n\n"</span><span class="punctuation">,</span> paragraph<span class="punctuation">)</span> <span class="punctuation">{</span>
+      <span class="keyword">if</span><span class="punctuation">(</span>has_prefix<span class="punctuation">(</span>paragraph<span class="punctuation">,</span> <span class="string">"From"</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+        <span class="type">string</span> subject = <span class="string">""</span><span class="punctuation">;</span>
+        <span class="keyword">if</span><span class="punctuation">(</span>sscanf<span class="punctuation">(</span>paragraph<span class="punctuation">,</span> <span class="string">"%*sSubject: %[^\n]"</span><span class="punctuation">,</span> subject<span class="punctuation">)</span> &amp;&amp; subject<span class="punctuation">)</span> <span class="punctuation">{</span>
+          <span class="comment-delimiter">// </span><span class="comment">Strip "Re:" prefixes and lowercase
+</span>          <span class="keyword">while</span><span class="punctuation">(</span>has_prefix<span class="punctuation">(</span>subject<span class="punctuation">,</span> <span class="string">"Re:"</span><span class="punctuation">)</span> || has_prefix<span class="punctuation">(</span>subject<span class="punctuation">,</span> <span class="string">"re:"</span><span class="punctuation">))</span>
+            subject = subject[<span class="number">3</span>..]<span class="punctuation">;</span>
+          subject = String.trim_all_whites<span class="punctuation">(</span>subject<span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+        sub += <span class="punctuation">{</span> lower_case<span class="punctuation">(</span>subject || <span class="string">""</span><span class="punctuation">)</span> <span class="punctuation">};</span>
+        msgno++<span class="punctuation">;</span>
+      <span class="punctuation">}</span>
+      msgs[msgno] = (msgs[msgno] || <span class="string">""</span><span class="punctuation">)</span> + paragraph + <span class="string">"\n\n"</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Sort indices by subject, then by message number
+</span>  <span class="type">array</span>(<span class="type">int</span>) indices = Array.enumerate<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>msgs<span class="punctuation">));</span>
+  indices = Array.sort_array<span class="punctuation">(</span>indices<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> a<span class="punctuation">,</span> <span class="type">int</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sub[a] != sub[b]<span class="punctuation">)</span>
+      <span class="keyword">return</span> sub[a] &lt; sub[b] ? -<span class="number">1</span> : <span class="number">1</span><span class="punctuation">;</span>
+    <span class="keyword">return</span> a - b<span class="punctuation">;</span>
+  <span class="punctuation">});</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Print sorted messages
+</span>  <span class="keyword">foreach</span><span class="punctuation">(</span>indices<span class="punctuation">,</span> <span class="type">int</span> i<span class="punctuation">)</span>
+    write<span class="punctuation">(</span>msgs[i]<span class="punctuation">);</span>
+
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Alternative version using mapping (bysub2.pike)
+</span>
+
+<span class="keyword">int</span>(<span class="type">void</span>:<span class="type">int</span>) main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span>(<span class="type">mapping</span>) msgs = <span class="punctuation">({});</span>
+
+  <span class="type">string</span> contents = Stdio.stdin-&gt;read()<span class="punctuation">;</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>contents / <span class="string">"\n\n"</span><span class="punctuation">,</span> <span class="type">string</span> paragraph<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>has_prefix<span class="punctuation">(</span>paragraph<span class="punctuation">,</span> <span class="string">"From"</span><span class="punctuation">))</span> <span class="punctuation">{</span>
+      <span class="type">string</span> subject = <span class="string">""</span><span class="punctuation">;</span>
+      <span class="keyword">if</span><span class="punctuation">(</span>sscanf<span class="punctuation">(</span>paragraph<span class="punctuation">,</span> <span class="string">"%*sSubject: %[^\n]"</span><span class="punctuation">,</span> subject<span class="punctuation">)</span> &amp;&amp; subject<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">while</span><span class="punctuation">(</span>has_prefix<span class="punctuation">(</span>subject<span class="punctuation">,</span> <span class="string">"Re:"</span><span class="punctuation">)</span> || has_prefix<span class="punctuation">(</span>subject<span class="punctuation">,</span> <span class="string">"re:"</span><span class="punctuation">))</span>
+          subject = subject[<span class="number">3</span>..]<span class="punctuation">;</span>
+        subject = String.trim_all_whites<span class="punctuation">(</span>subject<span class="punctuation">);</span>
+      <span class="punctuation">}</span>
+      msgs += <span class="punctuation">({</span>([
+        <span class="string">"subject"</span>: lower_case<span class="punctuation">(</span>subject || <span class="string">""</span><span class="punctuation">),</span>
+        <span class="string">"number"</span>: sizeof<span class="punctuation">(</span>msgs<span class="punctuation">),</span>
+        <span class="string">"text"</span>: <span class="string">""</span>
+      ])<span class="punctuation">});</span>
+    <span class="punctuation">}</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>msgs<span class="punctuation">))</span>
+      msgs[-<span class="number">1</span>][<span class="string">"text"</span>] += paragraph + <span class="string">"\n\n"</span><span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Sort by subject, then by number
+</span>  msgs = Array.sort_array<span class="punctuation">(</span>msgs<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mapping</span> a<span class="punctuation">,</span> <span class="type">mapping</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>a[<span class="string">"subject"</span>] != b[<span class="string">"subject"</span>]<span class="punctuation">)</span>
+      <span class="keyword">return</span> a[<span class="string">"subject"</span>] &lt; b[<span class="string">"subject"</span>] ? -<span class="number">1</span> : <span class="number">1</span><span class="punctuation">;</span>
+    <span class="keyword">return</span> a[<span class="string">"number"</span>] - b[<span class="string">"number"</span>]<span class="punctuation">;</span>
+  <span class="punctuation">});</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>msgs<span class="punctuation">,</span> <span class="type">mapping</span> msg<span class="punctuation">)</span>
+    write<span class="punctuation">(</span>msg[<span class="string">"text"</span>]<span class="punctuation">);</span>
+
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="directories.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Directories</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>References and Records</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
