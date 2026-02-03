@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Packages, Libraries, and Modules</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="References and Records"
+HREF="referencesandrecords.html"><LINK
+REL="NEXT"
+TITLE="Classes, Objects, and Ties"
+HREF="classesetc.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="classesetc.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PACKAGESETC"
+>12. Packages, Libraries, and Modules</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN642"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN645"
+>Defining a Module's Interface</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN648"
+>Trapping Errors in require or use</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN651"
+>Delaying use Until Run Time</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN654"
+>Making Variables Private to a Module</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN657"
+>Determining the Caller's Package</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN660"
+>Automating Module Clean-Up</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN663"
+>Keeping Your Own Module Directory</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN666"
+>Preparing a Module for Distribution</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN669"
+>Speeding Module Loading with SelfLoader</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN672"
+>Speeding Up Module Loading with Autoloader</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN675"
+>Overriding Built-In Functions</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN678"
+>Reporting Errors and Warnings Like Built-Ins</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN681"
+>Referring to Packages Indirectly</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN684"
+>Using h2ph to Translate C #include Files</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN687"
+>Using h2xs to Make a Module with C Code</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN690"
+>Documenting Your Module with Pod</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN693"
+>Building and Installing a CPAN Module</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN696"
+>Example: Module Template</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN699"
+>Program: Finding Versions and Descriptions of Installed Modules</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="classesetc.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>References and Records</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Classes, Objects, and Ties</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

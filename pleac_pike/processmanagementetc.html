@@ -1,0 +1,1097 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Process Management and Communication</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="User Interfaces"
+HREF="userinterfaces.html"><LINK
+REL="NEXT"
+TITLE="Sockets"
+HREF="sockets.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="userinterfaces.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="sockets.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PROCESSMANAGEMENTETC"
+>16. Process Management and Communication</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN851"
+>Gathering Output from a Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Gather output using Process.run (Pike 8 modern API)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">mapping</span> result = <span class="constant">Process</span>.<span class="function-name">run</span>((<span class="punctuation">{</span> <span class="string">"ls"</span>, <span class="string">"-l"</span>, <span class="string">"/tmp"</span> <span class="punctuation">}</span>));
+
+<span class="constant">write</span>(<span class="string">"Exit code: %d\n"</span>, result->exitcode);
+<span class="constant">write</span>(<span class="string">"Output:\n%s\n"</span>, result->stdout);
+<span class="constant">write</span>(<span class="string">"Errors:\n%s\n"</span>, result->stderr);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN854"
+>Running Another Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Run a command using Process.create_process (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="comment-delimiter">// </span><span class="comment">Method 1: Create and wait</span>
+<span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>((<span class="punctuation">{</span> <span class="string">"echo"</span>, <span class="string">"Hello"</span> <span class="punctuation">}</span>));
+<span class="keyword">int</span> exit_code = proc-><span class="function-name">wait</span>();
+<span class="constant">write</span>(<span class="string">"Exit code: %d\n"</span>, exit_code);
+
+<span class="comment-delimiter">// </span><span class="comment">Method 2: Use Process.Process with callbacks</span>
+<span class="constant">Process</span>.<span class="function-name">Process</span> p = <span class="constant">Process</span>.<span class="function-name">Process</span>((<span class="punctuation">{</span> <span class="string">"sleep"</span>, <span class="string">"5"</span> <span class="punctuation">}</span>), (<span class="punctuation">[</span>
+    <span class="string">"timeout"</span>: 10,
+    <span class="string">"timeout_callback"</span>: <span class="keyword">lambda</span>(<span class="constant">Process</span>.<span class="function-name">Process</span> proc) {
+        <span class="constant">write</span>(<span class="string">"Process timed out!\n"</span>);
+    }
+<span class="punctuation">]</span>));
+
+p-><span class="function-name">wait</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN857"
+>Replacing the Current Program with a Different One</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Replace current process using Process.exec (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(exece)
+<span class="comment-delimiter">// </span><span class="comment">Exec replaces the current process image</span>
+<span class="constant">Process</span>.<span class="function-name">exec</span>(<span class="string">"/bin/ls"</span>, <span class="string">"-l"</span>, <span class="string">"/tmp"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">This line is never reached if exec succeeds</span>
+<span class="constant">werror</span>(<span class="string">"Exec failed: %s\n"</span>, <span class="constant">strerror</span>(<span class="constant">errno</span>()));
+<span class="keyword">#else</span>
+<span class="constant">write</span>(<span class="string">"exec not available on this system\n"</span>);
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN860"
+>Reading or Writing to Another Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Bidirectional communication with a process (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="comment-delimiter">// </span><span class="comment">Create pipes for stdin/stdout</span>
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stdin_pipe = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stdout_pipe = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+
+<span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>(
+    (<span class="punctuation">{</span> <span class="string">"cat"</span>, <span class="string">"-n"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span>
+        <span class="string">"stdin"</span>: stdin_pipe-><span class="function-name">pipe</span>(<span class="constant">Stdio</span>.PROP_IPC | <span class="constant">Stdio</span>.PROP_REVERSE),
+        <span class="string">"stdout"</span>: stdout_pipe-><span class="function-name">pipe</span>()
+    <span class="punctuation">]</span>)
+);
+
+<span class="comment-delimiter">// </span><span class="comment">Close unused ends</span>
+stdin_pipe-><span class="function-name">close</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Write to process</span>
+stdin_pipe-><span class="function-name">write</span>(<span class="string">"Line 1\nLine 2\nLine 3\n"</span>);
+stdin_pipe-><span class="function-name">close</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Read response</span>
+stdout_pipe-><span class="function-name">close</span>();
+<span class="keyword">string</span> output = stdout_pipe-><span class="function-name">read</span>();
+<span class="constant">write</span>(<span class="string">"Output:\n%s"</span>, output);
+
+proc-><span class="function-name">wait</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN863"
+>Filtering Your Own Output</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Filter output through external processes (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">string</span> text = <span class="string">"zebra\napple\nbanana\napple\ncherry\n"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Sort the output</span>
+<span class="keyword">mapping</span> sorted = <span class="constant">Process</span>.<span class="function-name">run</span>(
+    (<span class="punctuation">{</span> <span class="string">"sort"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span> <span class="string">"stdin"</span>: text <span class="punctuation">]</span>)
+);
+
+<span class="comment-delimiter">// </span><span class="comment">Get unique lines</span>
+<span class="keyword">mapping</span> unique = <span class="constant">Process</span>.<span class="function-name">run</span>(
+    (<span class="punctuation">{</span> <span class="string">"uniq"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span> <span class="string">"stdin"</span>: sorted->stdout <span class="punctuation">]</span>)
+);
+
+<span class="constant">write</span>(<span class="string">"After sort | uniq:\n%s"</span>, unique->stdout);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN866"
+>Preprocessing Input</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Preprocess input through awk (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">string</span> data = <span class="string">"alice:30\nbob:25\ncharlie:35\n"</span>;
+
+<span class="keyword">mapping</span> result = <span class="constant">Process</span>.<span class="function-name">run</span>(
+    (<span class="punctuation">{</span> <span class="string">"awk"</span>, <span class="string">"-F:"</span>, <span class="string">"{print $1, $2}"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span> <span class="string">"stdin"</span>: data <span class="punctuation">]</span>)
+);
+
+<span class="constant">write</span>(<span class="string">"Processed output:\n%s"</span>, result->stdout);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN869"
+>Reading STDERR from a Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Capture stderr separately (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">mapping</span> result = <span class="constant">Process</span>.<span class="function-name">run</span>((<span class="punctuation">{</span>
+    <span class="string">"ls"</span>, <span class="string">"/nonexistent"</span>
+<span class="punctuation">}</span>));
+
+<span class="constant">write</span>(<span class="string">"Exit code: %d\n"</span>, result->exitcode);
+<span class="constant">write</span>(<span class="string">"STDERR:\n%s\n"</span>, result->stderr);
+
+<span class="comment-delimiter">// </span><span class="comment">Manual pipe handling for stderr</span>
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stderr_pipe = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+
+<span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>(
+    (<span class="punctuation">{</span> <span class="string">"ls"</span>, <span class="string">"/nonexistent"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span> <span class="string">"stderr"</span>: stderr_pipe-><span class="function-name">pipe</span>() <span class="punctuation">]</span>)
+);
+
+stderr_pipe-><span class="function-name">close</span>();
+<span class="keyword">string</span> errors = stderr_pipe-><span class="function-name">read</span>();
+<span class="constant">write</span>(<span class="string">"Errors: %s\n"</span>, errors);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN872"
+>Controlling Input and Output of Another Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Full control of stdin, stdout, stderr (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stdin_p = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stdout_p = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> stderr_p = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+
+<span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>(
+    (<span class="punctuation">{</span> <span class="string">"cat"</span>, <span class="string">"-n"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span>
+        <span class="string">"stdin"</span>: stdin_p-><span class="function-name">pipe</span>(<span class="constant">Stdio</span>.PROP_IPC | <span class="constant">Stdio</span>.PROP_REVERSE),
+        <span class="string">"stdout"</span>: stdout_p-><span class="function-name">pipe</span>(),
+        <span class="string">"stderr"</span>: stderr_p-><span class="function-name">pipe</span>()
+    <span class="punctuation">]</span>)
+);
+
+<span class="comment-delimiter">// </span><span class="comment">Write to stdin</span>
+stdin_p-><span class="function-name">write</span>(<span class="string">"test data\n"</span>);
+stdin_p-><span class="function-name">close</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Read stdout and stderr</span>
+stdout_p-><span class="function-name">close</span>();
+stderr_p-><span class="function-name">close</span>();
+
+<span class="keyword">string</span> out = stdout_p-><span class="function-name">read</span>();
+<span class="keyword">string</span> err = stderr_p-><span class="function-name">read</span>();
+
+proc-><span class="function-name">wait</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN875"
+>Controlling the Input, Output, and Error of Another Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Using Process.run for simple cases (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">mapping</span> result = <span class="constant">Process</span>.<span class="function-name">run</span>(
+    (<span class="punctuation">{</span> <span class="string">"awk"</span>, <span class="string">"{print $1}"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span>
+        <span class="string">"stdin"</span>: <span class="string">"apple:1\nbanana:2\n"</span>,
+        <span class="string">"cwd"</span>: <span class="string">"/tmp"</span>
+    <span class="punctuation">]</span>)
+);
+
+<span class="constant">write</span>(<span class="string">"Output: %s"</span>, result->stdout);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN878"
+>Communicating Between Related Processes</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Parent-child communication via pipes (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="constant">Stdio</span>.<span class="function-name">File</span> parent_rd = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> parent_wr = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> child_rd = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+<span class="constant">Stdio</span>.<span class="function-name">File</span> child_wr = <span class="constant">Stdio</span>.<span class="function-name">File</span>();
+
+<span class="constant">Process</span>.<span class="function-name">create_process</span> child = <span class="constant">Process</span>.<span class="function-name">create_process</span>(
+    (<span class="punctuation">{</span> <span class="string">"cat"</span>, <span class="string">"-e"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span>
+        <span class="string">"stdin"</span>: child_rd-><span class="function-name">pipe</span>(<span class="constant">Stdio</span>.PROP_IPC | <span class="constant">Stdio</span>.PROP_REVERSE),
+        <span class="string">"stdout"</span>: child_wr-><span class="function-name">pipe</span>()
+    <span class="punctuation">]</span>)
+);
+
+child_rd-><span class="function-name">close</span>();
+child_wr-><span class="function-name">close</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Send data to child</span>
+parent_wr-><span class="function-name">write</span>(<span class="string">"Message from parent\n"</span>);
+parent_wr-><span class="function-name">close</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Read response</span>
+parent_rd-><span class="function-name">close</span>();
+<span class="keyword">string</span> response = parent_rd-><span class="function-name">read</span>();
+<span class="constant">write</span>(<span class="string">"Child response:\n%s"</span>, response);
+
+child-><span class="function-name">wait</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN881"
+>Making a Process Look Like a File with Named Pipes</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Named pipes (FIFOs) for IPC (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">string</span> fifo_path = <span class="string">"/tmp/pike_fifo"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Create FIFO</span>
+<span class="constant">Process</span>.<span class="function-name">create_process</span> mkfifo = <span class="constant">Process</span>.<span class="function-name">create_process</span>((<span class="punctuation">{</span> <span class="string">"mkfifo"</span>, fifo_path <span class="punctuation">}</span>));
+mkfifo-><span class="function-name">wait</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Writer process</span>
+<span class="constant">Process</span>.<span class="function-name">create_process</span> writer = <span class="constant">Process</span>.<span class="function-name">create_process</span>(
+    (<span class="punctuation">{</span> <span class="string">"sh"</span>, <span class="string">"-c"</span>, <span class="string">"echo 'Hello through FIFO' > "</span> + fifo_path <span class="punctuation">}</span>)
+);
+
+<span class="comment-delimiter">// </span><span class="comment">Reader process</span>
+<span class="keyword">mapping</span> result = <span class="constant">Process</span>.<span class="function-name">run</span>((<span class="punctuation">{</span> <span class="string">"cat"</span>, fifo_path <span class="punctuation">}</span>));
+<span class="constant">write</span>(<span class="string">"FIFO data: %s"</span>, result->stdout);
+
+writer-><span class="function-name">wait</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Cleanup</span>
+<span class="constant">Process</span>.<span class="function-name">create_process</span>(<span class="punctuation">{</span> <span class="string">"rm"</span>, <span class="string">"-f"</span>, fifo_path <span class="punctuation">}</span>)-><span class="function-name">wait</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN884"
+>Sharing Variables in Different Processes</A
+></H2
+><P
+>For sharing variables between processes, use files, shared memory,
+or implement a message passing system. Here's a file-based approach:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Shared state via file (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">string</span> state_file = <span class="string">"/tmp/pike_shared_state.txt"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Writer process</span>
+<span class="keyword">mapping</span> state = (<span class="punctuation">[</span>
+    <span class="string">"counter"</span>: 42,
+    <span class="string">"timestamp"</span>: <span class="function-name">time</span>()
+<span class="punctuation">]</span>);
+
+<span class="constant">Stdio</span>.<span class="function-name">write_file</span>(state_file, <span class="constant">encode_value</span>(state));
+
+<span class="comment-delimiter">// </span><span class="comment">Reader process</span>
+<span class="keyword">string</span> data = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(state_file);
+<span class="keyword">mapping</span> loaded_state = <span class="keyword">mixed</span>err = <span class="keyword">catch</span> {
+    <span class="keyword">return</span> <span class="constant">decode_value</span>(data);
+};
+
+<span class="keyword">if</span> (loaded_state) {
+    <span class="constant">write</span>(<span class="string">"Counter: %d\n"</span>, loaded_state->counter);
+    <span class="constant">write</span>(<span class="string">"Timestamp: %s\n"</span>, <span class="constant">ctime</span>(loaded_state->timestamp));
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN887"
+>Listing Available Signals</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">List available signals (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">array</span>(<span class="keyword">string</span>) signals = (<span class="punctuation">{</span>
+    <span class="string">"SIGHUP"</span>, <span class="string">"SIGINT"</span>, <span class="string">"SIGQUIT"</span>, <span class="string">"SIGILL"</span>, <span class="string">"SIGTRAP"</span>,
+    <span class="string">"SIGABRT"</span>, <span class="string">"SIGBUS"</span>, <span class="string">"SIGFPE"</span>, <span class="string">"SIGKILL"</span>, <span class="string">"SIGUSR1"</span>,
+    <span class="string">"SIGSEGV"</span>, <span class="string">"SIGUSR2"</span>, <span class="string">"SIGPIPE"</span>, <span class="string">"SIGALRM"</span>, <span class="string">"SIGTERM"</span>,
+    <span class="string">"SIGCHLD"</span>, <span class="string">"SIGCONT"</span>, <span class="string">"SIGSTOP"</span>, <span class="string">"SIGTSTP"</span>
+<span class="punctuation">}</span>);
+
+<span class="constant">write</span>(<span class="string">"Available signals:\n"</span>);
+<span class="keyword">foreach</span>(signals; <span class="keyword">int</span> i; <span class="keyword">string</span> sig) {
+    <span class="keyword">int</span> num = <span class="function-name">signum</span>(sig);
+    <span class="keyword">if</span> (num > <span class="number">0</span>) {
+        <span class="constant">write</span>(<span class="string">"  %2d: %s\n"</span>, num, sig);
+    }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN890"
+>Sending a Signal</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Send signal to process (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(kill)
+<span class="comment-delimiter">// </span><span class="comment">Create a long-running process</span>
+<span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>((<span class="punctuation">{</span> <span class="string">"sleep"</span>, <span class="string">"30"</span> <span class="punctuation">}</span>));
+<span class="keyword">int</span> pid = proc-><span class="function-name">pid</span>();
+
+<span class="comment-delimiter">// </span><span class="comment">Wait a bit, then send SIGTERM</span>
+<span class="function-name">sleep</span>(<span class="number">2</span>);
+proc-><span class="function-name">kill</span>(<span class="function-name">signum</span>(<span class="string">"SIGTERM"</span>));
+
+<span class="comment-delimiter">// </span><span class="comment">Wait for process to exit</span>
+<span class="keyword">int</span> exit_code = proc-><span class="function-name">wait</span>();
+<span class="constant">write</span>(<span class="string">"Process exited with code: %d\n"</span>, exit_code);
+<span class="keyword">#else</span>
+<span class="constant">write</span>(<span class="string">"kill() not available on this system\n"</span>);
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN893"
+>Installing a Signal Handler</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Signal handlers for graceful shutdown (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">volatile</span> <span class="keyword">int</span> shutdown_requested = <span class="number">0</span>;
+
+<span class="keyword">void</span> <span class="function-name">handle_sigint</span>() {
+    <span class="constant">write</span>(<span class="string">"\n[INFO] SIGINT received. Shutting down...\n"</span>);
+    shutdown_requested = <span class="number">1</span>;
+}
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(signal)
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), handle_sigint);
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGTERM"</span>), handle_sigint);
+<span class="keyword">#endif</span>
+
+<span class="keyword">while</span> (!shutdown_requested) {
+    <span class="constant">write</span>(<span class="string">"Working...\n"</span>);
+    <span class="function-name">sleep</span>(<span class="number">1</span>);
+}
+
+<span class="constant">write</span>(<span class="string">"Cleanup complete.\n"</span>);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN896"
+>Temporarily Overriding a Signal Handler</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Save and restore signal handler (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(signal)
+<span class="comment-delimiter">// </span><span class="comment">Save current handler</span>
+<span class="keyword">function</span> old_handler = <span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), <span class="number">0</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Install temporary handler</span>
+<span class="keyword">void</span> <span class="function-name">temp_handler</span>() {
+    <span class="constant">write</span>(<span class="string">"Temporary handler\n"</span>);
+}
+
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), temp_handler);
+
+<span class="comment-delimiter">// </span><span class="comment">Do work...
+
+<span class="comment-delimiter">// </span><span class="comment">Restore original handler</span>
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), old_handler);
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN899"
+>Writing a Signal Handler</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Comprehensive signal handler (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(signal)
+<span class="keyword">volatile</span> <span class="keyword">int</span> signal_count = <span class="number">0</span>;
+
+<span class="keyword">void</span> <span class="function-name">signal_handler</span>() {
+    signal_count++;
+    <span class="constant">write</span>(<span class="string">"Signal received (count: %d)\n"</span>, signal_count);
+}
+
+<span class="keyword">void</span> <span class="function-name">cleanup</span>() {
+    <span class="constant">write</span>(<span class="string">"Performing cleanup...\n"</span>);
+    <span class="comment-delimiter">// </span><span class="comment">Close files, save state, etc.</span>
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Install handlers</span>
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGTERM"</span>), signal_handler);
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), signal_handler);
+
+<span class="comment-delimiter">// </span><span class="comment">Main loop</span>
+<span class="keyword">while</span> (signal_count < <span class="number">3</span>) {
+    <span class="function-name">sleep</span>(<span class="number">1</span>);
+}
+
+<span class="function-name">cleanup</span>();
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN902"
+>Catching Ctrl-C</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Catch Ctrl+C (SIGINT) (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(signal)
+<span class="keyword">volatile</span> <span class="keyword">int</span> interrupted = <span class="number">0</span>;
+
+<span class="keyword">void</span> <span class="function-name">handle_interrupt</span>() {
+    interrupted++;
+    <span class="keyword">if</span> (interrupted == <span class="number">1</span>) {
+        <span class="constant">write</span>(<span class="string">"\nPress Ctrl+C again to force exit.\n"</span>);
+    } <span class="keyword">else</span> {
+        <span class="constant">write</span>(<span class="string">"\nForced exit!\n"</span>);
+        <span class="function-name">exit</span>(<span class="number">1</span>);
+    }
+}
+
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), handle_interrupt);
+
+<span class="constant">write</span>(<span class="string">"Running... Press Ctrl+C to interrupt.\n"</span>);
+
+<span class="keyword">while</span> (!interrupted) {
+    <span class="constant">write</span>(<span class="string">".\n"</span>);
+    <span class="function-name">sleep</span>(<span class="number">1</span>);
+}
+
+<span class="constant">write</span>(<span class="string">"Graceful shutdown complete.\n"</span>);
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN905"
+>Avoiding Zombie Processes</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Proper child reaping to avoid zombies (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">array</span>(<span class="constant">Process</span>.<span class="function-name">create_process</span>) children = (<span class="punctuation">{</span><span class="punctuation">}</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Spawn multiple children</span>
+<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < <span class="number">3</span>; i++) {
+    <span class="constant">Process</span>.<span class="function-name">create_process</span> proc = <span class="constant">Process</span>.<span class="function-name">create_process</span>((<span class="punctuation">{</span>
+        <span class="string">"sleep"</span>, <span class="function-name">sprintf</span>(<span class="string">"%d"</span>, (i + <span class="number">1</span>) * <span class="number">2</span>)
+    <span class="punctuation">}</span>));
+    children += (<span class="punctuation">{</span> proc <span class="punctuation">}</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Wait for all children (reap zombies)</span>
+<span class="keyword">foreach</span>(children; <span class="keyword">int</span> i; <span class="constant">Process</span>.<span class="function-name">create_process</span> proc) {
+    <span class="keyword">int</span> exit_code = proc-><span class="function-name">wait</span>();
+    <span class="constant">write</span>(<span class="string">"Child %d exited with code: %d\n"</span>, i + <span class="number">1</span>, exit_code);
+}
+
+<span class="constant">write</span>(<span class="string">"All children reaped. No zombies!\n"</span>);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN908"
+>Blocking Signals</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Signal blocking for critical sections (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(sigprocmask)
+<span class="comment-delimiter">// </span><span class="comment">Block signals during critical operation</span>
+<span class="keyword">int</span> signal_block(<span class="keyword">int</span> sig, <span class="keyword">int</span> block) {
+    <span class="keyword">return</span> <span class="function-name">sigprocmask</span>(sig, block);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Block SIGINT during critical section</span>
+<span class="function-name">signal_block</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), <span class="number">1</span>);
+<span class="constant">write</span>(<span class="string">"Critical section - signals blocked\n"</span>);
+<span class="comment-delimiter">// </span><span class="comment">Do critical work...
+
+<span class="comment-delimiter">// </span><span class="comment">Unblock signals</span>
+<span class="function-name">signal_block</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), <span class="number">0</span>);
+<span class="constant">write</span>(<span class="string">"Signals unblocked\n"</span>);
+<span class="keyword">#else</span>
+<span class="constant">write</span>(<span class="string">"sigprocmask not available\n"</span>);
+<span class="keyword">#endif</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN911"
+>Timing Out an Operation</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Process timeout with callback (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="constant">Process</span>.<span class="function-name">Process</span> proc = <span class="constant">Process</span>.<span class="function-name">Process</span>(
+    (<span class="punctuation">{</span> <span class="string">"sleep"</span>, <span class="string">"30"</span> <span class="punctuation">}</span>),
+    (<span class="punctuation">[</span>
+        <span class="string">"timeout"</span>: <span class="number">2</span>,
+        <span class="string">"timeout_callback"</span>: <span class="keyword">lambda</span>(<span class="constant">Process</span>.<span class="function-name">Process</span> p) {
+            <span class="constant">write</span>(<span class="string">"\n[TIMEOUT] Process exceeded time limit!\n"</span>);
+        }
+    <span class="punctuation">]</span>)
+);
+
+<span class="constant">write</span>(<span class="string">"Process started with 2 second timeout...\n"</span>);
+<span class="keyword">int</span> exit_code = proc-><span class="function-name">wait</span>();
+<span class="constant">write</span>(<span class="string">"Exit code: %d\n"</span>, exit_code);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN914"
+>Program: sigrand</A
+></H2
+><P
+>A simple daemon that generates random numbers and responds to signals:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Signal-handling daemon example (Pike 8)</span>
+<span class="keyword">#pragma</span> strict_types
+
+<span class="keyword">#include</span> &lt;process.h&gt;
+
+<span class="keyword">volatile</span> <span class="keyword">int</span> running = <span class="number">1</span>;
+<span class="keyword">volatile</span> <span class="keyword">int</span> count = <span class="number">0</span>;
+
+<span class="keyword">void</span> <span class="function-name">sigterm_handler</span>() {
+    <span class="constant">write</span>(<span class="string">"\n[SIGTERM] Shutting down...\n"</span>);
+    running = <span class="number">0</span>;
+}
+
+<span class="keyword">#if</span> <span class="keyword">constant</span>(signal)
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGTERM"</span>), sigterm_handler);
+<span class="function-name">signal</span>(<span class="function-name">signum</span>(<span class="string">"SIGINT"</span>), sigterm_handler);
+<span class="keyword">#endif</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Daemonize</span>
+<span class="constant">Process</span>.<span class="function-name">daemon</span>(<span class="number">0</span>, <span class="number">0</span>);
+
+<span class="constant">Stdio</span>.<span class="function-name">File</span> log = <span class="constant">Stdio</span>.<span class="function-name">File</span>(<span class="string">"/tmp/sigrand.log"</span>, <span class="string">"wac"</span>);
+
+<span class="keyword">while</span> (running) {
+    <span class="keyword">int</span> rand_num = <span class="function-name">random</span>(<span class="number">100</span>);
+    log-><span class="function-name">write</span>(<span class="function-name">sprintf</span>(<span class="string">"[%s] Random: %d\n"</span>, <span class="constant">ctime</span>(<span class="function-name">time</span>()), rand_num));
+    count++;
+    <span class="function-name">sleep</span>(<span class="number">1</span>);
+}
+
+log-><span class="function-name">write</span>(<span class="function-name">sprintf</span>(<span class="string">"Total iterations: %d\n"</span>, count));
+log-><span class="function-name">close</span>();</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="userinterfaces.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="sockets.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>User Interfaces</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Sockets</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>

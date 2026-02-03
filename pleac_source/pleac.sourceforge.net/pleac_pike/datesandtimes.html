@@ -1,0 +1,813 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Dates and Times</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Numbers"
+HREF="numbers.html"><LINK
+REL="NEXT"
+TITLE="Arrays"
+HREF="arrays.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="numbers.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="arrays.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DATESANDTIMES"
+>3. Dates and Times</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN132"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike has an extensive Calendar module that provides all manners of</span>
+<span class="comment-delimiter">// </span><span class="comment">manipulating dates and times.</span>
+write<span class="punctuation">(</span><span class="string">"Today is day %d of the current year.\n"</span>, localtime<span class="punctuation">(</span>time<span class="punctuation">())</span>-&gt;yday+<span class="number">1</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Today is day 325 of the current year.</span>
+
+write<span class="punctuation">(</span><span class="string">"Today is day %d of the current year.\n"</span>, <span class="constant">Calendar</span>.now<span class="punctuation">()</span>-&gt;year_day<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">Today is day 325 of the current year.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN135"
+>Finding Today's Date</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> day, month, year<span class="punctuation">;</span>
+<span class="type">mapping</span> now=localtime<span class="punctuation">(</span>time<span class="punctuation">());</span>
+year  = now-&gt;year+<span class="number">1900</span><span class="punctuation">;</span>
+month = now-&gt;mon+<span class="number">1</span><span class="punctuation">;</span>
+day   = now-&gt;mday<span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"The current date is %04d %02d %02d\n"</span>, year, month, day<span class="punctuation">);</span>
+
+<span class="type">object</span> now=<span class="constant">Calendar</span>.now<span class="punctuation">();</span>
+year  = now-&gt;year_no<span class="punctuation">();</span>
+month = now-&gt;month_no<span class="punctuation">();</span>
+day   = now-&gt;month_day<span class="punctuation">();</span>
+
+write<span class="punctuation">(</span><span class="string">"The current date is %04d %02d %02d\n"</span>, year, month, day<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"The current date is %04d %02d %02d\n"</span>, @<span class="keyword">lambda</span><span class="punctuation">(){</span> <span class="keyword">return</span> <span class="punctuation">({</span> now-&gt;year_no<span class="punctuation">()</span>, now-&gt;month_no<span class="punctuation">()</span>, now-&gt;month_day<span class="punctuation">()</span> <span class="punctuation">});</span> <span class="punctuation">}(</span><span class="constant">Calendar</span>.now<span class="punctuation">()));</span>
+<span class="comment-delimiter">// </span><span class="comment">this is essentially the same as the respective perl code:</span>
+<span class="comment-delimiter">// </span><span class="comment">lambda creates an anonymous function, which in this case takes one argument </span>
+<span class="comment-delimiter">// </span><span class="comment">and returns an array. the array is the spliced into the arguments of write().</span>
+<span class="comment-delimiter">// </span><span class="comment">if the goal is to get by without a temporary variable this is a rather</span>
+<span class="comment-delimiter">// </span><span class="comment">pointless exercise, as there is still a temporary variable (in the function)</span>
+<span class="comment-delimiter">// </span><span class="comment">and the temporary function on top of that. more interresting is the</span>
+<span class="comment-delimiter">// </span><span class="comment">functional approach aspect.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN138"
+>Converting DMYHMS to Epoch Seconds</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">dwim_time() handles most common date and time formats.</span>
+<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"2:40:25 23.11.2004"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 CET)</span>
+<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"2:40:25 23.11.2004"</span><span class="punctuation">)</span>-&gt;unix_time<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 1101174025</span>
+
+<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"2:40:25 UTC 23.11.2004"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">faster, because there is no need for guessing:</span>
+<span class="constant">Calendar</span>.parse<span class="punctuation">(</span><span class="string">"%Y-%M-%D %h:%m:%s %z"</span>,<span class="string">"2004-11-23 2:40:25 UTC"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">without parsing</span>
+<span class="constant">Calendar</span>.Second<span class="punctuation">(</span><span class="number">2004</span>, <span class="number">11</span>, <span class="number">23</span>, <span class="number">2</span>, <span class="number">40</span>, <span class="number">25</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 CET)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">functional</span>
+<span class="constant">Calendar</span>.Year<span class="punctuation">(</span><span class="number">2004</span><span class="punctuation">)</span>-&gt;month<span class="punctuation">(</span><span class="number">11</span><span class="punctuation">)</span>-&gt;day<span class="punctuation">(</span><span class="number">23</span><span class="punctuation">)</span>-&gt;hour<span class="punctuation">(</span><span class="number">2</span><span class="punctuation">)</span>-&gt;minute<span class="punctuation">(</span><span class="number">40</span><span class="punctuation">)</span>-&gt;second<span class="punctuation">(</span><span class="number">25</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 CET)</span>
+
+<span class="constant">Calendar</span>.Day<span class="punctuation">(</span><span class="number">2004</span>, <span class="number">11</span>, <span class="number">23</span><span class="punctuation">)</span>-&gt;set_timezone<span class="punctuation">(</span><span class="string">"UTC"</span><span class="punctuation">)</span>-&gt;hour<span class="punctuation">(</span><span class="number">2</span><span class="punctuation">)</span>-&gt;minute<span class="punctuation">(</span><span class="number">40</span><span class="punctuation">)</span>-&gt;second<span class="punctuation">(</span><span class="number">25</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">set a time today</span>
+<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"2:40:25"</span><span class="punctuation">);</span>    
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 CET)</span>
+<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"2:40:25 UTC"</span><span class="punctuation">);</span>           
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+
+<span class="constant">Calendar</span>.parse<span class="punctuation">(</span><span class="string">"%h:%m:%s %z"</span>,<span class="string">"2:40:25 UTC"</span><span class="punctuation">);</span>                    
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+<span class="constant">Calendar</span>.Day<span class="punctuation">()</span>-&gt;set_timezone<span class="punctuation">(</span><span class="string">"UTC"</span><span class="punctuation">)</span>-&gt;hour<span class="punctuation">(</span><span class="number">2</span><span class="punctuation">)</span>-&gt;minute<span class="punctuation">(</span><span class="number">40</span><span class="punctuation">)</span>-&gt;second<span class="punctuation">(</span><span class="number">25</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 UTC)</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN141"
+>Converting Epoch Seconds to DMYHMS</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> unixtime=<span class="number">1101174025</span><span class="punctuation">;</span>
+<span class="type">int</span> day, month, year<span class="punctuation">;</span>
+<span class="type">mapping</span> then=localtime<span class="punctuation">(</span>unixtime<span class="punctuation">);</span>
+year  = then-&gt;year+<span class="number">1900</span><span class="punctuation">;</span>
+month = then-&gt;mon+<span class="number">1</span><span class="punctuation">;</span>
+day   = then-&gt;mday<span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"Dateline: %02d:%02d:%02d-%04d/%02d/%02d\n"</span>, then-&gt;hour, then-&gt;min, then-&gt;sec, then-&gt;year+<span class="number">1900</span>, then-&gt;mon+<span class="number">1</span>, then-&gt;mday<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Dateline: 02:40:25-2004/11/23</span>
+
+<span class="type">object</span> othen=<span class="constant">Calendar</span>.Second<span class="punctuation">(</span>unixtime<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 23 Nov 2004 2:40:25 CET)</span>
+
+write<span class="punctuation">(</span><span class="string">"Dateline: %02d:%02d:%02d-%04d/%02d/%02d\n"</span>, othen-&gt;hour_no<span class="punctuation">()</span>, 
+      othen-&gt;minute_no<span class="punctuation">()</span>, othen-&gt;second_no<span class="punctuation">()</span>, othen-&gt;year_no<span class="punctuation">()</span>, 
+      othen-&gt;month_no<span class="punctuation">()</span>, othen-&gt;month_day<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">Dateline: 02:40:25-2004/11/23</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN144"
+>Adding to or Subtracting from a Date</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> days_offet=<span class="number">55</span><span class="punctuation">;</span>
+<span class="type">int</span> hour_offset=<span class="number">2</span><span class="punctuation">;</span>
+<span class="type">int</span> minute_offset=<span class="number">17</span><span class="punctuation">;</span>
+<span class="type">int</span> second_offset=<span class="number">5</span><span class="punctuation">;</span>
+
+<span class="type">object</span> then=<span class="constant">Calendar</span>.parse<span class="punctuation">(</span><span class="string">"%D/%M/%Y, %h:%m:%s %p"</span>,<span class="string">"18/Jan/1973, 3:45:50 pm"</span><span class="punctuation">)</span>
+            +<span class="constant">Calendar</span>.Day<span class="punctuation">()</span>*days_offet
+            +<span class="constant">Calendar</span>.Hour<span class="punctuation">()</span>*hour_offset
+            +<span class="constant">Calendar</span>.Minute<span class="punctuation">()</span>*minute_offset
+            +<span class="constant">Calendar</span>.Second<span class="punctuation">()</span>*second_offset<span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"Then is %s\n"</span>, then-&gt;format_ctime<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">Then is Wed Mar 14 18:02:55 1973</span>
+write<span class="punctuation">(</span><span class="string">"To be precise: %d:%d:%d, %d/%d/%d\n"</span>, 
+             then-&gt;hour_no<span class="punctuation">()</span>, then-&gt;minute_no<span class="punctuation">()</span>, then-&gt;second_no<span class="punctuation">()</span>,
+             then-&gt;month_no<span class="punctuation">()</span>, then-&gt;month_day<span class="punctuation">()</span>, then-&gt;year_no<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">To be precise: 18:2:55, 3/14/1973</span>
+
+<span class="type">int</span> years   = <span class="number">1973</span><span class="punctuation">;</span>
+<span class="type">int</span> months  = <span class="number">1</span><span class="punctuation">;</span>
+<span class="type">int</span> days    = <span class="number">18</span><span class="punctuation">;</span>
+<span class="type">int</span> offset  = <span class="number">55</span><span class="punctuation">;</span>
+<span class="type">object</span> then = <span class="constant">Calendar</span>.Day<span class="punctuation">(</span>years, months, days<span class="punctuation">)</span>+offset<span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"Nat was 55 days old on: %d/%d/%d\n"</span>, then-&gt;month_no<span class="punctuation">()</span>, then-&gt;month_day<span class="punctuation">()</span>,then-&gt;year_no<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">Nat was 55 days old on: 3/14/1973</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN147"
+>Difference of Two Dates</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> bree = <span class="number">361535725</span><span class="punctuation">;</span>         <span class="comment-delimiter">// </span><span class="comment">16 Jun 1981, 4:35:25</span>
+<span class="type">int</span> nat  = <span class="number">96201950</span><span class="punctuation">;</span>          <span class="comment-delimiter">// </span><span class="comment">18 Jan 1973, 3:45:50</span>
+
+<span class="type">int</span> difference = bree-nat<span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"There were %d seconds between Nat and Bree\n"</span>, difference<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">There were 265333775 seconds between Nat and Bree</span>
+
+<span class="type">int</span> seconds =  difference                % <span class="number">60</span><span class="punctuation">;</span>
+<span class="type">int</span> minutes = <span class="punctuation">(</span>difference / <span class="number">60</span><span class="punctuation">)</span>          % <span class="number">60</span><span class="punctuation">;</span>
+<span class="type">int</span> hours   = <span class="punctuation">(</span>difference / <span class="punctuation">(</span><span class="number">60</span>*<span class="number">60</span><span class="punctuation">)</span> <span class="punctuation">)</span>    % <span class="number">24</span><span class="punctuation">;</span>
+<span class="type">int</span> days    = <span class="punctuation">(</span>difference / <span class="punctuation">(</span><span class="number">60</span>*<span class="number">60</span>*<span class="number">24</span><span class="punctuation">)</span> <span class="punctuation">)</span> % <span class="number">7</span><span class="punctuation">;</span>
+<span class="type">int</span> weeks   =  difference / <span class="punctuation">(</span><span class="number">60</span>*<span class="number">60</span>*<span class="number">24</span>*<span class="number">7</span><span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"(%d weeks, %d days, %d:%d:%d)\n"</span>, weeks, days, hours, minutes, seconds<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">(438 weeks, 4 days, 23:49:35)</span>
+
+<span class="type">object</span> bree = <span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"16 Jun 1981, 4:35:25"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Tue 16 Jun 1981 4:35:25 CEST)</span>
+<span class="type">object</span> nat  = <span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"18 Jan 1973, 3:45:50"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Thu 18 Jan 1973 3:45:50 CET)</span>
+<span class="type">object</span> difference = nat-&gt;range<span class="punctuation">(</span>bree<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Thu 18 Jan 1973 3:45:50 CET - Tue 16 Jun 1981 4:35:26 CEST)</span>
+
+write<span class="punctuation">(</span><span class="string">"There were %d days between Nat and Bree\n"</span>, difference/<span class="constant">Calendar</span>.Day<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">There were 3071 days between Nat and Bree</span>
+
+<span class="type">int</span> days=difference/<span class="constant">Calendar</span>.Day<span class="punctuation">();</span>
+<span class="type">object</span> left=difference-&gt;add<span class="punctuation">(</span>days,<span class="constant">Calendar</span>.Day<span class="punctuation">)</span>-&gt;range<span class="punctuation">(</span>difference-&gt;end<span class="punctuation">());</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Calendar handles timezone differences, and since the range crosses from</span>
+<span class="comment-delimiter">// </span><span class="comment">normal to daylight savings time, there is one day which has only 23 hours.</span>
+<span class="comment-delimiter">// </span><span class="comment">by adding the number of days we effectively move the beginning of the range</span>
+<span class="comment-delimiter">// </span><span class="comment">to the same day as the end, leaving us with a range that is less than a day</span>
+<span class="comment-delimiter">// </span><span class="comment">long. when adding the days, the daylight savings switch will be taken into</span>
+<span class="comment-delimiter">// </span><span class="comment">account.</span>
+
+write<span class="punctuation">(</span><span class="string">"Bree came %d days, %d:%d:%d after Nat\n"</span>, 
+                   days, 
+                   <span class="punctuation">(</span>left/<span class="constant">Calendar</span>.Hour<span class="punctuation">())</span>%<span class="number">24</span>,
+                   <span class="punctuation">(</span>left/<span class="constant">Calendar</span>.Minute<span class="punctuation">())</span>%<span class="number">60</span>,
+                   <span class="punctuation">(</span>left/<span class="constant">Calendar</span>.Second<span class="punctuation">())</span>%<span class="number">60</span>,
+                   <span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Bree came 3071 days, 0:49:36 after Nat</span>
+
+<span class="comment-delimiter">// </span><span class="comment">the following is more accurate, taking into account that the days where</span>
+<span class="comment-delimiter">// </span><span class="comment">daylight savings time is switched do not have 24, but 23 and 25 hours.</span>
+<span class="comment-delimiter">// </span><span class="comment">thanks to mirar on the pike list for pointing this out and providing a</span>
+<span class="comment-delimiter">// </span><span class="comment">correct solution.</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> breakdown_elapsed<span class="punctuation">(</span><span class="type">object</span> u, <span class="type">void</span>|<span class="type">array</span> on<span class="punctuation">)</span>
+<span class="punctuation">{</span>  
+  <span class="type">array</span> res=<span class="punctuation">({});</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>!on<span class="punctuation">)</span> on=<span class="punctuation">({</span>Day,Hour,Minute,Second<span class="punctuation">});</span>
+  <span class="keyword">foreach</span> <span class="punctuation">(</span>on<span class="punctuation">;;</span><span class="type">program</span>|TimeRange p<span class="punctuation">)</span>
+  <span class="punctuation">{</span>  
+    <span class="keyword">if</span> <span class="punctuation">(</span>u==u-&gt;end<span class="punctuation">())</span> <span class="punctuation">{</span> res+=<span class="punctuation">({</span><span class="number">0</span><span class="punctuation">});</span> <span class="keyword">continue</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+    <span class="type">int</span> x=u/p<span class="punctuation">;</span>
+    u=u-&gt;add<span class="punctuation">(</span>x,p<span class="punctuation">)</span>-&gt;range<span class="punctuation">(</span>u-&gt;end<span class="punctuation">());</span>
+    res+=<span class="punctuation">({</span>x<span class="punctuation">});</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> res<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+write<span class="punctuation">(</span><span class="string">"Bree came %d days, %d:%d:%d after Nat\n"</span>,
+      @breakdown_elapsed<span class="punctuation">(</span>difference<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Bree came 3071 days, 0:49:36 after Nat</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN150"
+>Day in a Week/Month/Year or Week Number</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span> day=localtime<span class="punctuation">(</span>time<span class="punctuation">());</span>
+day-&gt;mday<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 2</span>
+day-&gt;wday<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 4</span>
+day-&gt;yday<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 336</span>
+
+<span class="type">int</span> year=<span class="number">1981</span><span class="punctuation">;</span>
+<span class="type">int</span> month=<span class="number">6</span><span class="punctuation">;</span>
+<span class="type">int</span> day=<span class="number">16</span><span class="punctuation">;</span>
+<span class="type">object</span> date<span class="punctuation">;</span>
+date = <span class="constant">Calendar</span>.Day<span class="punctuation">(</span>year, month, day<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Day(Tue 16 Jun 1981)</span>
+
+date-&gt;week_day<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 3</span>
+date-&gt;week_no<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 24</span>
+date-&gt;year_day<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 167</span>
+write<span class="punctuation">(</span><span class="string">"%d/%d/%d was a %s\n"</span>, month, day, year, date-&gt;week_day_name<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">6/16/1981 was a Tuesday</span>
+
+write<span class="punctuation">(</span><span class="string">"in the week number %d.\n"</span>, date-&gt;week_no<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">in the week number 25.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN153"
+>Parsing Dates and Times from Strings</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> date = <span class="string">"1998-06-03"</span><span class="punctuation">;</span>
+<span class="type">int</span> yyyy<span class="punctuation">;</span>
+<span class="type">int</span> mm<span class="punctuation">;</span>
+<span class="type">int</span> dd<span class="punctuation">;</span>
+<span class="punctuation">[</span>yyyy, mm, dd<span class="punctuation">]</span> = array_sscanf<span class="punctuation">(</span>date, <span class="string">"%d-%d-%d"</span><span class="punctuation">);</span>
+
+<span class="type">object</span> day<span class="punctuation">;</span>
+day=<span class="constant">Calendar</span>.dwim_day<span class="punctuation">(</span>date<span class="punctuation">);</span>
+day=<span class="constant">Calendar</span>.parse<span class="punctuation">(</span><span class="string">"%Y-%M-%D"</span>, date<span class="punctuation">);</span>
+
+day-&gt;unix_time<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 896824800</span>
+day-&gt;year_no<span class="punctuation">();</span>                      
+<span class="comment-delimiter">// </span><span class="comment">Result: 1998</span>
+day-&gt;month_no<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 6</span>
+day-&gt;month_day<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 3</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN156"
+>Printing a Date</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">object</span> now=<span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"Sun Sep 21 15:33:36 1997"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: Second(Sun 21 Sep 1997 15:33:36 CEST)</span>
+
+now-&gt;format_ctime<span class="punctuation">();</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "Sun Sep 21 15:33:36 1997\n"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">there is no equivalent to scalar localtime</span>
+
+now = <span class="constant">Calendar</span>.Second<span class="punctuation">(</span><span class="number">1973</span>, <span class="number">1</span>, <span class="number">18</span>, <span class="number">3</span>, <span class="number">45</span>, <span class="number">50</span><span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"strftime gives: %s %02d/%02d/%!2d\n"</span>, now-&gt;week_day_name<span class="punctuation">()</span>, 
+        now-&gt;month_no<span class="punctuation">()</span>, now-&gt;month_day<span class="punctuation">()</span>, now-&gt;year_no<span class="punctuation">());</span>
+<span class="comment-delimiter">// </span><span class="comment">strftime gives: Sunday 01/18/73</span>
+<span class="comment-delimiter">// </span><span class="comment">pike doesn't have strftime, but hey.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">instead Calendar provides a large array of predefined formats:</span>
+
+<span class="comment-delimiter">// </span><span class="comment">format_nice() and format_nicez() depend on the unit:</span>
+now-&gt;format_nice<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"18 Jan 1973 3:45:50"</span>
+now-&gt;week<span class="punctuation">()</span>-&gt;format_nice<span class="punctuation">();</span>   <span class="comment-delimiter">// </span><span class="comment">"w3 1973"</span>
+now-&gt;format_nicez<span class="punctuation">();</span>          <span class="comment-delimiter">// </span><span class="comment">"18 Jan 1973 3:45:50 CET"</span>
+now-&gt;hour<span class="punctuation">()</span>-&gt;format_nicez<span class="punctuation">();</span>  <span class="comment-delimiter">// </span><span class="comment">"18 Jan 1973 3:00 CET"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">others are unit independant.</span>
+now-&gt;format_ext_time<span class="punctuation">();</span>       <span class="comment-delimiter">// </span><span class="comment">"Thursday, 18 January 1973 03:45:50"</span>
+now-&gt;format_ext_ymd<span class="punctuation">();</span>        <span class="comment-delimiter">// </span><span class="comment">"Thursday, 18 January 1973"</span>
+now-&gt;format_iso_time<span class="punctuation">();</span>       <span class="comment-delimiter">// </span><span class="comment">"1973-01-18 (Jan) -W03-4 (Thu) 03:45:50 UTC+1"</span>
+now-&gt;format_iso_ymd<span class="punctuation">();</span>        <span class="comment-delimiter">// </span><span class="comment">"1973-01-18 (Jan) -W03-4 (Thu)"</span>
+now-&gt;format_mod<span class="punctuation">();</span>            <span class="comment-delimiter">// </span><span class="comment">"03:45"</span>
+now-&gt;format_month<span class="punctuation">();</span>          <span class="comment-delimiter">// </span><span class="comment">"1973-01"</span>
+now-&gt;format_month_short<span class="punctuation">();</span>    <span class="comment-delimiter">// </span><span class="comment">"197301"</span>
+now-&gt;format_mtime<span class="punctuation">();</span>          <span class="comment-delimiter">// </span><span class="comment">"1973-01-18 03:45"</span>
+now-&gt;format_time<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"1973-01-18 03:45:50"</span>
+now-&gt;format_time_short<span class="punctuation">();</span>     <span class="comment-delimiter">// </span><span class="comment">"19730118 03:45:50"</span>
+now-&gt;format_time_xshort<span class="punctuation">();</span>    <span class="comment-delimiter">// </span><span class="comment">"730118 03:45:50"</span>
+now-&gt;format_tod<span class="punctuation">();</span>            <span class="comment-delimiter">// </span><span class="comment">"03:45:50"</span>
+now-&gt;format_tod_short<span class="punctuation">();</span>      <span class="comment-delimiter">// </span><span class="comment">"034550"</span>
+now-&gt;format_todz<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"03:45:50 CET"</span>
+now-&gt;format_todz_iso<span class="punctuation">();</span>       <span class="comment-delimiter">// </span><span class="comment">"03:45:50 UTC+1"</span>
+now-&gt;format_week<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"1973-w3"</span>
+now-&gt;format_week_short<span class="punctuation">();</span>     <span class="comment-delimiter">// </span><span class="comment">"1973w3"</span>
+now-&gt;format_iso_week<span class="punctuation">();</span>       <span class="comment-delimiter">// </span><span class="comment">"1973-W03"</span>
+now-&gt;format_iso_week_short<span class="punctuation">();</span> <span class="comment-delimiter">// </span><span class="comment">"197303"</span>
+now-&gt;format_xtime<span class="punctuation">();</span>          <span class="comment-delimiter">// </span><span class="comment">"1973-01-18 03:45:50.000000"</span>
+now-&gt;format_xtod<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"03:45:50.000000"</span>
+now-&gt;format_ymd<span class="punctuation">();</span>            <span class="comment-delimiter">// </span><span class="comment">"1973-01-18"</span>
+now-&gt;format_ymd_short<span class="punctuation">();</span>      <span class="comment-delimiter">// </span><span class="comment">"19730118"</span>
+now-&gt;format_ymd_xshort<span class="punctuation">();</span>     <span class="comment-delimiter">// </span><span class="comment">"730118"</span>
+
+now-&gt;format_ctime<span class="punctuation">();</span>          <span class="comment-delimiter">// </span><span class="comment">"Thu Jan 18 03:45:50 1973\n"</span>
+now-&gt;format_smtp<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"Thu, 18 Jan 1973 3:45:50 +0100"</span>
+now-&gt;format_http<span class="punctuation">();</span>           <span class="comment-delimiter">// </span><span class="comment">"Thu, 18 Jan 1973 02:45:50 GMT"</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN159"
+>High-Resolution Timers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> t=time<span class="punctuation">();</span>                 <span class="comment-delimiter">// </span><span class="comment">current time in unixtime seconds</span>
+<span class="type">float</span> t0=time<span class="punctuation">(</span>t<span class="punctuation">);</span>             <span class="comment-delimiter">// </span><span class="comment">higher precision time passed since t</span>
+<span class="type">float</span> t1=time<span class="punctuation">(</span>t<span class="punctuation">);</span>
+<span class="type">float</span> elapsed=t1-t0<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 0.009453</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------</span>
+write<span class="punctuation">(</span><span class="string">"Press return when ready: "</span><span class="punctuation">);</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> before=<span class="constant">System</span>.gettimeofday<span class="punctuation">();</span>
+<span class="constant">Stdio</span>.stdin-&gt;gets<span class="punctuation">();</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> after=<span class="constant">System</span>.gettimeofday<span class="punctuation">();</span>
+<span class="type">int</span> elapsed_sec=after<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>-before<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="type">int</span> elapsed_usec=after<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>-before<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="keyword">if</span><span class="punctuation">(</span>elapsed_usec&lt;<span class="number">0</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  elapsed_sec--<span class="punctuation">;</span>
+  elapsed_usec+=<span class="number">1000000</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+write<span class="punctuation">(</span><span class="string">"You took %d.%d seconds.\n"</span>, elapsed_sec, elapsed_usec<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">this is an expanded example compared to the one given for perl</span>
+<span class="comment-delimiter">// </span><span class="comment">to allow comparison of different types.</span>
+<span class="comment-delimiter">// </span><span class="comment">bignum are objects of the gmp library, which are seamlessly integrated with</span>
+<span class="comment-delimiter">// </span><span class="comment">regular integers.</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">size values are adjusted so that each run takes about the same length.</span>
+  gaugethis<span class="punctuation">(</span><span class="number">5000000</span>, <span class="number">100</span>, <span class="keyword">lambda</span><span class="punctuation">(){</span> <span class="keyword">return</span> random<span class="punctuation">(</span>pow<span class="punctuation">(</span><span class="number">2</span>,<span class="number">31</span><span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">);</span> <span class="punctuation">});</span>
+               <span class="comment-delimiter">// </span><span class="comment">values to fit into a signed 32bit int.</span>
+  gaugethis<span class="punctuation">(</span><span class="number">50000</span>, <span class="number">100</span>, <span class="keyword">lambda</span><span class="punctuation">(){</span> <span class="keyword">return</span> pow<span class="punctuation">(</span><span class="number">2</span>,<span class="number">64</span><span class="punctuation">)</span>+random<span class="punctuation">(</span>pow<span class="punctuation">(</span><span class="number">2</span>,<span class="number">64</span><span class="punctuation">));</span> <span class="punctuation">});</span>
+               <span class="comment-delimiter">// </span><span class="comment">make sure values are bignum even in case 64bit ints are used.</span>
+  gaugethis<span class="punctuation">(</span><span class="number">500000</span>, <span class="number">100</span>, <span class="keyword">lambda</span><span class="punctuation">(){</span> <span class="keyword">return</span> random_string<span class="punctuation">(</span><span class="number">10</span><span class="punctuation">);</span> <span class="punctuation">});</span>
+               <span class="comment-delimiter">// </span><span class="comment">might be interresting to compare longer strings too.</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> gaugethis<span class="punctuation">(</span><span class="type">int</span> size, <span class="type">int</span> number_of_times, <span class="type">function</span> rand<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span> gauged_times = <span class="punctuation">({});</span>
+  <span class="type">float</span> average<span class="punctuation">;</span>
+
+  <span class="type">int</span> swidth=sizeof<span class="punctuation">((</span><span class="type">string</span><span class="punctuation">)</span>size<span class="punctuation">);</span>
+  <span class="type">int</span> nwidth=sizeof<span class="punctuation">((</span><span class="type">string</span><span class="punctuation">)</span>number_of_times<span class="punctuation">);</span>
+  <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i&lt;number_of_times<span class="punctuation">;</span> i++<span class="punctuation">)</span>
+  <span class="punctuation">{</span> 
+    write<span class="punctuation">(</span><span class="string">"%*d: "</span>, nwidth, i<span class="punctuation">);</span>
+    <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr=<span class="punctuation">({});</span>
+    write<span class="punctuation">(</span><span class="string">"creating array: "</span><span class="punctuation">);</span>
+    <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> j<span class="punctuation">;</span> j&lt;size<span class="punctuation">;</span> j++<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      arr += <span class="punctuation">({</span> rand<span class="punctuation">()</span> <span class="punctuation">});</span> 
+    <span class="punctuation">}</span>
+    write<span class="punctuation">(</span><span class="string">" sorting: "</span><span class="punctuation">);</span>
+
+    <span class="type">float</span> gaugetime=gauge <span class="comment-delimiter">// </span><span class="comment">gauge measures cpu time, giving better results</span>
+    <span class="punctuation">{</span> 
+      arr=sort<span class="punctuation">(</span>arr<span class="punctuation">);</span>
+    <span class="punctuation">};</span>
+    gauged_times += <span class="punctuation">({</span> gaugetime <span class="punctuation">});</span>
+    write<span class="punctuation">(</span><span class="string">" %f          \r"</span>, gaugetime<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+  average=`+<span class="punctuation">(</span>@gauged_times<span class="punctuation">)</span>/<span class="punctuation">(</span><span class="type">float</span><span class="punctuation">)</span>number_of_times<span class="punctuation">;</span>
+  gauged_times=sort<span class="punctuation">(</span>gauged_times<span class="punctuation">);</span>
+
+  write<span class="punctuation">(</span><span class="string">"average: %O, min: %O, max: %O                           \n"</span>, 
+        average, gauged_times<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, gauged_times<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN162"
+>Short Sleeps</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> abort_on_signal=<span class="number">1</span><span class="punctuation">;</span>         <span class="comment-delimiter">// </span><span class="comment">if true, aport on signal</span>
+sleep<span class="punctuation">(</span><span class="number">0.25</span>, abort_on_signal<span class="punctuation">);</span>
+
+delay<span class="punctuation">(</span><span class="number">0.25</span><span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">uses busy-wait for accuracy,</span>
+             <span class="comment-delimiter">// </span><span class="comment">may be interrupted by signal handlers</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN165"
+>Program: hopdelta</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"Tue, 26 May 1998 23:57:38 -0400"</span><span class="punctuation">)</span>-&gt;distance<span class="punctuation">(</span>
+    <span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span><span class="string">"Wed, 27 May 1998 05:04:03 +0100"</span><span class="punctuation">))</span>-&gt;format_elapsed<span class="punctuation">();</span>   
+<span class="comment-delimiter">// </span><span class="comment">Result: "0:06:25"</span>
+
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch03/hopdelta.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 3.11
+</span><span class="comment-delimiter">// </span><span class="comment">hopdelta - feed mail header, produce lines
+</span><span class="comment-delimiter">//            </span><span class="comment">showing delay at each hop.
+</span><span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="constant">MIME</span>.Message        mail = <span class="constant">MIME</span>.Message<span class="punctuation">(</span><span class="constant">Stdio</span>.<span class="constant">stdin</span>.read<span class="punctuation">());</span>
+  
+  <span class="type">array</span>           received = reverse<span class="punctuation">(</span>mail-&gt;headers-&gt;received/<span class="string">"\0"</span><span class="punctuation">);</span>
+  <span class="constant">Calendar</span>.Second lasttime = <span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span>mail-&gt;headers-&gt;date<span class="punctuation">);</span>
+
+  <span class="type">array</span> delays=<span class="punctuation">({</span> <span class="punctuation">({</span> <span class="string">"Sender"</span>, <span class="string">"Recipient"</span>, <span class="string">"Time"</span>, <span class="string">"Delta"</span> <span class="punctuation">})</span> <span class="punctuation">});</span>
+  delays+=<span class="punctuation">({</span> <span class="punctuation">({</span> mail-&gt;headers-&gt;from, 
+                array_sscanf<span class="punctuation">(</span>received<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, <span class="string">"from %[^ ]"</span><span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">]</span>, 
+                mail-&gt;headers-&gt;date, 
+                <span class="string">""</span> 
+          <span class="punctuation">})</span> <span class="punctuation">});</span>
+          
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>received<span class="punctuation">;;</span> <span class="type">string</span> hop<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">string</span> fromby, date<span class="punctuation">;</span>
+    <span class="punctuation">[</span>fromby, date<span class="punctuation">]</span> = hop/<span class="string">";"</span><span class="punctuation">;</span>
+    <span class="constant">Calendar</span>.Second thistime = <span class="constant">Calendar</span>.dwim_time<span class="punctuation">(</span>date<span class="punctuation">);</span>
+
+    delays+= <span class="punctuation">({</span> array_sscanf<span class="punctuation">(</span>fromby, <span class="string">"from %[^ ]%*sby %[^ ]%*s"</span><span class="punctuation">)</span> + 
+                <span class="punctuation">({</span> date, lasttime-&gt;distance<span class="punctuation">(</span>thistime<span class="punctuation">)</span>-&gt;format_elapsed<span class="punctuation">()</span> <span class="punctuation">})</span> 
+             <span class="punctuation">});</span>
+
+    lasttime=thistime<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+
+  write<span class="punctuation">(</span><span class="string">"%{%-=22s %-=22s %-=20s %=10s\n%}\n"</span>, delays<span class="punctuation">);</span>
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="numbers.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="arrays.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Numbers</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Arrays</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

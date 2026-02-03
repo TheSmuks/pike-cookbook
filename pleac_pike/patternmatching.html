@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML><HEAD><TITLE>Pattern Matching</TITLE><META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK REL="HOME" TITLE="PLEAC-Pike" HREF="index.html"><LINK REL="PREVIOUS" TITLE="Hashes" HREF="hashes.html"><LINK REL="NEXT" TITLE="File Access" HREF="fileaccess.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"><DIV CLASS="NAVHEADER"><TABLE SUMMARY="Header navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TH COLSPAN="3" ALIGN="center">PLEAC-Pike</TH></TR><TR><TD WIDTH="10%" ALIGN="left" VALIGN="bottom"><A HREF="hashes.html" ACCESSKEY="P">Prev</A></TD><TD WIDTH="80%" ALIGN="center" VALIGN="bottom"></TD><TD WIDTH="10%" ALIGN="right" VALIGN="bottom"><A HREF="fileaccess.html" ACCESSKEY="N">Next</A></TD></TR></TABLE><HR ALIGN="LEFT" WIDTH="100%"></DIV><DIV CLASS="SECT1"><H1 CLASS="SECT1"><A NAME="PATTERNMATCHING">6. Pattern Matching</A></H1><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN285">Introduction</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pattern Matching with Pike 8</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern implementation using String.pmod and Regexp</span>
+<span class="comment-delimiter">// </span><span class="comment">Comprehensive pattern matching solutions</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Modern string imports for advanced pattern matching</span>
+<span class="keyword">import</span> <span class="module">String</span><span class="punctuation">;</span>
+<span class="keyword">import</span> <span class="module">Array</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">String utilities for modern pattern matching</span>
+constant Buffer = __builtin.Buffer;
+constant Iterator = __builtin.string_iterator;
+constant SplitIterator = __builtin.string_split_iterator;
+constant fuzzymatch = String.fuzzymatch;
+constant levenshtein_distance = String.levenshtein_distance;
+constant soundex = String.soundex;
+constant common_prefix = String.common_prefix;
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN288">Copying and Substituting Simultaneously</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 6.1: Simple Substitution - Modern Approach</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> src = <span class="string">"This is a test string"</span><span class="punctuation">;</span>
+<span class="type">string</span> dst<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Method 1: Using String.replace() - more efficient than regex for simple cases</span>
+dst = replace(src<span class="punctuation">,</span> <span class="punctuation">([</span><span class="string">"test"</span>: <span class="string">"replacement"</span><span class="punctuation">]));</span>
+<span class="comment-delimiter">//</span><span class="comment"> "This is a replacement string"</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Method 2: Using Regexp for complex pattern matching</span>
+dst = Regexp<span class="punctuation">(</span><span class="string">"this"</span><span class="punctuation">)</span>-&gt;replace<span class="punctuation">(</span>src<span class="punctuation">,</span> <span class="string">"that"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "that is a test string" (case-sensitive)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Method 3: Case-insensitive replacement with Regexp</span>
+dst = Regexp<span class="punctuation">(</span><span class="string">"(?i)this"</span><span class="punctuation">)</span>-&gt;replace<span class="punctuation">(</span>src<span class="punctuation">,</span> <span class="string">"that"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "that is a test string" (case-insensitive)</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.2: Extract Basename (Strip Directory)</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> path = <span class="string">"/home/user/document.txt"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern approach: Using String manipulation (more efficient)</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> parts = path/<span class="string">"/"</span><span class="punctuation">;</span>
+<span class="type">string</span> basename = parts[<span class="punctuation">-</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="comment-delimiter">//</span><span class="comment"> "document.txt"</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Alternative: Using regex for complex path patterns</span>
+<span class="type">string</span> basename_regex = Regexp<span class="punctuation">(</span><span class="string">"^.*/"</span><span class="punctuation">)</span>-&gt;replace<span class="punctuation">(</span>path<span class="punctuation">,</span> <span class="string">""</span><span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "document.txt"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.3: Capitalize Words with Callback</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> capword = Regexp<span class="punctuation">(</span><span class="string">"[a-z]+"</span><span class="punctuation">)</span>-&gt;replace
+        <span class="punctuation">(</span><span class="string">"foo.bar"</span><span class="punctuation">,</span>
+            <span class="keyword">lambda</span> <span class="punctuation">(</span><span class="type">string</span> c<span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="keyword">return</span> capitalize<span class="punctuation">(</span>c<span class="punctuation">);</span>
+            <span class="punctuation">}</span> <span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "Foo.Bar"</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String.pmod function for better word capitalization</span>
+<span class="type">string</span> title_case = sillycaps<span class="punctuation">(</span><span class="string">"foo bar"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "Foo Bar"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN291">Matching Letters</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 6.4: Matching Letters (Character Classes)</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> text = <span class="string">"Hello World 123!"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract all letters (alphabetic characters)</span>
+<span type="string">string</span> letters = Regexp<span class="punctuation">(</span><span class="string">"[a-zA-Z]+"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>text<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "HelloWorld" (first match)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Find all letters using split and filter</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> all_letters = filter<span class="punctuation">(</span>text/<span class="string">""</span><span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> c<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> c <span class="operator">>=</span> <span class="string">'a'</span> <span class="operator">&amp;&amp;</span> c <span class="operator"><=</span> <span class="string">'z'</span> <span class="operator">||</span>
+           c <span class="operator">>=</span> <span class="string">'A'</span> <span class="operator">&amp;&amp;</span> c <span class="operator"><=</span> <span class="string">'Z'</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>*<span class="string">""</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment"> "HelloWorld"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.5: Matching Words with Word Boundaries</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> sentence = <span class="string">"The quick brown fox jumps over the lazy dog"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Find words starting with 'q'</span>
+<span type="string">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> q_words = Regexp<span class="punctuation">(</span><span class="string">"\bq\w*"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>sentence<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "quick" }) (first match)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract all words using modern string splitting</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> words = normalize_space<span class="punctuation">(</span>sentence<span class="punctuation">)</span>/<span class="string">" "</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "The", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Find words with specific patterns</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> long_words = filter<span class="punctuation">(</span>words<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> word<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> sizeof<span class="punctuation">(</span>word<span class="punctuation">)</span> <span class="operator">></span> <span class="number">4</span><span class="punctuation">;</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "quick", "brown", "jumps" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN294">Pattern Matching with Fuzzy Logic</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 6.6: Fuzzy String Matching</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> target = <span class="string">"programming"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> candidates = <span class="punctuation">({</span>
+    <span class="string">"programming"</span><span class="punctuation">,</span> <span class="string">"programing"</span><span class="punctuation">,</span> <span class="string">"progamming"</span><span class="punctuation">,</span>
+    <span class="string">"codding"</span><span class="punctuation">,</span> <span class="string">"development"</span><span class="punctuation">,</span> <span class="string">"writing"</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Calculate similarity scores using fuzzymatch</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> scores = map<span class="punctuation">(</span>candidates<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> candidate<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> fuzzymatch<span class="punctuation">(</span>target<span class="punctuation">,</span> candidate<span class="punctuation">);</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Find matches above threshold (80% similarity)</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> good_matches = filter<span class="punctuation">(</span>candidates<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> candidate<span class="punctuation">,</span> <span class="type">int</span> index<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> scores[index] <span class="operator">>=</span> <span class="number">80</span><span class="punctuation">;</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Sort by similarity score</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> sorted_matches = sort<span class="punctuation">(</span>good_matches<span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> a<span class="punctuation">,</span> <span class="type">string</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> fuzzymatch<span class="punctuation">(</span>target<span class="punctuation">,</span> b<span class="punctuation">)</span> <span class="operator">-</span> fuzzymatch<span class="punctuation">(</span>target<span class="punctuation">,</span> a<span class="punctuation">);</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.7: Phonetic Matching with Soundex</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> names = <span class="punctuation">({</span>
+    <span class="string">"Robert"</span><span class="punctuation">,</span> <span class="string">"Rupert"</span><span class="punctuation">,</span> <span class="string">"Rubin"</span><span class="punctuation">,</span>
+    <span class="string">"Smith"</span><span class="punctuation">,</span> <span class="string">"Smythe"</span><span class="punctuation">,</span> <span class="string">"Smyth"</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Group names by Soundex code</span>
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">))</span> soundex_groups = <span class="punctuation">([])</span><span class="punctuation">;</span>
+<span class="keyword">foreach</span> <span class="punctuation">(</span>names<span class="punctuation">,</span> <span class="type">string</span> name<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="type">string</span> code = soundex<span class="punctuation">(</span>name<span class="punctuation">);</span>
+    <span class="keyword">if</span> <span class="punctuation">(!</span>soundex_groups[code<span class="punctuation">])</span>
+        soundex_groups[code<span class="punctuation">]</span> <span class="punctuation">=</span> <span class="punctuation">({</span><span class="punctuation">})</span><span class="punctuation">;</span>
+    soundex_groups[code] <span class="operator">+=</span> <span class="punctuation">({</span>name<span class="punctuation">})</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Output Soundex groups</span>
+<span class="keyword">foreach</span> <span class="punctuation">(</span>soundex_groups<span class="punctuation">;</span> <span class="type">string</span> code<span class="punctuation">;</span> <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> group<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Soundex %s: %s\n"</span><span class="punctuation">,</span> code<span class="punctuation">,</span> implode_nicely<span class="punctuation">(</span>group<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment"> Soundex R163: Robert, Rupert, Rubin</span>
+<span class="comment-delimiter">//</span><span class="comment"> Soundex S530: Smith, Smythe, Smyth</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN297">Regular Expression Advanced Features</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 6.8: Matching Multiple Lines</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> multiline_text = <span class="string">"First line\nSecond line\nThird line"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract lines containing specific pattern</span>
+<span type="string">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> matching_lines = Regexp<span class="punctuation">(</span><span class="string">"line.*\n"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>multiline_text<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "First line\n", "Second line\n", "Third line" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Process line by line using modern iteration</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> processed_lines = map<span class="punctuation">(</span>multiline_text/<span class="string">"\n"</span><span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> line<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="keyword">if</span><span class="punctuation">(</span>Regexp<span class="punctuation">(</span><span class="string">"line"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>line<span class="punctuation">),</span>
+              capitalize<span class="punctuation">(</span>line<span class="punctuation">),</span>
+              line<span class="punctuation">);</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.9: Greedy and Non-Greedy Matches</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> html = <span class="string">"&lt;div&gt;Content&lt;/div&gt;&lt;div&gt;More content&lt;/div&gt;"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Greedy match (default)</span>
+<span type="string">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> greedy_matches = Regexp<span class="punctuation">(</span><span class="string">"&lt;div&gt;.*&lt;/div&gt;"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>html<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "&lt;div&gt;Content&lt;/div&gt;&lt;div&gt;More content&lt;/div&gt;" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Non-greedy match</span>
+<span type="string">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> nongreedy_matches = Regexp<span class="punctuation">(</span><span class="string">"&lt;div&gt;.*?&lt;/div&gt;"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>html<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "&lt;div&gt;Content&lt;/div&gt;", "&lt;div&gt;More content&lt;/div&gt;" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.10: Capturing Groups</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> log_entry = <span class="string">"192.168.1.1 - - [01/Jan/2023:12:00:00 +0000] \"GET /index.html HTTP/1.1\" 200 1024"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract IP address and timestamp using capturing groups</span>
+<span type="string">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> matches = Regexp<span class="punctuation">(</span><span class="string">"^(\d+\.\d+\.\d+\.\d+).*\[([^\]]+)\].*\"(\w+) (.*) HTTP"</span><span class="punctuation">)</span>-&gt;match<span class="punctuation">(</span>log_entry<span class="punctuation">);</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>matches <span class="operator">&amp;&amp;</span> sizeof<span class="punctuation">(</span>matches<span class="punctuation">)</span> <span class="operator">></span> <span class="number">3</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="type">string</span> ip = matches[<span class="number">1</span><span class="punctuation">];</span>
+    <span class="type">string</span> timestamp = matches[<span class="number">2</span><span class="punctuation">];</span>
+    <span class="type">string</span> method = matches[<span class="number">3</span><span class="punctuation">];</span>
+    <span class="type">string</span> path = matches[<span class="number">4</span><span class="punctuation">];</span>
+
+    <span class="keyword">write</span><span class="punctuation">(</span><span class="string">"IP: %s, Method: %s, Path: %s\n"</span><span class="punctuation">,</span> ip<span class="punctuation">,</span> method<span class="punctuation">,</span> path<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment"> IP: 192.168.1.1, Method: GET, Path: /index.html</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN300">Pattern Matching Utilities</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 6.11: Common Prefix Finding</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> strings = <span class="punctuation">({</span>
+    <span class="string">"apple"</span><span class="punctuation">,</span> <span class="string">"apricot"</span><span class="punctuation">,</span> <span class="string">"april"</span><span class="punctuation">,</span> <span class="string">"apology"</span>
+<span class="punctuation">})</span><span class="punctuation">;</span>
+
+<span class="type">string</span> prefix = common_prefix<span class="punctuation">(</span>strings<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "ap"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.12: String Distance and Similarity</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> s1 = <span class="string">"kitten"</span><span class="punctuation">;</span>
+<span class="type">string</span> s2 = <span class="string">"sitting"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Calculate Levenshtein distance</span>
+<span class="type">int</span> distance = levenshtein_distance<span class="punctuation">(</span>s1<span class="punctuation">,</span> s2<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> 3 (kitten → sitten → sittin → sitting)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Calculate similarity percentage</span>
+<span class="type">int</span> similarity = fuzzymatch<span class="punctuation">(</span>s1<span class="punctuation">,</span> s2<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> 73 (based on normalized distance)</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.13: Pattern Validation</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="keyword">bool</span> validate_email<span class="punctuation">(</span><span class="type">string</span> email<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> Regexp<span class="punctuation">(</span><span class="string">"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"</span><span class="punctuation">)</span>
+           -&gt;match<span class="punctuation">(</span>email<span class="punctuation">)</span> <span class="operator">!=</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">bool</span> validate_url<span class="punctuation">(</span><span class="type">string</span> url<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> Regexp<span class="punctuation">(</span><span class="string">"^https?://[^\s/$.?#].[^\s]*$"</span><span class="punctuation">)</span>
+           -&gt;match<span class="punctuation">(</span>url<span class="punctuation">)</span> <span class="operator">!=</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Test validation functions</span>
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Email valid: %d\n"</span><span class="punctuation">,</span> validate_email<span class="punctuation">(</span><span class="string">"test@example.com"</span><span class="punctuation">));</span>
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"URL valid: %d\n"</span><span class="punctuation">,</span> validate_url<span class="punctuation">(</span><span class="string">"https://pike.ida.liu.se"</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 6.14: Advanced String Processing</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String iterators for efficient processing</span>
+<span class="type">string</span> text = <span class="string">"Hello, world!"</span><span class="punctuation">;</span>
+String.Iterator it = Iterator<span class="punctuation">(</span>text<span class="punctuation">);</span>
+
+<span class="type">string</span> result = <span class="string">""</span><span class="punctuation">;</span>
+<span class="keyword">while</span> <span class="punctuation">(</span>it-&gt;index<span class="punctuation">()</span> <span class="operator"><</span> sizeof<span class="punctuation">(</span>it-&gt;value<span class="punctuation">())</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="type">string</span> c = it-&gt;value<span class="punctuation">()</span>[it-&gt;index<span class="punctuation">()];</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>c <span class="operator">!=</span> <span class="string">','</span> <span class="operator">&amp;&amp;</span> c <span class="operator">!=</span> <span class="string">'!'</span><span class="punctuation">)</span>
+        result += c<span class="punctuation">;</span>
+    it-&gt;next<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using Buffer for efficient string building</span>
+Buffer buf = Buffer<span class="punctuation">();</span>
+buf-&gt;add<span class="punctuation">(</span><span class="string">"Processed: "</span><span class="punctuation">);</span>
+buf-&gt;add<span class="punctuation">(</span>result<span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"%s\n"</span><span class="punctuation">,</span> buf-&gt;get<span class="punctuation">());</span>
+<span class="comment-delimiter">//</span><span class="comment"> "Processed: Hello world"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="NAVFOOTER"><HR ALIGN="LEFT" WIDTH="100%"><TABLE SUMMARY="Footer navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top">&nbsp;</TD><TD WIDTH="34%" ALIGN="center" VALIGN="top">&nbsp;</TD><TD WIDTH="33%" ALIGN="right" VALIGN="top"><A HREF="fileaccess.html">Next</A></TD></TR><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top">&nbsp;</TD><TD WIDTH="34%" ALIGN="center" VALIGN="top">&nbsp;</TD><TD WIDTH="33%" ALIGN="right" VALIGN="top">File Access</TD></TR></TABLE></DIV></BODY></HTML>

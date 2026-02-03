@@ -1,0 +1,1110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Pattern Matching</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Hashes"
+HREF="hashes.html"><LINK
+REL="NEXT"
+TITLE="File Access"
+HREF="fileaccess.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="hashes.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="fileaccess.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PATTERNMATCHING"
+>6. Pattern Matching</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN285"
+>Introduction</A
+></H2
+><P
+>Pike provides powerful pattern matching through the <TT
+CLASS="LITERAL"
+>Regexp.PCRE</TT
+> module, which offers Perl-Compatible Regular Expressions. This chapter covers the essential regex operations in Pike 8.</P
+><P
+>In Pike 8, you have several regex options:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Simple pattern matching (built-in, no PCRE required)</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>(<span class="string">"pattern"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"text"</span>)) {
+    <span class="comment">// pattern found</span>
+}
+
+<span class="comment">// Advanced PCRE patterns (recommended for Pike 8)</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"pattern"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"text"</span>)) {
+    <span class="comment">// pattern found with full PCRE support</span>
+}
+
+<span class="comment">// Create a compiled regex object for repeated use</span>
+<span class="type">object</span> regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Studied</span>(<span class="string">"pattern"</span>);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN288"
+>Copying and Substituting Simultaneously</A
+></H2
+><P
+>Replace text while making a copy:</P
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Simple string replacement (returns new string)</span>
+<span class="type">string</span> dst = <span class="constant">Regexp</span>(<span class="string">"this"</span>)-&gt;<span class="function-name">replace</span>(src, <span class="string">"that"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">PCRE replacement with more options</span>
+<span class="type">string</span> result = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"this"</span>)-&gt;<span class="function-name">replace</span>(src, <span class="string">"that"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Extract basename from path (best done with string functions)</span>
+<span class="type">string</span> basename = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^.*/"</span>)-&gt;<span class="function-name">replace</span>(argv[<span class="number">0</span>], <span class="string">""</span>);
+<span class="comment-delimiter">// </span><span class="comment">Or more efficiently:</span>
+<span class="type">string</span> basename2 = (<span class="type">array</span>)<span class="function-name">reverse</span>(argv[<span class="number">0</span>]/<span class="string">"/"</span>)[<span class="number">0</span>];
+
+<span class="comment-delimiter">// </span><span class="comment">Capitalize each word using callback</span>
+<span class="type">string</span> capword = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[a-z]+"</span>)-&gt;<span class="function-name">replace</span>(
+    <span class="string">"foo.bar"</span>,
+    <span class="keyword">lambda</span>(<span class="type">string</span> word) {
+        <span class="keyword">return</span> <span class="function-name">upper_case</span>(word[<span class="number">0</span>..<span class="number">0</span>]) + word[<span class="number">1</span>..];
+    }
+);
+<span class="comment-delimiter">// </span><span class="comment">Result: "Foo.Bar"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Using captured groups in replacement</span>
+<span class="type">string</span> text = <span class="string">"Hello, World!"</span>;
+<span class="type">string</span> replaced = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"Hello, (\w+)!"</span>)-&gt;<span class="function-name">replace_positional</span>(
+    text,
+    <span class="string">"Greetings, %[1]s!"</span>
+);
+<span class="comment-delimiter">// </span><span class="comment">Result: "Greetings, World!"</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN291"
+>Matching Letters</A
+></H2
+><P
+>Match specific characters or character ranges:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Match single character</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"a"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"abc"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Found 'a'\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match any vowel</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[aeiou]"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"hello"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Contains a vowel\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match range of letters</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[A-Z]"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"Hello"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Contains uppercase letter\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match any letter (case-insensitive)</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[a-z]"</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">CASELESS</span>)-&gt;<span class="function-name">match</span>(<span class="string">"HELLO"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Contains a letter\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Negated character class</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[^0-9]"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"abc"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Contains non-digit\n"</span>);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN294"
+>Matching Words</A
+></H2
+><P
+>Match word patterns and extract them:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Match whole word</span>
+<span class="type">string</span> text = <span class="string">"The quick brown fox"</span>;
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\bquick\b"</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found word 'quick'\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match and extract words</span>
+<span class="type">array</span> matches = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b\w+\b"</span>)-&gt;<span class="function-name">split</span>(text);
+<span class="comment-delimiter">// </span><span class="comment">Result: ({"quick", 0}) - note: returns ({0}) if no subpatterns</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Extract all words using matchall</span>
+<span class="type">array</span>(<span class="type">string</span>) words = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b(\w+)\b"</span>)-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match, <span class="type">array</span> positions) {
+        words += ({ match[<span class="number">1</span>] });  <span class="comment-delimiter">// </span><span class="comment">first captured group</span>
+    }
+);
+<span class="comment-delimiter">// </span><span class="comment">Result: ({"The", "quick", "brown", "fox"})</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Match word patterns with specific requirements</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^\w{4,5}$"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"pike"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Word is 4-5 characters\n"</span>);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN297"
+>Commenting Regular Expressions</A
+></H2
+><P
+>Use verbose mode for readable regex with comments:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">PCRE extended mode allows comments and whitespace</span>
+<span class="type">string</span> pattern = <span class="string">"""
+    ^               # Start of string
+    ([\w.-]+)       # Username: word chars, dots, dashes
+    @@              # @@ symbol
+    ([\w.-]+)       # Domain name
+    \.              # Dot
+    ([a-z]{2,6})    # TLD: 2-6 letters
+    $               # End of string
+"""</span>;
+
+<span class="type">object</span> email_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(
+    pattern,
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>
+);
+
+<span class="keyword">if</span> (email_regex-&gt;<span class="function-name">match</span>(<span class="string">"user@@example.com"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Valid email format\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Same pattern without comments (for comparison)</span>
+<span class="type">object</span> compact = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(
+    <span class="string">"^([\\w.-]+)@@([\\w.-]+)\\.([a-z]{2,6})$"</span>
+);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN300"
+>Finding the Nth Occurrence of a Match</A
+></H2
+><P
+>Find specific occurrences of a pattern:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Find the Nth occurrence by counting matches</span>
+<span class="type">string</span> text = <span class="string">"one two three four five six"</span>;
+<span class="type">int</span> target = <span class="number">3</span>;  <span class="comment-delimiter">// </span><span class="comment">Find 3rd occurrence</span>
+<span class="type">int</span> count = <span class="number">0</span>;
+<span class="type">string</span> result = <span class="number">0</span>;
+
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b\w+\b"</span>)-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match, <span class="type">array</span> positions) {
+        count++;
+        <span class="keyword">if</span> (count == target) {
+            result = match[<span class="number">0</span>];
+        }
+    }
+);
+
+<span class="keyword">if</span> (result) {
+    <span class="function-name">write</span>(<span class="string">"3rd word: %s\n"</span>, result);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Extract Nth match using array indexing</span>
+<span class="type">array</span>(<span class="type">string</span>) all_words = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"(\w+)"</span>)-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        all_words += ({ match[<span class="number">1</span>] });
+    }
+);
+
+<span class="keyword">if</span> (<span class="function-name">sizeof</span>(all_words) >= target) {
+    <span class="function-name">write</span>(<span class="string">"3rd word: %s\n"</span>, all_words[target - <span class="number">1</span>]);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN303"
+>Matching Multiple Lines</A
+></H2
+><P
+>Match patterns across multiple lines:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> text = <span class="string">"Line 1\nLine 2\nLine 3"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Match across lines with DOTALL flag</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"Line 1.*Line 3"</span>,
+                        <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">DOTALL</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found match across multiple lines\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match start and end of lines (not just string)</span>
+<span class="type">array</span> matches = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^Line \d+$"</span>,
+                   <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">MULTILINE</span>)-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        matches += ({ match[<span class="number">0</span>] });
+    }
+);
+
+<span class="comment-delimiter">// </span><span class="comment">Combine MULTILINE and DOTALL</span>
+<span class="type">int</span> opts = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">MULTILINE</span> | <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">DOTALL</span>;</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN306"
+>Reading Records with a Pattern Separator</A
+></H2
+><P
+>Split text using custom patterns:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> data = <span class="string">"name:John\nage:30\ncity:NYC"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Split by newline pattern</span>
+<span class="type">array</span> records = data/<span class="string">"\n"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Split using regex with capture</span>
+<span class="type">array</span> parts = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[:\n]"</span>)-&gt;<span class="function-name">split</span>(data);
+
+<span class="comment-delimiter">// </span><span class="comment">Parse key-value pairs</span>
+<span class="type">mapping</span> info = (<span class="type">mapping</span>);
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^(\w+):(.*)$"</span>)-&gt;<span class="function-name">matchall</span>(data,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        info[match[<span class="number">1</span>]] = match[<span class="number">2</span>];
+    }
+);
+<span class="comment-delimiter">// </span><span class="comment">Result: (["name": "John", "age": "30", "city": "NYC"])</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN309"
+>Extracting a Range of Lines</A
+></H2
+><P
+>Extract lines between markers:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> text = <span class="string">#"Start marker
+Line 1
+Line 2
+Line 3
+End marker"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Extract text between markers</span>
+<span class="type">object</span> regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"Start marker(.*?)End marker"</span>,
+                                 <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">DOTALL</span>);
+<span class="type">array</span> match = regex-&gt;<span class="function-name">split2</span>(text);
+
+<span class="keyword">if</span> (match) {
+    <span class="type">string</span> extracted = match[<span class="number">1</span>];  <span class="comment-delimiter">// </span><span class="comment">First captured group</span>
+    <span class="function-name">write</span>(<span class="string">"Extracted:\n%s\n"</span>, extracted);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Extract lines 2-4 (by line numbers)</span>
+<span class="type">array</span> lines = text/<span class="string">"\n"</span>;
+<span class="keyword">if</span> (<span class="function-name">sizeof</span>(lines) >= <span class="number">4</span>) {
+    <span class="type">array</span> range = lines[<span class="number">1</span>..<span class="number">3</span>];  <span class="comment-delimiter">// </span><span class="comment">Lines 2, 3, 4 (0-indexed)</span>
+    <span class="function-name">write</span>(<span class="string">"Lines 2-4: %s\n"</span>, range * <span class="string">"\n"</span>);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN312"
+>Matching Shell Globs as Regular Expressions</A
+></H2
+><P
+>Convert glob patterns to regex:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Function to convert glob to regex</span>
+<span class="type">string</span> <span class="function-name">glob_to_regex</span>(<span class="type">string</span> glob) {
+    <span class="type">string</span> regex = glob;
+    <span class="comment-delimiter">// </span><span class="comment">Escape special regex chars except *, ?, .</span>
+    regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"([][{}()+^$|\\])"</span>)-&gt;<span class="function-name">replace</span>(regex, <span class="string">"\\$1"</span>);
+    <span class="comment-delimiter">// </span><span class="comment">Convert glob wildcards to regex</span>
+    regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\*"</span>)-&gt;<span class="function-name">replace</span>(regex, <span class="string">".*"</span>);
+    regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\?"</span>)-&gt;<span class="function-name">replace</span>(regex, <span class="string">"."</span>);
+    <span class="keyword">return</span> <span class="string">"^"</span> + regex + <span class="string">"$"</span>;
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Usage</span>
+<span class="type">string</span> glob = <span class="string">"*.txt"</span>;
+<span class="type">string</span> regex = <span class="function-name">glob_to_regex</span>(glob);
+<span class="type">object</span> pattern = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(regex);
+
+<span class="keyword">foreach</span> (<span class="constant">Stdio</span>.<span class="function-name">read_file</span>(<span class="string">"."</span>); <span class="type">string</span> filename;) {
+    <span class="keyword">if</span> (pattern-&gt;<span class="function-name">match</span>(filename)) {
+        <span class="function-name">write</span>(<span class="string">"Match: %s\n"</span>, filename);
+    }
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN315"
+>Speeding Up Interpolated Matches</A
+></H2
+><P
+>Optimize repeated pattern matching:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">BAD: Recompiles pattern every iteration</span>
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) {
+    <span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"pattern"</span>)-&gt;<span class="function-name">match</span>(text)) {
+        <span class="comment-delimiter">// </span><span class="comment">slow!</span>
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">GOOD: Pre-compile pattern once</span>
+<span class="type">object</span> pattern = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Studied</span>(<span class="string">"pattern"</span>);
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10000</span>; i++) {
+    <span class="keyword">if</span> (pattern-&gt;<span class="function-name">match</span>(text)) {
+        <span class="comment-delimiter">// </span><span class="comment">fast!</span>
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Cache patterns in a mapping</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">object</span>) regex_cache = (<span class="type">mapping</span>);
+
+<span class="type">object</span> <span class="function-name">get_pattern</span>(<span class="type">string</span> pat) {
+    <span class="keyword">if</span> (!regex_cache[pat]) {
+        regex_cache[pat] = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Studied</span>(pat);
+    }
+    <span class="keyword">return</span> regex_cache[pat];
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN318"
+>Testing for a Valid Pattern</A
+></H2
+><P
+>Validate regex patterns before use:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Test if pattern compiles successfully</span>
+<span class="type">object</span> <span class="function-name">test_pattern</span>(<span class="type">string</span> pattern) {
+    <span class="keyword">catch</span> {
+        <span class="keyword">return</span> <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(pattern);
+    };
+    <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Pattern is invalid</span>
+}
+
+<span class="type">string</span> invalid = <span class="string">"[invalid("</span>;
+<span class="type">object</span> regex = <span class="function-name">test_pattern</span>(invalid);
+
+<span class="keyword">if</span> (!regex) {
+    <span class="function-name">write</span>(<span class="string">"Invalid pattern: %s\n"</span>, invalid);
+} <span class="keyword">else</span> {
+    <span class="function-name">write</span>(<span class="string">"Valid pattern\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">More detailed error checking</span>
+<span class="type">string</span> <span class="function-name">validate_regex</span>(<span class="type">string</span> pattern, <span class="type">string</span>|<span class="type">void</span> test_string) {
+    <span class="keyword">mixed</span> err = <span class="keyword">catch</span> {
+        <span class="type">object</span> r = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(pattern);
+        <span class="keyword">if</span> (test_string) {
+            r-&gt;<span class="function-name">match</span>(test_string);
+        }
+        <span class="keyword">return</span> <span class="string">"OK"</span>;
+    };
+    <span class="keyword">return</span> <span class="function-name">describe_error</span>(err);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN321"
+>Honoring Locale Settings in Regular Expressions</A
+></H2
+><P
+>PCRE handles Unicode and locale:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Use UTF-8 mode for Unicode text</span>
+<span class="type">string</span> unicode_text = <span class="string">"Café naïve résumé"</span>;
+
+<span class="comment-delimiter">// </span><span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span> handles Unicode automatically
+<span class="type">object</span> unicode_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span>(<span class="string">"\b\w+\b"</span>);
+
+<span class="keyword">if</span> (unicode_regex-&gt;<span class="function-name">match</span>(unicode_text)) {
+    <span class="function-name">write</span>(<span class="string">"Found word with Unicode characters\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match Unicode-aware word characters</span>
+<span class="type">object</span> word_pattern = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span>(<span class="string">"[\\p{L}]+"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">PCRE Unicode properties (requires UTF-8 support)</span>
+<span class="comment-delimiter">// </span><span class="comment">\p{L} - Any letter</span>
+<span class="comment-delimiter">// </span><span class="comment">\p{Lu} - Uppercase letter</span>
+<span class="comment-delimiter">// </span><span class="comment">\p{Ll} - Lowercase letter</span>
+<span class="comment-delimiter">// </span><span class="comment">\p{N} - Any number</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN324"
+>Approximate Matching</A
+></H2
+><P
+>Fuzzy matching with character variations:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Match with optional characters</span>
+<span class="type">string</span> text = <span class="string">"color"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Match both 'color' and 'colour'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"colou?r"</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found color/colour\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match with common misspellings</span>
+<span class="type">object</span> fuzzy = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"(?:recieve|receive)"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Match allowing character transpositions (complex)</span>
+<span class="comment-delimiter">// </span><span class="comment">Note: True fuzzy matching requires external libraries</span>
+<span class="comment-delimiter">// </span><span class="comment">This is a simplified version for common typos</span>
+<span class="type">string</span> <span class="function-name">fuzzy_word</span>(<span class="type">string</span> word) {
+    <span class="comment-delimiter">// </span><span class="comment">Allow one character to be optional</span>
+    <span class="type">string</span> pattern = <span class="string">""</span>;
+    <span class="keyword">foreach</span> (word / <span class="string">""</span>; <span class="type">int</span> i; <span class="type">string</span> char) {
+        pattern += char;
+        <span class="keyword">if</span> (i &lt; <span class="function-name">sizeof</span>(word) - <span class="number">1</span>) {
+            pattern += <span class="string">"?"</span>;
+        }
+    }
+    <span class="keyword">return</span> pattern;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN327"
+>Matching from Where the Last Pattern Left Off</A
+></H2
+><P
+>Continue matching from previous position:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> text = <span class="string">"123 abc 456 def 789"</span>;
+<span class="type">int</span> pos = <span class="number">0</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Find all numbers, continuing from last match</span>
+<span class="type">object</span> number_pattern = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\d+"</span>);
+
+<span class="keyword">while</span> (<span class="keyword">true</span>) {
+    <span class="type">array</span> match = number_pattern-&gt;<span class="function-name">split2</span>(text, pos);
+    <span class="keyword">if</span> (!match) <span class="keyword">break</span>;
+
+    <span class="function-name">write</span>(<span class="string">"Found: %s at position %d\n"</span>, match[<span class="number">0</span>], pos);
+    pos = <span class="function-name">search</span>(text, match[<span class="number">0</span>], pos) + <span class="function-name">sizeof</span>(match[<span class="number">0</span>]);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Easier: use matchall which handles this automatically</span>
+number_pattern-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match, <span class="type">array</span> positions) {
+        <span class="function-name">write</span>(<span class="string">"Found: %s at %d..%d\n"</span>,
+               match[<span class="number">0</span>], positions[<span class="number">0</span>], positions[<span class="number">1</span>]);
+    }
+);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN330"
+>Greedy and Non-Greedy Matches</A
+></H2
+><P
+>Control quantifier greediness:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> html = <span class="string">"&lt;b&gt;bold&lt;/b&gt; and &lt;b&gt;another&lt;/b&gt;"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Greedy: matches as much as possible</span>
+<span class="type">array</span> greedy = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;b&gt;.*&lt;/b&gt;"</span>)-&gt;<span class="function-name">split2</span>(html);
+<span class="function-name">write</span>(<span class="string">"Greedy: %s\n"</span>, greedy[<span class="number">0</span>]);
+<span class="comment-delimiter">// </span><span class="comment">Result: "&lt;b&gt;bold&lt;/b&gt; and &lt;b&gt;another&lt;/b&gt;"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Non-greedy: matches as little as possible</span>
+<span class="type">array</span> lazy = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;b&gt;.*?&lt;/b&gt;"</span>)-&gt;<span class="function-name">split2</span>(html);
+<span class="function-name">write</span>(<span class="string">"Lazy: %s\n"</span>, lazy[<span class="number">0</span>]);
+<span class="comment-delimiter">// </span><span class="comment">Result: "&lt;b&gt;bold&lt;/b&gt;"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Find all matches with non-greedy quantifier</span>
+<span class="type">array</span>(<span class="type">string</span>) tags = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;b&gt;(.*?)&lt;/b&gt;"</span>)-&gt;<span class="function-name">matchall</span>(html,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        tags += ({ match[<span class="number">1</span>] });
+    }
+);
+<span class="function-name">write</span>(<span class="string">"Tags: %s\n"</span>, tags * <span class="string">", "</span>);
+<span class="comment-delimiter">// </span><span class="comment">Result: ({"bold", "another"})</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN333"
+>Detecting Duplicate Words</A
+></H2
+><P
+>Find repeated words in text:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> text = <span class="string">"This is is a test test."</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Find duplicate consecutive words</span>
+<span class="type">object</span> dup_pattern = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b(\w+)\s+\1\b"</span>);
+
+<span class="keyword">if</span> (dup_pattern-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found duplicate word\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Find all duplicate words</span>
+<span class="type">array</span>(<span class="type">string</span>) duplicates = ({});
+dup_pattern-&gt;<span class="function-name">matchall</span>(text,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        duplicates += ({ match[<span class="number">1</span>] });  <span class="comment-delimiter">// </span><span class="comment">First captured group</span>
+    }
+);
+
+<span class="keyword">if</span> (<span class="function-name">sizeof</span>(duplicates)) {
+    <span class="function-name">write</span>(<span class="string">"Duplicates: %s\n"</span>, duplicates * <span class="string">", "</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Case-insensitive duplicate detection</span>
+<span class="type">object</span> dup_ci = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(
+    <span class="string">"\b(\w+)\s+\1\b"</span>,
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">CASELESS</span>
+);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN336"
+>Expressing AND, OR, and NOT in a Single Pattern</A
+></H2
+><P
+>Combine conditions in regex:</P
+><PRE
+CLASS="SCREEN"
+><span class="type">string</span> text = <span class="string">"The quick brown fox jumps"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">OR: match 'quick' OR 'slow'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b(quick|slow)\b"</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found quick or slow\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">AND: match lines containing both 'quick' AND 'brown'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"(?=.*quick).*brown"</span>,
+                 <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">DOTALL</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Contains both quick and brown\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">NOT: match lines without 'lazy'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^(?!.*\blazy\b).*$"</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Doesn't contain 'lazy'\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Complex: 'cat' but not 'wildcat'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\bcat\b"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"I have a cat"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"Found 'cat' as whole word\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">NOT: match 'cat' but not 'wildcat' using negative lookbehind</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;!?wildcat"</span>)-&gt;<span class="function-name">match</span>(<span class="string">"wildcat"</span>)) {
+    <span class="comment-delimiter">// </span><span class="comment">Won't match 'wildcat'</span>
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN339"
+>Matching Multiple-Byte Characters</A
+></H2
+><P
+>Handle UTF-8 and wide strings:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Use Widestring class for Unicode support</span>
+<span class="type">string</span> unicode = <span class="string">"Hello 世界"</span>;
+<span class="type">object</span> ws_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span>(<span class="string">"世界"</span>);
+
+<span class="keyword">if</span> (ws_regex-&gt;<span class="function-name">match</span>(unicode)) {
+    <span class="function-name">write</span>(<span class="string">"Found Chinese characters\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match any Unicode letter</span>
+<span class="type">object</span> letter_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span>(<span class="string">"^\\p{L}+$"</span>);
+
+<span class="keyword">if</span> (letter_regex-&gt;<span class="function-name">match</span>(<span class="string">"Café"</span>)) {
+    <span class="function-name">write</span>(<span class="string">"All Unicode letters\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Extract Unicode words</span>
+<span class="type">array</span>(<span class="type">string</span>) words = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Widestring</span>(<span class="string">"(\\p{L}+)"</span>)-&gt;<span class="function-name">matchall</span>(
+    <span class="string">"Hello 世界 Café"</span>,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        words += ({ match[<span class="number">1</span>] });
+    }
+);
+<span class="comment-delimiter">// </span><span class="comment">Result: ({"Hello", "世界", "Café"})</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN342"
+>Matching a Valid Mail Address</A
+></H2
+><P
+>Email validation regex:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Basic email pattern</span>
+<span class="type">string</span> email_pattern = <span class="string">"""
+    ^                       # Start of string
+    [a-z0-9._%+-]+          # Username
+    @@                      # @@ symbol
+    [a-z0-9.-]+             # Domain name
+    \.                      # Dot
+    [a-z]{2,6}              # TLD
+    $                       # End of string
+"""</span>;
+
+<span class="type">object</span> email_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(
+    email_pattern,
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span> | <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">CASELESS</span>
+);
+
+<span class="type">string</span> email = <span class="string">"user@@example.com"</span>;
+<span class="keyword">if</span> (email_regex-&gt;<span class="function-name">match</span>(email)) {
+    <span class="function-name">write</span>(<span class="string">"Valid email format\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Extract email components</span>
+<span class="type">object</span> email_parts = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(
+    <span class="string">"^([a-z0-9._%+-]+)@@([a-z0-9.-]+)\\.([a-z]{2,6})$"</span>,
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">CASELESS</span>
+);
+
+<span class="type">array</span> parts = email_parts-&gt;<span class="function-name">split2</span>(email);
+<span class="keyword">if</span> (parts) {
+    <span class="function-name">write</span>(<span class="string">"Username: %s, Domain: %s, TLD: %s\n"</span>,
+           parts[<span class="number">1</span>], parts[<span class="number">2</span>], parts[<span class="number">3</span>]);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN345"
+>Matching Abbreviations</A
+></H2
+><P
+>Match abbreviated forms:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Match optional parts of words</span>
+<span class="type">string</span> text = <span class="string">"I'll be there at 5 PM"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Match 'I will' or 'I'll' or 'I shall'</span>
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\bI(?:'|  will| shall)\b"</span>)-&gt;<span class="function-name">match</span>(text)) {
+    <span class="function-name">write</span>(<span class="string">"Found 'I' variation\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match standard abbreviations</span>
+<span class="type">string</span> abbrev = <span class="string">"Dr. Mr. Mrs. Ms. Prof. Sr. Jr."</span>;
+<span class="keyword">if</span> (<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\b(?:Dr|Mr|Mrs|Ms|Prof|Sr|Jr)\.\b"</span>)-&gt;<span class="function-name">match</span>(abbrev)) {
+    <span class="function-name">write</span>(<span class="string">"Found title abbreviation\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Match with optional vowels (approximate matching)</span>
+<span class="type">string</span> <span class="function-name">abbreviate_pattern</span>(<span class="type">string</span> word) {
+    <span class="comment-delimiter">// </span><span class="comment">Make vowels optional</span>
+    <span class="keyword">return</span> <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[aeiou]"</span>)-&gt;<span class="function-name">replace</span>(word, <span class="string">"[aeiou]?"</span>);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN348"
+>Program: urlify</A
+></H2
+><P
+>Convert URLs to clickable links:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">URLify: Convert URLs to HTML links</span>
+<span class="type">string</span> <span class="function-name">urlify</span>(<span class="type">string</span> text) {
+    <span class="comment-delimiter">// </span><span class="comment">Match http/https URLs</span>
+    <span class="type">object</span> url_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"""
+        \\b                       # Word boundary
+        (https?://               # Protocol
+            [\\w\\-]+             # Subdomain
+            (?:\\.[\\w\\-]+)+     # Domain parts
+            (?::\\d+)?            # Optional port
+            (?:/[\\w\\-./?%&=]*)? # Path and query
+        )
+    """</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>);
+
+    <span class="keyword">return</span> url_regex-&gt;<span class="function-name">replace</span>(text,
+        <span class="keyword">lambda</span>(<span class="type">string</span> url) {
+            <span class="keyword">return</span> <span class="function-name">sprintf</span>(<span class="string">"&lt;a href=\"%s\"&gt;%s&lt;/a&gt;"</span>, url, url);
+        }
+    );
+}
+
+<span class="type">string</span> sample = <span class="string">"Visit https://example.com for more info"</span>;
+<span class="function-name">write</span>(<span class="function-name">urlify</span>(sample) + <span class="string">"\n"</span>);
+<span class="comment-delimiter">// </span><span class="comment">Output: Visit &lt;a href="https://example.com"&gt;https://example.com&lt;/a&gt; for more info</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN351"
+>Program: tcgrep</A
+></H2
+><P
+>Advanced grep with regex patterns:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">Simple tcgrep: grep with PCRE support</span>
+<span class="type">int</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv) {
+    <span class="keyword">if</span> (argc &lt; <span class="number">3</span>) {
+        <span class="function-name">write</span>(<span class="string">"Usage: %s &lt;pattern&gt; &lt;files...&gt;\n"</span>, argv[<span class="number">0</span>]);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="type">string</span> pattern = argv[<span class="number">1</span>];
+    <span class="type">object</span> regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">Studied</span>(pattern);
+
+    <span class="keyword">foreach</span> (argv[<span class="number">2</span>..]; <span class="type">string</span> filename;) {
+        <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+        <span class="keyword">if</span> (!content) {
+            <span class="function-name">werror</span>(<span class="string">"Cannot read %s\n"</span>, filename);
+            <span class="keyword">continue</span>;
+        }
+
+        <span class="type">int</span> line_num = <span class="number">0</span>;
+        <span class="keyword">foreach</span> (content/<span class="string">"\n"</span>; <span class="type">string</span> line;) {
+            line_num++;
+            <span class="keyword">if</span> (regex-&gt;<span class="function-name">match</span>(line)) {
+                <span class="function-name">write</span>(<span class="string">"%s:%d:%s\n"</span>, filename, line_num, line);
+            }
+        }
+    }
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Usage: ./tcgrep "error|warning" *.log</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN354"
+>Regular Expression Grabbag</A
+></H2
+><P
+>Collection of useful regex patterns:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment-delimiter">// </span><span class="comment">IP Address validation</span>
+<span class="type">object</span> ip_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"""
+    ^                       # Start
+    (?:                     # Three groups of:
+        (?:25[0-5]|         #   250-255
+        2[0-4][0-9]|        #   200-249
+        1[0-9]{2}|          #   100-199
+        [1-9]?[0-9])        #   0-99
+        \.                  #   Dot
+    ){3}                    # Exactly 3 times
+    (?:25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])
+    $                       # End
+"""</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Date validation (YYYY-MM-DD)</span>
+<span class="type">object</span> date_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"""
+    ^                       # Start
+    (                       # Year
+        \d{4}               #   4 digits
+    )                       # End year group
+    -                       # Separator
+    (                       # Month
+        0[1-9]|             #   01-09
+        1[0-2]              #   10-12
+    )                       # End month group
+    -                       # Separator
+    (                       # Day
+        0[1-9]|             #   01-09
+        [12][0-9]|          #   10-29
+        3[01]               #   30-31
+    )                       # End day group
+    $                       # End
+"""</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Hex color codes</span>
+<span class="type">object</span> hex_color_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^#[0-9a-fA-F]{6}$"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Phone number (North America format)</span>
+<span class="type">object</span> phone_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"""
+    ^                       # Start
+    \(?                     # Optional opening paren
+    ([2-9][0-9]{2})         # Area code
+    \)?                     # Optional closing paren
+    [\s\-.]?                # Separator
+    ([0-9]{3})              # Exchange
+    [\s\-.]?                # Separator
+    ([0-9]{4})              # Number
+    $                       # End
+"""</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Credit card number (basic pattern)</span>
+<span class="type">object</span> cc_regex = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"""
+    ^                       # Start
+    (?:                     # Card number groups
+        4[0-9]{12}(?:[0-9]{3})?    |  # Visa
+        5[1-5][0-9]{14}             |  # MasterCard
+        3[47][0-9]{13}              |  # American Express
+        6(?:011|5[0-9]{2})[0-9]{12}    # Discover
+    )
+    $                       # End
+"""</span>, <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">EXTENDED</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Strip HTML tags</span>
+<span class="type">string</span> <span class="function-name">strip_html</span>(<span class="type">string</span> html) {
+    <span class="keyword">return</span> <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;[^&gt;]*&gt;"</span>)-&gt;<span class="function-name">replace</span>(html, <span class="string">""</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Extract HTML links</span>
+<span class="type">array</span>(<span class="type">string</span>) <span class="function-name">extract_links</span>(<span class="type">string</span> html) {
+    <span class="type">array</span>(<span class="type">string</span>) links = ({});
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"&lt;a\\s+href=[\"']([^\"']+)[\"']"</span>,
+                   <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="constant">OPTION</span>.<span class="constant">CASELESS</span>)-&gt;<span class="function-name">matchall</span>(html,
+        <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+            links += ({ match[<span class="number">1</span>] });
+        }
+    );
+    <span class="keyword">return</span> links;
+}</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="hashes.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="fileaccess.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Hashes</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>File Access</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>
+>

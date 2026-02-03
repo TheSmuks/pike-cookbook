@@ -1,0 +1,1058 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>File Access - Complete Pike 8 Edition</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Pike 8 Cookbook Edition"><style type="text/css">
+    .comment { color: #bebebe; }
+    .comment-delimiter { }
+    .constant { color: #ff7f50; }
+    .function-name { color: #b2dfee; }
+    .keyword { color: #ffa500; }
+    .number { color: #cdcd00; }
+    .punctuation { color: #00ffff; }
+    .string { color: #00cd00; }
+    .type { color: #98fb98; }
+    .variable-name { color: #9ac0cd; }
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike 8 Edition
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="patternmatching.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="filecontents.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FILEACCESS"
+>7. File Access</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INTRODUCTION"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Pike 8 offers multiple ways to work with files. For simple operations,</span>
+<span class="comment-delimiter">// </span><span class="comment">use the convenience functions. For more control, use Stdio.File objects.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Read entire file into memory (most common for small files)</span>
+<span class="type">string</span> content = <span class="constant">Stdio</span>.read_file(<span class="string">"/path/to/file"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">For line-by-line processing without loading entire file</span>
+<span class="constant">Stdio</span>.File myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"r"</span>);
+
+<span class="keyword">foreach</span>(myfile-&gt;line_iterator();; <span class="type">string</span> line) {
+    <span class="comment-delimiter">// </span><span class="comment">Process each line</span>
+    write(<span class="string">"Line: %s\n"</span>, line);
+}
+myfile-&gt;close();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="OPENING-FILES"
+>7.1 Opening a File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Read file - returns 0 on failure</span>
+<span class="type">string</span>|<span class="type">zero</span> content = <span class="constant">Stdio</span>.read_file(<span class="string">"/path/to/file"</span>);
+<span class="keyword">if</span> (!content) {
+    werror(<span class="string">"Failed to read file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Write file - create or truncate</span>
+<span class="type">int</span> result = <span class="constant">Stdio</span>.write_file(<span class="string">"/path/to/file"</span>, <span class="string">"content\n"</span>);
+<span class="keyword">if</span> (!result) {
+    werror(<span class="string">"Failed to write file\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Append to file</span>
+<span class="type">int</span> result = <span class="constant">Stdio</span>.append_file(<span class="string">"/path/to/file"</span>, <span class="string">"more content\n"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Using Stdio.File for precise control</span>
+<span class="constant">Stdio</span>.File myfile;
+
+<span class="comment-delimiter">// </span><span class="comment">Open for reading (file must exist)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"r"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Open for writing (create or truncate)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"wc"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Open for appending (create if needed)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"wac"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Open for reading and writing (file must exist)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"rw"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Open exclusively (file must not exist)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"rwcx"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">With permissions (octal)</span>
+myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"wc"</span>, <span class="number">0600</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Always check if file opened successfully</span>
+<span class="keyword">if</span> (!myfile) {
+    werror(<span class="string">"Failed to open file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MODE-STRINGS"
+>7.2 File Mode Strings in Pike 8</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mode strings for Stdio.File():</span>
+<span class="comment-delimiter">// </span><span class="comment">"r"  - read (file must exist)</span>
+<span class="comment-delimiter">// </span><span class="comment">"w"  - write</span>
+<span class="comment-delimiter">// </span><span class="comment">"a"  - append</span>
+<span class="comment-delimiter">// </span><span class="comment">"c"  - create file if it doesn't exist</span>
+<span class="comment-delimiter">// </span><span class="comment">"x"  - exclusive mode (fail if file exists)</span>
+<span class="comment-delimiter">// </span><span class="comment">"t"  - truncate (same as "wc" for write)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Common combinations:</span>
+<span class="string">"r"</span>      <span class="comment-delimiter">// </span><span class="comment">Read only</span>
+<span class="string">"w"</span>      <span class="comment-delimiter">// </span><span class="comment">Write only (existing file)</span>
+<span class="string">"wc"</span>     <span class="comment-delimiter">// </span><span class="comment">Write, create if needed</span>
+<span class="string">"wa"</span>     <span class="comment-delimiter">// </span><span class="comment">Append (existing file)</span>
+<span class="string">"wac"</span>    <span class="comment-delimiter">// </span><span class="comment">Append, create if needed</span>
+<span class="string">"rw"</span>     <span class="comment-delimiter">// </span><span class="comment">Read and write</span>
+<span class="string">"rwc"</span>    <span class="comment-delimiter">// </span><span class="comment">Read/write, create if needed</span>
+<span class="string">"rwcx"</span>   <span class="comment-delimiter">// </span><span class="comment">Read/write, create exclusively</span>
+<span class="string">"wacx"</span>   <span class="comment-delimiter">// </span><span class="comment">Append exclusively (must not exist)</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ERROR-HANDLING"
+>7.3 Error Handling Best Practices</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Method 1: Check return value</span>
+<span class="constant">Stdio</span>.File myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"r"</span>);
+<span class="keyword">if</span> (!myfile) {
+    werror(<span class="string">"Failed to open file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Method 2: Use catch for detailed error information</span>
+<span class="type">mixed</span> err = <span class="keyword">catch</span> {
+    <span class="constant">Stdio</span>.File myfile = <span class="constant">Stdio</span>.File(<span class="string">"/path/to/file"</span>, <span class="string">"r"</span>);
+};
+
+<span class="keyword">if</span> (err) {
+    werror(<span class="string">"Error opening file: %s\n"</span>, err[<span class="number">0</span>]);
+    <span class="comment-delimiter">// </span><span class="comment">Error message includes details like "No such file or directory"</span>
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Method 3: Safe file opening with error message</span>
+<span class="type">string</span> path = <span class="string">"/etc/hosts"</span>;
+<span class="constant">Stdio</span>.File myfile;
+
+<span class="type">mixed</span> err = <span class="keyword">catch</span> {
+    myfile = <span class="constant">Stdio</span>.File(path, <span class="string">"r"</span>);
+};
+
+<span class="keyword">if</span> (err || !myfile) {
+    werror(<span class="string">"Couldn't open %s for reading:\n  %s\n"</span>, path, err[<span class="number">0</span>] || <span class="string">"Unknown error"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Safe close</span>
+<span class="type">int</span> close_result = myfile-&gt;close();
+<span class="keyword">if</span> (!close_result) {
+    werror(<span class="string">"Warning: Failed to close file properly\n"</span>);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BUFFERED-IO"
+>7.4 Buffered I/O Operations</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Stdio.File is unbuffered. Use Stdio.FILE for buffered I/O.</span>
+<span class="comment-delimiter">// </span><span class="comment">Buffered I/O is more efficient for many small operations.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Create a buffered file handle</span>
+<span class="constant">Stdio</span>.FILE mybuf = <span class="constant">Stdio</span>.FILE();
+
+<span class="comment-delimiter">// </span><span class="comment">Open a file for buffered operations</span>
+<span class="keyword">if</span> (!mybuf-&gt;open(<span class="string">"/path/to/file"</span>, <span class="string">"r"</span>)) {
+    werror(<span class="string">"Failed to open buffered file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Read line by line (buffered)</span>
+<span class="keyword">foreach</span>(mybuf-&gt;line_iterator();; <span class="type">string</span> line) {
+    <span class="comment-delimiter">// </span><span class="comment">Process line</span>
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Write with buffering</span>
+mybuf-&gt;write(<span class="string">"Line 1\n"</span>);
+mybuf-&gt;write(<span class="string">"Line 2\n"</span>);
+mybuf-&gt;write(<span class="string">"Line 3\n"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Flush buffer to ensure data is written</span>
+mybuf-&gt;flush();
+
+<span class="comment-delimiter">// </span><span class="comment">Set buffer size (default is typically 8KB)</span>
+mybuf-&gt;set_buffer(<span class="number">65536</span>);  <span class="comment-delimiter">// </span><span class="comment">64KB buffer</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Close buffered file</span>
+mybuf-&gt;close();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FLUSHING"
+>7.5 Flushing Output</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">For buffered I/O, flush ensures data is written immediately</span>
+
+<span class="constant">Stdio</span>.FILE logfile = <span class="constant">Stdio</span>.FILE();
+logfile-&gt;open(<span class="string">"/var/log/myapp.log"</span>, <span class="string">"wac"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Write multiple times</span>
+logfile-&gt;write(<span class="string">"Starting operation...\n"</span>);
+<span class="comment-delimiter">// </span><span class="comment">Do some work</span>
+logfile-&gt;write(<span class="string">"Step 1 complete\n"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Flush to ensure data is written to disk now</span>
+<span class="comment-delimiter">// </span><span class="comment">(important for logs, progress indicators, etc.)</span>
+logfile-&gt;flush();
+
+<span class="comment-delimiter">// </span><span class="comment">For real-time progress updates, flush after each write</span>
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i &lt;= <span class="number">100</span>; i++) {
+    write(<span class="string">"\rProgress: %d%%"</span>, i);
+    <span class="constant">Stdio</span>.stdout-&gt;flush();  <span class="comment-delimiter">// </span><span class="comment">Force immediate display</span>
+    <span class="comment-delimiter">// </span><span class="comment">Do work</span>
+}
+write(<span class="string">"\n"</span>);
+
+logfile-&gt;close();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEMP-FILES"
+>7.6 Creating Temporary Files</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Method 1: Create a unique temp file with exclusive mode</span>
+<span class="constant">Stdio</span>.File tmpfile;
+<span class="type">string</span> tmpname;
+
+<span class="keyword">do</span> {
+    <span class="comment-delimiter">// </span><span class="comment">Generate random filename</span>
+    tmpname = <span class="string">"/tmp/temp_"</span> + <span class="constant">MIME</span>.encode_base64(<span class="constant">Crypto</span>.Random.random_string(<span class="number">12</span>));
+    tmpfile = <span class="constant">Stdio</span>.File(tmpname, <span class="string">"rwcx"</span>);  <span class="comment-delimiter">// </span><span class="comment">Exclusive create</span>
+} <span class="keyword">while</span> (!tmpfile);
+
+<span class="comment-delimiter">// </span><span class="comment">Register cleanup on exit</span>
+<span class="keyword">void</span> cleanup() {
+    tmpfile-&gt;close();
+    rm(tmpname);
+}
+atexit(cleanup);
+
+<span class="comment-delimiter">// </span><span class="comment">Use the temp file</span>
+tmpfile-&gt;write(<span class="string">"Temporary data\n"</span>);
+tmpfile-&gt;seek(<span class="number">0</span>);  <span class="comment-delimiter">// </span><span class="comment">Go back to start</span>
+<span class="type">string</span> data = tmpfile-&gt;read();
+
+<span class="comment-delimiter">// </span><span class="comment">Method 2: Use Stdio.FakeFile for in-memory file-like object</span>
+<span class="comment-delimiter">// </span><span class="comment">(useful when you don't need persistent storage)</span>
+<span class="constant">Stdio</span>.FakeFile memfile = <span class="constant">Stdio</span>.FakeFile();
+memfile-&gt;write(<span class="string">"Data in memory\n"</span>);
+memfile-&gt;seek(<span class="number">0</span>);
+<span class="type">string</span> content = memfile-&gt;read();  <span class="comment-delimiter">// </span><span class="comment">Retrieves "Data in memory\n"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Method 3: Named temporary file in specific directory</span>
+<span class="type">string</span> tmpdir = <span class="string">"/tmp"</span>;
+<span class="constant">Stdio</span>.File tmp;
+
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) {
+    tmpname = sprintf(<span class="string">"%s/myapp_%d_%d.tmp"</span>, tmpdir, getpid(), i);
+    tmp = <span class="constant">Stdio</span>.File(tmpname, <span class="string">"rwcx"</span>);
+    <span class="keyword">if</span> (tmp) <span class="keyword">break</span>;
+}
+
+<span class="keyword">if</span> (!tmp) {
+    werror(<span class="string">"Failed to create temporary file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Use tmp and tmpname...</span>
+<span class="comment-delimiter">// </span><span class="comment">Remember to clean up when done!</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BINARY-FILES"
+>7.7 Binary File Operations</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Pike handles binary data natively with strings.</span>
+<span class="comment-delimiter">// </span><span class="comment">For binary files, don't specify encoding modes.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Read binary file</span>
+<span class="constant">Stdio</span>.File binfile = <span class="constant">Stdio</span>.File(<span class="string">"image.png"</span>, <span class="string">"r"</span>);
+<span class="keyword">if</span> (!binfile) {
+    werror(<span class="string">"Failed to open binary file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Read entire binary file</span>
+<span class="type">string</span> bindata = binfile-&gt;read();
+binfile-&gt;close();
+
+<span class="comment-delimiter">// </span><span class="comment">Read binary file in chunks (for large files)</span>
+binfile = <span class="constant">Stdio</span>.File(<span class="string">"large.bin"</span>, <span class="string">"r"</span>);
+<span class="type">string</span> chunk;
+<span class="type">array</span>(<span class="type">string</span>) chunks = ({});
+
+<span class="keyword">while</span> ((chunk = binfile-&gt;read(<span class="number">8192</span>)) != <span class="string">""</span>) {
+    chunks += ({ chunk });
+}
+binfile-&gt;close();
+
+<span class="type">string</span> fulldata = chunks * <span class="string">""</span>;  <span class="comment-delimiter">// </span><span class="comment">Concatenate all chunks</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Write binary data</span>
+<span class="constant">Stdio</span>.File outfile = <span class="constant">Stdio</span>.File(<span class="string">"output.bin"</span>, <span class="string">"wc"</span>);
+<span class="keyword">if</span> (!outfile) {
+    werror(<span class="string">"Failed to create output file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Write binary data directly</span>
+outfile-&gt;write(<span class="string">"\x00\x01\x02\x03\xFF\xFE\xFD"</span>);
+outfile-&gt;close();
+
+<span class="comment-delimiter">// </span><span class="comment">Working with bytes</span>
+<span class="type">string</span> data = <span class="constant">Stdio</span>.read_file(<span class="string">"data.bin"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Access individual bytes</span>
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; sizeof(data); i++) {
+    <span class="type">int</span> byte = data[i];  <span class="comment-delimiter">// </span><span class="comment">0-255</span>
+    write(<span class="string">"Byte %d: 0x%02X\n"</span>, i, byte);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Convert between binary and hex</span>
+<span class="type">string</span> hex = <span class="constant">MIME</span>.encode_base64(data);  <span class="comment-delimiter">// </span><span class="comment">To base64</span>
+<span class="type">string</span> binary = <span class="constant">MIME</span>.decode_base64(hex);  <span class="comment-delimiter">// </span><span class="comment">From base64</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FILE-METADATA"
+>7.8 File Metadata and Permissions</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Get file statistics</span>
+<span class="type">mapping</span> <span class="keyword">stat</span> = file_stat(<span class="string">"/path/to/file"</span>);
+
+<span class="keyword">if</span> (<span class="keyword">stat</span>) {
+    write(<span class="string">"Size: %d bytes\n"</span>, <span class="keyword">stat</span>->size);
+    write(<span class="string">"Permissions: %o\n"</span>, <span class="keyword">stat</span>->mode);
+    write(<span class="string">"Modified: %s\n"</span>, <span class="constant">Calendar</span>.Second(<span class="keyword">stat</span>->mtime)->format_time());
+    write(<span class="string">"Is directory: %d\n"</span>, <span class="keyword">stat</span>->isdir);
+    write(<span class="string">"Is regular file: %d\n"</span>, <span class="keyword">stat</span>->isreg);
+    write(<span class="string">"Is symlink: %d\n"</span>, <span class="keyword">stat</span>->islnk);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Check if file exists</span>
+<span class="keyword">if</span> (file_stat(<span class="string">"/path/to/file"</span>)) {
+    write(<span class="string">"File exists\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Check file size</span>
+<span class="type">mapping</span> <span class="keyword">stat</span> = file_stat(<span class="string">"/path/to/file"</span>);
+<span class="keyword">if</span> (<span class="keyword">stat</span> && <span class="keyword">stat</span>->size > <span class="number">1048576</span>) {
+    write(<span class="string">"File is larger than 1MB\n"</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Change file permissions</span>
+chmod(<span class="string">"/path/to/file"</span>, <span class="number">0644</span>);  <span class="comment-delimiter">// </span><span class="comment">rw-r--r--</span>
+chmod(<span class="string">"/path/to/script"</span>, <span class="number">0755</span>);  <span class="comment-delimiter">// </span><span class="comment">rwxr-xr-x</span>
+chmod(<span class="string">"/path/to/private"</span>, <span class="number">0600</span>);  <span class="comment-delimiter">// </span><span class="comment">rw-------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Change ownership (if you have permission)</span>
+chown(<span class="string">"/path/to/file"</span>, <span class="number">1000</span>);  <span class="comment-delimiter">// </span><span class="comment">Change owner to uid 1000</span>
+chown(<span class="string">"/path/to/file"</span>, <span class="number">1000</span>, <span class="number">1000</span>);  <span class="comment-delimiter">// </span><span class="comment">Change uid and gid</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Get file permissions mode</span>
+<span class="type">mapping</span> <span class="keyword">stat</span> = file_stat(<span class="string">"/path/to/file"</span>);
+<span class="keyword">if</span> (<span class="keyword">stat</span>) {
+    <span class="type">int</span> mode = <span class="keyword">stat</span>->mode & <span class="number">0777</span>;  <span class="comment-delimiter">// </span><span class="comment">Mask to get permissions only</span>
+    write(<span class="string">"Mode: %04o\n"</span>, mode);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Check file type</span>
+<span class="type">mapping</span> <span class="keyword">stat</span> = file_stat(<span class="string">"/path/to/item"</span>);
+<span class="keyword">if</span> (<span class="keyword">stat</span>) {
+    <span class="keyword">if</span> (<span class="keyword">stat</span>->isdir) {
+        write(<span class="string">"It's a directory\n"</span>);
+    } <span class="keyword">else if</span> (<span class="keyword">stat</span>->isreg) {
+        write(<span class="string">"It's a regular file\n"</span>);
+    } <span class="keyword">else if</span> (<span class="keyword">stat</span>->islnk) {
+        write(<span class="string">"It's a symbolic link\n"</span>);
+    }
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FILE-LOCKING"
+>7.9 File Locking</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Pike supports advisory file locking via flock()</span>
+<span class="comment-delimiter">// </span><span class="comment">Note: flock is advisory on most systems, not mandatory</span>
+
+<span class="constant">Stdio</span>.File lockfile = <span class="constant">Stdio</span>.File(<span class="string">"/var/run/myapp.lock"</span>, <span class="string">"wc"</span>);
+<span class="keyword">if</span> (!lockfile) {
+    werror(<span class="string">"Failed to create lock file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Acquire exclusive lock (blocking)</span>
+<span class="keyword">int</span> lock_result = lockfile-&gt;flock(<span class="constant">Stdio</span>.LOCK_EX);
+<span class="keyword">if</span> (!lock_result) {
+    werror(<span class="string">"Failed to acquire lock\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">We now have the lock, do critical work</span>
+write(<span class="string">"Lock acquired, doing work...\n"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Release lock</span>
+lockfile-&gt;flock(<span class="constant">Stdio</span>.LOCK_UN);
+lockfile-&gt;close();
+
+
+<span class="comment-delimiter">// </span><span class="comment">Non-blocking lock attempt</span>
+lockfile = <span class="constant">Stdio</span>.File(<span class="string">"/var/run/myapp.lock"</span>, <span class="string">"wc"</span>);
+lock_result = lockfile-&gt;flock(<span class="constant">Stdio</span>.LOCK_EX | <span class="constant">Stdio</span>.LOCK_NB);
+
+<span class="keyword">if</span> (!lock_result) {
+    werror(<span class="string">"Could not acquire lock (already locked)\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Shared lock (for reading)</span>
+lockfile = <span class="constant">Stdio</span>.File(<span class="string">"/var/run/myapp.lock"</span>, <span class="string">"r"</span>);
+lock_result = lockfile-&gt;flock(<span class="constant">Stdio</span>.LOCK_SH);  <span class="comment-delimiter">// </span><span class="comment">Shared lock</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">Lock with timeout</span>
+<span class="type">int</span> max_wait = <span class="number">10</span>;  <span class="comment-delimiter">// </span><span class="comment">seconds</span>
+<span class="type">int</span> waited = <span class="number">0</span>;
+
+<span class="keyword">while</span> (waited < max_wait) {
+    lockfile = <span class="constant">Stdio</span>.File(<span class="string">"/var/run/myapp.lock"</span>, <span class="string">"wc"</span>);
+    lock_result = lockfile-&gt;flock(<span class="constant">Stdio</span>.LOCK_EX | <span class="constant">Stdio</span>.LOCK_NB);
+
+    <span class="keyword">if</span> (lock_result) {
+        <span class="keyword">break</span>;  <span class="comment-delimiter">// </span><span class="comment">Got the lock</span>
+    }
+
+    sleep(<span class="number">1</span>);
+    waited++;
+}
+
+<span class="keyword">if</span> (waited >= max_wait) {
+    werror(<span class="string">"Timeout waiting for lock\n"</span>);
+    exit(<span class="number">1</span>);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="INPLACE-EDIT"
+>7.10 Modifying a File In Place</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Method 1: Using temporary file (safest method)</span>
+<span class="type">string</span> filename = <span class="string">"data.txt"</span>;
+<span class="type">string</span> tmpname = filename + <span class="string">".tmp"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Read original file</span>
+<span class="type">string</span> content = <span class="constant">Stdio</span>.read_file(filename);
+<span class="keyword">if</span> (!content) {
+    werror(<span class="string">"Failed to read %s\n"</span>, filename);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Modify content</span>
+<span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+lines = lines-&gt;replace(<span class="string">"old"</span>, <span class="string">"new"</span>);  <span class="comment-delimiter">// </span><span class="comment">Replace "old" with "new"</span>
+<span class="type">string</span> modified = lines * <span class="string">"\n"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Write to temporary file</span>
+<span class="constant">Stdio</span>.File tmpfile = <span class="constant">Stdio</span>.File(tmpname, <span class="string">"wc"</span>);
+<span class="keyword">if</span> (!tmpfile) {
+    werror(<span class="string">"Failed to create temp file\n"</span>);
+    exit(<span class="number">1</span>);
+}
+tmpfile-&gt;write(modified);
+tmpfile-&gt;close();
+
+<span class="comment-delimiter">// </span><span class="comment">Replace original with temporary file</span>
+mv(tmpname, filename);
+
+
+<span class="comment-delimiter">// </span><span class="comment">Method 2: Line-by-line filtering (memory efficient)</span>
+<span class="constant">Stdio</span>.File infile = <span class="constant">Stdio</span>.File(filename, <span class="string">"r"</span>);
+<span class="constant">Stdio</span>.File outfile = <span class="constant">Stdio</span>.File(tmpname, <span class="string">"wc"</span>);
+
+<span class="keyword">foreach</span>(infile-&gt;line_iterator();; <span class="type">string</span> line) {
+    <span class="comment-delimiter">// </span><span class="comment">Process each line</span>
+    line = replace(line, <span class="string">"old"</span>, <span class="string">"new"</span>);
+    outfile-&gt;write(line + <span class="string">"\n"</span>);
+}
+
+infile-&gt;close();
+outfile-&gt;close();
+mv(tmpname, filename);
+
+
+<span class="comment-delimiter">// </span><span class="comment">Method 3: Using Stdio.FakeFile for in-memory processing</span>
+<span class="type">string</span> content = <span class="constant">Stdio</span>.read_file(filename);
+
+<span class="constant">Stdio</span>.FakeFile memfile = <span class="constant">Stdio</span>.FakeFile(content);
+
+<span class="comment-delimiter">// </span><span class="comment">Process line by line in memory</span>
+<span class="type">array</span>(<span class="type">string</span>) output = ({});
+
+<span class="keyword">foreach</span>(memfile-&gt;line_iterator();; <span class="type">string</span> line) {
+    <span class="comment-delimiter">// </span><span class="comment">Filter or modify lines</span>
+    <span class="keyword">if</span> (has_prefix(line, <span class="string">"#"</span>)) {
+        <span class="keyword">continue</span>;  <span class="comment-delimiter">// </span><span class="comment">Skip comments</span>
+    }
+    output += ({ line });
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Write back to file</span>
+<span class="constant">Stdio</span>.write_file(filename, output * <span class="string">"\n"</span>);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FILTER-PROGRAM"
+>7.11 Writing a Filter Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">A filter reads from stdin, processes, and writes to stdout</span>
+<span class="comment-delimiter">// </span><span class="comment">Usage: cat input.txt | pike filter.pike > output.txt</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Convert all text to uppercase</span>
+<span class="keyword">foreach</span>(<span class="constant">Stdio</span>.stdin;; <span class="type">string</span> line) {
+    <span class="type">string</span> upper = <span class="constant">String</span>.uppercase(line);
+    write(<span class="string">"%s\n"</span>, upper);
+}
+
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Number lines (like nl -ba)</span>
+<span class="type">int</span> lineno = <span class="number">1</span>;
+<span class="keyword">foreach</span>(<span class="constant">Stdio</span>.stdin;; <span class="type">string</span> line) {
+    write(<span class="string">"%6d  %s\n"</span>, lineno++, line);
+}
+
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Remove duplicate consecutive lines (like uniq)</span>
+<span class="type">string</span> prev = <span class="keyword">__undefined__</span>;
+
+<span class="keyword">foreach</span>(<span class="constant">Stdio</span>.stdin;; <span class="type">string</span> line) {
+    <span class="keyword">if</span> (line != prev) {
+        write(<span class="string">"%s\n"</span>, line);
+        prev = line;
+    }
+}
+
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Filter only lines matching a pattern</span>
+<span class="keyword">foreach</span>(<span class="constant">Stdio</span>.stdin;; <span class="type">string</span> line) {
+    <span class="keyword">if</span> (has_value(line, <span class="string">"ERROR"</span>)) {
+        write(<span class="string">"%s\n"</span>, line);
+    }
+}
+
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Word count (like wc -w)</span>
+<span class="type">int</span> word_count = <span class="number">0</span>;
+
+<span class="keyword">foreach</span>(<span class="constant">Stdio</span>.stdin;; <span class="type">string</span> line) {
+    <span class="type">array</span>(<span class="type">string</span>) words = line / <span class="string">" "</span>;
+    word_count += sizeof(words - ({<span class="string">""</span>}));  <span class="comment-delimiter">// </span><span class="comment">Exclude empty strings</span>
+}
+
+write(<span class="string">"%d words\n"</span>, word_count);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MULTIPLE-FILES"
+>7.12 Working with Multiple Files</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Process multiple files from command line</span>
+<span class="comment-delimiter">// </span><span class="comment">Usage: pike process.pike file1.txt file2.txt file3.txt</span>
+
+<span class="type">array</span>(<span class="type">string</span>) files = <span class="constant">System</span>.get_args()[<span class="number">1</span>..];
+
+<span class="keyword">foreach</span>(files;; <span class="type">string</span> fname) {
+    write(<span class="string">"Processing: %s\n"</span>, fname);
+
+    <span class="constant">Stdio</span>.File f = <span class="constant">Stdio</span>.File(fname, <span class="string">"r"</span>);
+    <span class="keyword">if</span> (!f) {
+        werror(<span class="string">"Failed to open %s\n"</span>, fname);
+        <span class="keyword">continue</span>;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Process file</span>
+    <span class="keyword">foreach</span>(f-&gt;line_iterator();; <span class="type">string</span> line) {
+        <span class="comment-delimiter">// </span><span class="comment">Do something with each line</span>
+        write(<span class="string">"%s: %s\n"</span>, fname, line);
+    }
+
+    f-&gt;close();
+}
+
+
+<span class="comment-delimiter">// </span><span class="comment">Read from multiple filehandles without blocking</span>
+<span class="comment-delimiter">// </span><span class="comment">(Useful for processing multiple sources concurrently)</span>
+
+<span class="type">array</span>(<span class="constant">Stdio</span>.File) handles = ({
+    <span class="constant">Stdio</span>.File(<span class="string">"file1.txt"</span>, <span class="string">"r"</span>),
+    <span class="constant">Stdio</span>.File(<span class="string">"file2.txt"</span>, <span class="string">"r"</span>),
+    <span class="constant">Stdio</span>.File(<span class="string">"file3.txt"</span>, <span class="string">"r"</span>),
+});
+
+<span class="type">array</span>(<span class="type">string</span>) filenames = ({<span class="string">"file1.txt"</span>, <span class="string">"file2.txt"</span>, <span class="string">"file3.txt"</span>});
+
+<span class="keyword">while</span> (sizeof(handles)) {
+    <span class="comment-delimiter">// </span><span class="comment">Check which handles have data ready</span>
+    <span class="type">mapping</span> ready = <span class="constant">Stdio</span>.select(handles, ({}), ({}), <span class="number">1.0</span>);
+
+    <span class="keyword">foreach</span>(ready-&gt;read;; <span class="constant">Stdio</span>.File f) {
+        <span class="type">int</span> idx = search(handles, f);
+        <span class="type">string</span> line = f-&gt;gets();
+
+        <span class="keyword">if</span> (!line) {
+            <span class="comment-delimiter">// </span><span class="comment">EOF, close and remove this handle</span>
+            f-&gt;close();
+            handles[idx] = <span class="number">0</span>;
+            handles -= ({<span class="number">0</span>});
+            filenames[idx] = <span class="number">0</span>;
+            filenames -= ({<span class="number">0</span>});
+        } <span class="keyword">else</span> {
+            write(<span class="string">"%s: %s\n"</span>, filenames[idx], line);
+        }
+    }
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DESCRIPTORS"
+>7.13 Opening File Descriptors by Number</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Open a file descriptor by number</span>
+<span class="comment-delimiter">// </span><span class="comment">(Useful for working with inherited file descriptors)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Duplicate file descriptor 4 (opened by parent process)</span>
+<span class="constant">Stdio</span>.File fd4 = <span class="constant">Stdio</span>.File(<span class="number">4</span>);
+
+<span class="keyword">if</span> (!fd4) {
+    werror(<span class="string">"Failed to open fd 4\n"</span>);
+    exit(<span class="number">1</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Read from the file descriptor</span>
+<span class="type">string</span> data = fd4-&gt;read(<span class="number">1024</span>);
+write(<span class="string">"Read from fd 4: %s\n"</span>, data);
+
+fd4-&gt;close();
+
+<span class="comment-delimiter">// </span><span class="comment">Access standard file descriptors directly</span>
+<span class="constant">Stdio</span>.File stdin = <span class="constant">Stdio</span>.File(<span class="number">0</span>);  <span class="comment-delimiter">// </span><span class="comment">Same as Stdio.stdin</span>
+<span class="constant">Stdio</span>.File stdout = <span class="constant">Stdio</span>.File(<span class="number">1</span>); <span class="comment-delimiter">// </span><span class="comment">Same as Stdio.stdout</span>
+<span class="constant">Stdio</span>.File stderr = <span class="constant">Stdio</span>.File(<span class="number">2</span>); <span class="comment-delimiter">// </span><span class="comment">Same as Stdio.stderr</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="COPY-HANDLES"
+>7.14 Copying Filehandles</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Dup() creates a copy of a filehandle that shares the same file position</span>
+
+<span class="constant">Stdio</span>.File original = <span class="constant">Stdio</span>.File(<span class="string">"data.txt"</span>, <span class="string">"r"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Create a duplicate filehandle</span>
+<span class="constant">Stdio</span>.File copy = original-&gt;dup();
+
+<span class="comment-delimiter">// </span><span class="comment">Both handles share the same file offset</span>
+<span class="type">string</span> data1 = original-&gt;read(<span class="number">10</span>);
+<span class="type">string</span> data2 = copy-&gt;read(<span class="number">10</span>);  <span class="comment-delimiter">// </span><span class="comment">Continues where original left off</span>
+
+write(<span class="string">"Original read: %s\n"</span>, data1);
+write(<span class="string">"Copy read: %s\n"</span>, data2);
+
+<span class="comment-delimiter">// </span><span class="comment">Close handles (both need to be closed)</span>
+original-&gt;close();
+copy-&gt;close();
+
+
+<span class="comment-delimiter">// </span><span class="comment">Redirect stdout to a file</span>
+<span class="constant">Stdio</span>.File logfile = <span class="constant">Stdio</span>.File(<span class="string">"output.log"</span>, <span class="string">"wc"</span>);
+<span class="constant">Stdio</span>.File stdout_backup = <span class="constant">Stdio</span>.stdout-&gt;dup();  <span class="comment-delimiter">// </span><span class="comment">Save original stdout</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Dup2() replaces the file descriptor</span>
+<span class="constant">Stdio</span>.stdout-&gt;dup2(logfile);
+
+<span class="comment-delimiter">// </span><span class="comment">All write() calls now go to the log file</span>
+write(<span class="string">"This goes to the log file\n"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Restore original stdout</span>
+<span class="constant">Stdio</span>.stdout-&gt;dup2(stdout_backup);
+write(<span class="string">"This goes to terminal again\n"</span>);
+
+logfile-&gt;close();
+stdout_backup-&gt;close();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SEEK-TELL"
+>7.15 Random Access: seek() and tell()</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">#pragma </span><span class="keyword">strict_types</span>
+
+<span class="constant">Stdio</span>.File f = <span class="constant">Stdio</span>.File(<span class="string">"data.bin"</span>, <span class="string">"rw"</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Get current position</span>
+<span class="type">int</span> pos = f-&gt;tell();
+write(<span class="string">"Current position: %d\n"</span>, pos);
+
+<span class="comment-delimiter">// </span><span class="comment">Seek to absolute position</span>
+f-&gt;seek(<span class="number">100</span>);  <span class="comment-delimiter">// </span><span class="comment">Go to byte 100</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Seek relative to current position</span>
+f-&gt;seek(<span class="number">50</span>, <span class="constant">Stdio</span>.SEEK_CUR);  <span class="comment-delimiter">// </span><span class="comment">Move 50 bytes forward</span>
+f-&gt;seek(<span class="number">-20</span>, <span class="constant">Stdio</span>.SEEK_CUR); <span class="comment-delimiter">// </span><span class="comment">Move 20 bytes backward</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Seek relative to end of file</span>
+f-&gt;seek(<span class="number">0</span>, <span class="constant">Stdio</span>.SEEK_END);  <span class="comment-delimiter">// </span><span class="comment">Go to end of file</span>
+f-&gt;seek(<span class="number">-100</span>, <span class="constant">Stdio</span>.SEEK_END); <span class="comment-delimiter">// </span><span class="comment">100 bytes before end</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Seek to beginning</span>
+f-&gt;seek(<span class="number">0</span>);  <span class="comment-delimiter">// </span><span class="comment">Default is SEEK_SET (beginning)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Read first 100 bytes, then last 100 bytes</span>
+f-&gt;seek(<span class="number">0</span>);
+<span class="type">string</span> first_100 = f-&gt;read(<span class="number">100</span>);
+
+f-&gt;seek(<span class="number">-100</span>, <span class="constant">Stdio</span>.SEEK_END);
+<span class="type">string</span> last_100 = f-&gt;read(<span class="number">100</span>);
+
+f-&gt;close();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></BODY
+></HTML>

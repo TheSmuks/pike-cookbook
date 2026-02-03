@@ -1,0 +1,1046 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Web Automation</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="CGI Programming"
+HREF="cgiprogramming.html"><LINK
+REL="NEXT"
+TITLE="Helpers"
+HREF="a1102.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="cgiprogramming.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="a1102.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WEBAUTOMATION"
+>20. Web Automation</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1054"
+>Introduction</A
+></H2
+><P
+>Web automation in Pike 8 involves HTTP requests, HTML parsing, form submission, session management, and building web crawlers. This chapter covers practical recipes for automating web interactions using modern Pike features.</P
+><P
+>Key modules used:</P
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Web automation modules in Pike 8</span>
+<span class="constant">Protocols</span>.HTTP      <span class="comment">// HTTP client and server</span>
+<span class="constant">Standards</span>.XML        <span class="comment">// XML/HTML parsing</span>
+<span class="constant">Standards</span>.JSON       <span class="comment">// JSON encoding/decoding</span>
+<span class="constant">Concurrent</span>.Future    <span class="comment">// Async operations</span>
+<span class="constant">Protocols</span>.HTTP.Query <span class="comment">// HTTP query object</span>
+<span class="constant">MIME</span>.encode_base64    <span class="comment">// Base64 encoding</span>
+<span class="constant">Crypto</span>.SHA256        <span class="comment">// Cryptographic functions</span>
+</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1057"
+>Fetching a URL</A
+></H2
+><P
+>Simple GET request with Protocols.HTTP:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Basic HTTP GET request</span>
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://example.com"</span>);
+
+<span class="keyword">if</span> (q->status == <span class="number">200</span>) {
+    <span class="function-name">write</span>(<span class="string">"Success: %d bytes\n"</span>, <span class="function-name">sizeof</span>(q-><span class="function-name">data</span>()));
+    <span class="function-name">write</span>(<span class="string">"Content-Type: %s\n"</span>, q->headers[<span class="string">"content-type"</span>]);
+    <span class="function-name">write</span>(q-><span class="function-name">data</span>());  <span class="comment">// Page content</span>
+} <span class="keyword">else</span> {
+    <span class="function-name">werror</span>(<span class="string">"HTTP Error: %d %s\n"</span>, q->status, q->status_desc);
+}
+
+<span class="comment">// With custom headers</span>
+<span class="keyword">mapping</span> headers = ([
+    <span class="string">"User-Agent"</span>: <span class="string">"PikeBot/1.0"</span>,
+    <span class="string">"Accept"</span>: <span class="string">"application/json"</span>
+]);
+
+q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://api.example.com/data"</span>, headers);
+</PRE
+></TD
+></TR
+></TABLE
+><P
+>Async HTTP requests with Future/Promise:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Async HTTP GET with callback</span>
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">Query</span>();
+q-><span class="function-name">set_callbacks</span>(
+    <span class="keyword">lambda</span>() { <span class="function-name">werror</span>(<span class="string">"Connection failed\n"</span>); },
+    <span class="keyword">lambda</span>(<span class="constant">Protocols</span>.HTTP.Query r) {
+        <span class="function-name">write</span>(<span class="string">"Got %d bytes\n"</span>, <span class="function-name">sizeof</span>(r-><span class="function-name">data</span>()));
+    }
+);
+q-><span class="function-name">async_request</span>(<span class="string">"https://example.com"</span>, <span class="string">"GET"</span>, ([]));
+
+<span class="comment">// Using Concurrent.Future</span>
+<span class="constant">Concurrent</span>.Promise p = <span class="constant">Concurrent</span>.<span class="function-name">Promise</span>();
+q-><span class="function-name">set_callbacks</span>(
+    <span class="keyword">lambda</span>() { p-><span class="function-name">fail</span>(<span class="string">"Failed"</span>); },
+    <span class="keyword">lambda</span>(<span class="constant">Protocols</span>.HTTP.Query r) {
+        p-><span class="function-name">success</span>(r-><span class="function-name">data</span>());
+    }
+);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1060"
+>Automating Form Submission</A
+></H2
+><P
+>POST form data:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// GET form submission</span>
+<span class="keyword">mapping</span> form_data = ([
+    <span class="string">"name"</span>: <span class="string">"John Doe"</span>,
+    <span class="string">"email"</span>: <span class="string">"john@example.com"</span>,
+    <span class="string">"category"</span>: <span class="string">"general"</span>
+]);
+
+<span class="comment">// Build query string</span>
+<span class="keyword">array</span>(<span class="type">string</span>) params = <span class="function-name">map</span>(<span class="function-name">indices</span>(form_data), <span class="keyword">lambda</span>(<span class="type">string</span> key) {
+    <span class="keyword">return</span> <span class="constant">Protocols</span>.HTTP.<span class="function-name">uri_encode</span>(key) + <span class="string">"="</span> +
+           <span class="constant">Protocols</span>.HTTP.<span class="function-name">uri_encode</span>(form_data[key]);
+});
+<span class="type">string</span> query_string = params * <span class="string">"&"</span>;
+<span class="type">string</span> url = <span class="string">"https://example.com/search?"</span> + query_string;
+
+<span class="comment">// POST form submission</span>
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">post_url</span>(
+    <span class="string">"https://example.com/submit"</span>,
+    form_data,
+    ([
+        <span class="string">"Content-Type"</span>: <span class="string">"application/x-www-form-urlencoded"</span>,
+        <span class="string">"User-Agent"</span>: <span class="string">"Pike FormBot/1.0"</span>
+    ])
+);
+</PRE
+></TD
+></TR
+></TABLE
+><P
+>Submit JSON data:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Submit JSON via POST</span>
+<span class="keyword">mapping</span> data = ([
+    <span class="string">"user"</span>: (<span class="keyword">mapping</span>)[
+        <span class="string">"name"</span>: <span class="string">"Jane Doe"</span>,
+        <span class="string">"email"</span>: <span class="string">"jane@example.com"</span>
+    ],
+    <span class="string">"action"</span>: <span class="string">"update"</span>
+]);
+
+<span class="type">string</span> json_body = <span class="constant">Standards</span>.JSON.<span class="function-name">encode</span>(data);
+
+<span class="keyword">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) headers = ([
+    <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>,
+    <span class="string">"Accept"</span>: <span class="string">"application/json"</span>
+]);
+
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">do_method</span>(
+    <span class="string">"POST"</span>,
+    <span class="string">"https://api.example.com/endpoint"</span>,
+    ([]),  <span class="comment">// query variables</span>
+    headers,
+    <span class="number">0</span>,     <span class="comment">// follow redirects</span>
+    json_body
+);
+
+<span class="keyword">if</span> (q->status >= <span class="number">200</span> && q->status <<span class="number"> 300</span>) {
+    <span class="keyword">mapping</span> response = <span class="constant">Standards</span>.JSON.<span class="function-name">decode</span>(q-><span class="function-name">data</span>());
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1063"
+>Extracting URLs</A
+></H2
+><P
+>Extract links from HTML:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Fetch HTML and extract links</span>
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://example.com"</span>);
+<span class="type">string</span> html = q-><span class="function-name">data</span>();
+
+<span class="comment">// Extract all href attributes</span>
+<span class="keyword">object</span> re = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(<span class="string">"<a\\s+href=\"([^\"]+)\"[^>]*>([^<]*)</a>"</span>);
+
+<span class="keyword">array</span>(<span class="type">string</span>) links = ({});
+<span class="keyword">int</span> pos = <span class="number">0</span>;
+
+<span class="keyword">while</span> (pos <<span class="keyword">sizeof</span>(html)) {
+    <span class="keyword">array</span>(<span class="type">string</span>) match = re-><span class="function-name">match</span>(html, pos);
+    <span class="keyword">if</span> (!match) <span class="keyword">break</span>;
+
+    <span class="type">string</span> url = match[<span class="number">1</span>];
+    <span class="type">string</span> text = match[<span class="number">2</span>];
+
+    links += ({ ([<span class="string">"url"</span>: url, <span class="string">"text"</span>: text]) });
+
+    pos = html-><span class="function-name">search</span>(match[<span class="number">0</span>], pos) + <span class="function-name">sizeof</span>(match[<span class="number">0</span>]);
+}
+
+<span class="function-name">foreach</span>(links, <span class="keyword">mapping</span> link) {
+    <span class="function-name">write</span>(<span class="string">"%s -> %s\n"</span>, link->text, link->url);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1066"
+>HTML Parsing with Standards.XML</A
+></H2
+><P
+>Parse well-formed HTML/XML:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Parse XHTML/well-formed HTML</span>
+<span class="constant">Standards</span>.<span class="constant">XML</span>.Node root = <span class="constant">Standards</span>.<span class="constant">XML</span>.<span class="function-name">parse</span>(html);
+
+<span class="comment">// Extract title</span>
+<span class="keyword">array</span>(<span class="constant">Standards</span>.<span class="constant">XML</span>.Node) titles = root-><span class="function-name">get_elements</span>(<span class="string">"title"</span>);
+<span class="keyword">if</span> (<span class="function-name">sizeof</span>(titles)) {
+    <span class="function-name">write</span>(<span class="string">"Title: %s\n"</span>, titles[<span class="number">0</span>]-><span class="function-name">get_text</span>());
+}
+
+<span class="comment">// Extract all paragraphs</span>
+<span class="keyword">array</span>(<span class="constant">Standards</span>.<span class="constant">XML</span>.Node) paragraphs = root-><span class="function-name">get_elements</span>(<span class="string">"p"</span>);
+<span class="function-name">foreach</span>(paragraphs, <span class="constant">Standards</span>.<span class="constant">XML</span>.Node p) {
+    <span class="keyword">mapping</span> attrs = p-><span class="function-name">get_attributes</span>();
+    <span class="type">string</span> id = attrs && attrs->id ? attrs->id : <span class="string">"no-id"</span>;
+    <span class="function-name">write</span>(<span class="string">"[%s]: %s\n"</span>, id, p-><span class="function-name">get_text</span>());
+}
+
+<span class="comment">// Extract list items</span>
+<span class="keyword">array</span>(<span class="constant">Standards</span>.<span class="constant">XML</span>.Node) lists = root-><span class="function-name">get_elements</span>(<span class="string">"ul"</span>);
+<span class="keyword">if</span> (<span class="function-name">sizeof</span>(lists)) {
+    <span class="keyword">array</span>(<span class="constant">Standards</span>.<span class="constant">XML</span>.Node) items = lists[<span class="number">0</span>]-><span class="function-name">get_elements</span>(<span class="string">"li"</span>);
+    <span class="function-name">foreach</span>(items, <span class="constant">Standards</span>.<span class="constant">XML</span>.Node item) {
+        <span class="function-name">write</span>(<span class="string">"- %s\n"</span>, item-><span class="function-name">get_text</span>());
+    }
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1069"
+>Converting ASCII to HTML</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Escape special characters for HTML</span>
+<span class="type">string</span> <span class="function-name">html_escape</span>(<span class="type">string</span> text) {
+    text = <span class="function-name">replace</span>(text, <span class="string">"&"</span>, <span class="string">"&amp;"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"<"</span>, <span class="string">"&lt;"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">">"</span>, <span class="string">"&gt;"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"\""</span>, <span class="string">"&quot;"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"'"</span>, <span class="string">"&#39;"</span>);
+    <span class="keyword">return</span> text;
+}
+
+<span class="function-name">write</span>(<span class="function-name">html_escape</span>(<span class="string">"<script>alert('XSS')"</script>"</span>));
+<span class="comment">// Output: &lt;script&gt;alert(&#39;XSS&#39;)&lt;/script&gt;</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1072"
+>Converting HTML to ASCII</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Strip HTML tags</span>
+<span class="type">string</span> <span class="function-name">strip_html</span>(<span class="type">string</span> html) {
+    <span class="comment">// Remove all tags</span>
+    <span class="type">string</span> text = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(<span class="string">"<[^>]+>"</span>)-><span class="function-name">replace</span>(html, <span class="string">""</span>);
+
+    <span class="comment">// Decode common entities</span>
+    text = <span class="function-name">replace</span>(text, <span class="string">"&amp;"</span>, <span class="string">"&"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"&lt;"</span>, <span class="string">"<"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"&gt;"</span>, <span class="string">">"</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"&quot;"</span>, <span class="string">"\""</span>);
+    text = <span class="function-name">replace</span>(text, <span class="string">"&nbsp;"</span>, <span class="string">" "</span>);
+
+    <span class="keyword">return</span> text;
+}
+
+<span class="type">string</span> html = <span class="string">"<p>Hello <b>world</b>!</p>"</span>;
+<span class="function-name">write</span>(<span class="function-name">strip_html</span>(html));
+<span class="comment">// Output: Hello world!</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1075"
+>Session Management and Cookies</A
+></H2
+><P
+>Handle cookies and maintain sessions:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Parse Set-Cookie header</span>
+<span class="keyword">class</span> <span class="type">CookieJar</span> {
+    <span class="keyword">private</span> <span class="keyword">mapping</span>(<span class="type">string</span>:<span class="keyword">mapping</span>) cookies = ([]);
+
+    <span class="keyword">void</span> <span class="function-name">set_cookie</span>(<span class="type">string</span> cookie_str, <span class="type">string</span>|<span class="keyword">void</span> domain) {
+        <span class="comment">// Parse: name=value; Expires=date; Path=/; Domain=.example.com</span>
+        <span class="keyword">array</span>(<span class="type">string</span>) parts = cookie_str / <span class="string">";"</span>;
+
+        <span class="type">string</span> name;
+        <span class="type">string</span> value;
+
+        <span class="function-name">foreach</span>(parts, <span class="type">string</span> part) {
+            part = <span class="constant">String</span>.<span class="function-name">trim_whitespace</span>(part);
+            <span class="keyword">array</span>(<span class="type">string</span>) nv = part / <span class="string">"="</span>;
+
+            <span class="keyword">if</span> (<span class="function-name">sizeof</span>(nv) == <span class="number">2</span>) {
+                <span class="keyword">if</span> (!name) {
+                    name = nv[<span class="number">0</span>];
+                    value = nv[<span class="number">1</span>];
+                }
+            }
+        }
+
+        <span class="keyword">if</span> (name && domain) {
+            cookies[name] = ([<span class="string">"value"</span>: value, <span class="string">"domain"</span>: domain]);
+        }
+    }
+
+    <span class="type">string</span> <span class="function-name">cookie_header</span>(<span class="type">string</span> url) {
+        <span class="keyword">array</span>(<span class="type">string</span>) pairs = <span class="function-name">map</span>(<span class="function-name">indices</span>(cookies), <span class="keyword">lambda</span>(<span class="type">string</span> name) {
+            <span class="keyword">return</span> name + <span class="string">"="</span> + cookies[name]->value;
+        });
+        <span class="keyword">return</span> pairs * <span class="string">"; "</span>;
+    }
+}
+
+<span class="comment">// Use with HTTP requests</span>
+<span class="type">CookieJar</span> jar = <span class="type">CookieJar</span>();
+
+<span class="comment">// Receive cookie</span>
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://example.com/login"</span>);
+jar-><span class="function-name">set_cookie</span>(q->headers[<span class="string">"set-cookie"</span>], <span class="string">"example.com"</span>);
+
+<span class="comment">// Send cookie with subsequent request</span>
+<span class="keyword">mapping</span> headers = ([<span class="string">"Cookie"</span>: jar-><span class="function-name">cookie_header</span>(<span class="string">"https://example.com"</span>)]);
+q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://example.com/profile"</span>, headers);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1078"
+>Authentication</A
+></H2
+><P
+>HTTP Basic Authentication:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Basic Auth header</span>
+<span class="type">string</span> credentials = <span class="string">"user:pass"</span>;
+<span class="type">string</span> encoded = <span class="constant">MIME</span>.<span class="function-name">encode_base64</span>(credentials);
+
+<span class="keyword">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) headers = ([
+    <span class="string">"Authorization"</span>: <span class="string">"Basic "</span> + encoded
+]);
+
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(
+    <span class="string">"https://api.example.com/protected"</span>,
+    headers
+);
+</PRE
+></TD
+></TR
+></TABLE
+><P
+>Bearer token (OAuth2/JWT):</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Bearer token authentication</span>
+<span class="type">string</span> access_token = <span class="string">"your_token_here"</span>;
+
+<span class="keyword">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) headers = ([
+    <span class="string">"Authorization"</span>: <span class="string">"Bearer "</span> + access_token,
+    <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>
+]);
+
+<span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(
+    <span class="string">"https://api.example.com/resource"</span>,
+    headers
+);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1081"
+>REST API Client</A
+></H2
+><P
+>Full REST API client with error handling:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// High-level REST client</span>
+<span class="keyword">class</span> <span class="type">RESTClient</span> {
+    <span class="keyword">private</span> <span class="type">string</span> base_url;
+    <span class="keyword">private</span> <span class="type">string</span>|<span class="keyword">void</span> auth_token;
+
+    <span class="keyword">void</span> <span class="function-name">create</span>(<span class="type">string</span> url, <span class="type">string</span>|<span class="keyword">void</span> token) {
+        base_url = url;
+        auth_token = token;
+    }
+
+    <span class="keyword">mapping</span> <span class="function-name">get</span>(<span class="type">string</span> endpoint, <span class="keyword">mapping</span>|<span class="keyword">void</span> params) {
+        <span class="keyword">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) headers = ([
+            <span class="string">"Accept"</span>: <span class="string">"application/json"</span>
+        ]);
+
+        <span class="keyword">if</span> (auth_token) {
+            headers[<span class="string">"Authorization"</span>] = <span class="string">"Bearer "</span> + auth_token;
+        }
+
+        <span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(
+            base_url + endpoint,
+            headers
+        );
+
+        <span class="keyword">if</span> (q->status >= <span class="number">200</span> && q->status <<span class="number"> 300</span>) {
+            <span class="keyword">return</span> ([
+                <span class="string">"success"</span>: <span class="number">1</span>,
+                <span class="string">"status"</span>: q->status,
+                <span class="string">"data"</span>: <span class="constant">Standards</span>.JSON.<span class="function-name">decode</span>(q-><span class="function-name">data</span>())
+            ]);
+        } <span class="keyword">else</span> {
+            <span class="keyword">return</span> ([
+                <span class="string">"success"</span>: <span class="number">0</span>,
+                <span class="string">"status"</span>: q->status,
+                <span class="string">"error"</span>: q->status_desc
+            ]);
+        }
+    }
+
+    <span class="keyword">mapping</span> <span class="function-name">post</span>(<span class="type">string</span> endpoint, <span class="keyword">mapping</span> data) {
+        <span class="keyword">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) headers = ([
+            <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>,
+            <span class="string">"Accept"</span>: <span class="string">"application/json"</span>
+        ]);
+
+        <span class="keyword">if</span> (auth_token) {
+            headers[<span class="string">"Authorization"</span>] = <span class="string">"Bearer "</span> + auth_token;
+        }
+
+        <span class="type">string</span> body = <span class="constant">Standards</span>.JSON.<span class="function-name">encode</span>(data);
+        <span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">do_method</span>(
+            <span class="string">"POST"</span>, base_url + endpoint, ([]), headers, <span class="number">0</span>, body
+        );
+
+        <span class="comment">// Similar error handling as GET...</span>
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="type">RESTClient</span> api = <span class="type">RESTClient</span>(<span class="string">"https://api.example.com"</span>);
+<span class="keyword">mapping</span> result = api-><span class="function-name">get</span>(<span class="string">"/users/1"</span>);
+
+<span class="keyword">if</span> (result->success) {
+    <span class="keyword">mapping</span> user = result->data;
+    <span class="function-name">write</span>(<span class="string">"User: %s\n"</span>, user->name);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1084"
+>Webhook Handler</A
+></H2
+><P
+>Simple webhook server:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Webhook server using Protocols.HTTP.Server</span>
+<span class="keyword">class</span> <span class="type">WebhookHandler</span> {
+    <span class="keyword">void</span> <span class="function-name">handle</span>(<span class="constant">Protocols</span>.HTTP.Server.Request req) {
+        <span class="keyword">method</span> m = req->request_type;
+
+        <span class="keyword">if</span> (m == <span class="string">"POST"</span>) {
+            <span class="type">string</span> body = req->body_raw || <span class="string">""</span>;
+
+            <span class="comment">// Parse JSON payload</span>
+            <span class="keyword">mapping</span> data = <span class="constant">Standards</span>.JSON.<span class="function-name">decode</span>(body);
+
+            <span class="function-name">werror</span>(<span class="string">"Received webhook: %s\n"</span>, data->event || <span class="string">"unknown"</span>);
+
+            <span class="comment">// Send response</span>
+            <span class="type">string</span> resp = <span class="constant">Standards</span>.JSON.<span class="function-name">encode</span>(([
+                <span class="string">"status"</span>: <span class="string">"received"</span>
+            ]));
+
+            req-><span class="function-name">response_and_finish</span>(<span class="function-name">sprintf</span>(
+                <span class="string">"HTTP/1.1 200 OK\r\nContent-Type: application/json\r\n\r\n%s"</span>,
+                resp
+            ));
+        }
+    }
+}
+
+<span class="comment">// Start server</span>
+<span class="constant">Protocols</span>.HTTP.Server.Port port = <span class="constant">Protocols</span>.HTTP.Server.<span class="type">Port</span>();
+port-><span class="function-name">bind</span>(<span class="number">8080</span>, <span class="type">WebhookHandler</span>()-><span class="function-name">handle</span>);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1087"
+>Rate Limiting</A
+></H2
+><P
+>Polite crawler with rate limiting:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Rate limiter</span>
+<span class="keyword">class</span> <span class="type">RateLimiter</span> {
+    <span class="keyword">private</span> <span class="type">float</span> min_interval;
+    <span class="keyword">private</span> <span class="type">int</span> last_request = <span class="number">0</span>;
+
+    <span class="keyword">void</span> <span class="function-name">create</span>(<span class="type">int</span> requests_per_second) {
+        min_interval = <span class="number">1.0</span> / requests_per_second;
+    }
+
+    <span class="keyword">void</span> <span class="function-name">throttle</span>() {
+        <span class="type">int</span> current = <span class="function-name">time</span>();
+        <span class="type">float</span> elapsed = current - last_request;
+
+        <span class="keyword">if</span> (elapsed <<span class="keyword">min_interval</span>) {
+            <span class="type">float</span> sleep_time = min_interval - elapsed;
+            <span class="function-name">sleep</span>((<span class="type">int</span>)(sleep_time * <span class="number">1000000</span>) / <span class="number">1000</span>);
+        }
+
+        last_request = <span class="function-name">time</span>();
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="type">RateLimiter</span> limiter = <span class="type">RateLimiter</span>(<span class="number">2</span>);  <span class="comment">// 2 requests per second</span>
+
+<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">1</span>; i <= <span class="number">10</span>; i++) {
+    limiter-><span class="function-name">throttle</span>();
+    <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="function-name">sprintf</span>(<span class="string">"https://example.com/page/%d"</span>, i));
+    <span class="function-name">write</span>(<span class="string">"Fetched page %d\n"</span>, i);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1090"
+>Creating a Web Crawler</A
+></H2
+><P
+>Basic web crawler:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Simple web crawler</span>
+<span class="keyword">class</span> <span class="type">WebCrawler</span> {
+    <span class="keyword">private</span> <span class="type">string</span> start_url;
+    <span class="keyword">private</span> <span class="type">int</span> max_depth;
+    <span class="keyword">private</span> <span class="keyword">set</span>(<span class="type">string</span>) visited = (<<span class=" punctuation">></span>);
+    <span class="keyword">private</span> <span class="keyword">array</span>(<span class="type">string</span>) queue = ({});
+    <span class="keyword">private</span> <span class="type">RateLimiter</span> limiter;
+
+    <span class="keyword">void</span> <span class="function-name">create</span>(<span class="type">string</span> url, <span class="type">int</span>|<span class="keyword">void</span> depth, <span class="type">int</span>|<span class="keyword">void</span> rps) {
+        start_url = url;
+        max_depth = depth || <span class="number">3</span>;
+        limiter = <span class="type">RateLimiter</span>(rps || <span class="number">2</span>);
+        queue += ({url});
+    }
+
+    <span class="keyword">array</span>(<span class="type">string</span>) <span class="function-name">extract_links</span>(<span class="type">string</span> html) {
+        <span class="keyword">array</span>(<span class="type">string</span>) links = ({});
+        <span class="keyword">object</span> re = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(<span class="string">"<a\\s+href=['\"]([^'\"]+)['\"]"</span>);
+
+        <span class="keyword">int</span> pos = <span class="number">0</span>;
+        <span class="keyword">while</span> (pos <<span class="keyword">sizeof</span>(html)) {
+            <span class="keyword">array</span>(<span class="type">string</span>) match = re-><span class="function-name">match</span>(html, pos);
+            <span class="keyword">if</span> (!match) <span class="keyword">break</span>;
+            links += ({match[<span class="number">1</span>]});
+            pos = html-><span class="function-name">search</span>(match[<span class="number">0</span>], pos) + <span class="function-name">sizeof</span>(match[<span class="number">0</span>]);
+        }
+        <span class="keyword">return</span> links;
+    }
+
+    <span class="keyword">void</span> <span class="function-name">crawl</span>() {
+        <span class="keyword">while</span> (<span class="function-name">sizeof</span>(queue)) {
+            <span class="type">string</span> url = queue[<span class="number">0</span>];
+            queue = queue[<span class="number">1</span>..];
+
+            <span class="keyword">if</span> (visited[url]) <span class="keyword">continue</span>;
+            visited[url] = <span class="number">1</span>;
+
+            limiter-><span class="function-name">throttle</span>();
+            <span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(url);
+
+            <span class="keyword">if</span> (q && q->status == <span class="number">200</span>) {
+                <span class="function-name">write</span>(<span class="string">"Crawled: %s (%d bytes)\n"</span>, url, <span class="function-name">sizeof</span>(q-><span class="function-name">data</span>()));
+
+                <span class="keyword">array</span>(<span class="type">string</span>) links = <span class="function-name">extract_links</span>(q-><span class="function-name">data</span>());
+                queue += links;
+            }
+        }
+    }
+}
+
+<span class="comment">// Usage</span>
+<span class="type">WebCrawler</span> crawler = <span class="type">WebCrawler</span>(<span class="string">"https://example.com"</span>, <span class="number">2</span>, <span class="number">1</span>);
+crawler-><span class="function-name">crawl</span>();
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1093"
+>Handling JavaScript-Heavy Sites</A
+></H2
+><P
+>Pike cannot execute JavaScript directly. For JS-heavy sites:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// Strategy 1: Discover hidden API endpoints</span>
+<span class="type">string</span> html = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(<span class="string">"https://example.com"</span>)-><span class="function-name">data</span>();
+
+<span class="comment">// Look for API calls in JavaScript</span>
+<span class="keyword">array</span>(<span class="type">string</span>) patterns = ({
+    <span class="string">"fetch\\(['\"]([^'\"]+)['\"]"</span>,
+    <span class="string">"\\.get\\(['\"]([^'\"]+)['\"]"</span>,
+    <span class="string">"[\"']url[\"']:\\s*[\"']([^'\"]+)[\"']"</span>
+});
+
+<span class="function-name">foreach</span>(patterns, <span class="type">string</span> pattern) {
+    <span class="keyword">object</span> re = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(pattern);
+    <span class="keyword">array</span>(<span class="type">string</span>) matches = re-><span class="function-name">split</span>(html);
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(matches) > <span class="number">1</span>) {
+        <span class="function-name">write</span>(<span class="string">"Found API endpoint: %s\n"</span>, matches[<span class="number">1</span>]);
+    }
+}
+
+<span class="comment">// Strategy 2: Use headless browser (via external tool)</span>
+<span class="comment">// Call Node.js script with Puppeteer from Pike</span>
+<span class="keyword">object</span> proc = <span class="constant">Process</span>.<span class="function-name">popen</span>(<span class="string">"node render.js https://example.com"</span>, <span class="string">"r"</span>);
+<span class="type">string</span> rendered_html = proc-><span class="function-name">read</span>();
+proc-><span class="function-name">close</span>();
+
+<span class="comment">// Now parse the rendered HTML</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1096"
+>Program: Web Scraper</A
+></H2
+><P
+>Complete web scraper example:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">#!/usr/bin/env pike</span>
+<span class="meta">#pragma strict_types</span>
+
+<span class="keyword">int</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="keyword">array</span>(<span class="type">string</span>) argv) {
+    <span class="keyword">if</span> (argc <<span class="number"> 2</span>) {
+        <span class="function-name">werror</span>(<span class="string">"Usage: %s <url>\n"</span>, argv[<span class="number">0</span>]);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="type">string</span> url = argv[<span class="number">1</span>];
+
+    <span class="comment">// Fetch page</span>
+    <span class="constant">Protocols</span>.HTTP.Query q = <span class="constant">Protocols</span>.HTTP.<span class="function-name">get_url</span>(url);
+
+    <span class="keyword">if</span> (q->status != <span class="number">200</span>) {
+        <span class="function-name">werror</span>(<span class="string">"HTTP Error: %d\n"</span>, q->status);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="type">string</span> html = q-><span class="function-name">data</span>();
+
+    <span class="comment">// Extract title</span>
+    <span class="keyword">object</span> re = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(<span class="string">"<title>([^<]*)</title>"</span>);
+    <span class="keyword">array</span>(<span class="type">string</span>) title_match = re-><span class="function-name">split</span>(html);
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(title_match) > <span class="number">1</span>) {
+        <span class="function-name">write</span>(<span class="string">"Title: %s\n"</span>, title_match[<span class="number">1</span>]);
+    }
+
+    <span class="comment">// Extract all links</span>
+    re = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>.<span class="function-name">Simple</span>(<span class="string">"<a\\s+href=\"([^\"]+)\"[^>]*>([^<]*)</a>"</span>);
+    <span class="keyword">array</span>(<span class="type">string</span>) links = ({});
+    <span class="keyword">int</span> pos = <span class="number">0</span>;
+
+    <span class="keyword">while</span> (pos <<span class="keyword">sizeof</span>(html)) {
+        <span class="keyword">array</span>(<span class="type">string</span>) match = re-><span class="function-name">match</span>(html, pos);
+        <span class="keyword">if</span> (!match) <span class="keyword">break</span>;
+
+        <span class="function-name">write</span>(<span class="string">"  %s -> %s\n"</span>, match[<span class="number">2</span>], match[<span class="number">1</span>]);
+        pos = html-><span class="function-name">search</span>(match[<span class="number">0</span>], pos) + <span class="function-name">sizeof</span>(match[<span class="number">0</span>]);
+    }
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="cgiprogramming.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="a1102.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>CGI Programming</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Helpers</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>

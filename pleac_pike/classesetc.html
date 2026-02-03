@@ -1,0 +1,2108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Classes, Objects, and Ties</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Packages, Libraries, and Modules"
+HREF="packagesetc.html"><LINK
+REL="NEXT"
+TITLE="Database Access"
+HREF="dbaccess.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="packagesetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="dbaccess.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CLASSESETC"
+>13. Classes, Objects, and Ties</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN704"
+>Introduction</A
+></H2
+><P
+>Pike 8 is a modern object-oriented language with first-class support for classes, objects, inheritance, polymorphism, and encapsulation. This chapter covers Pike's object-oriented programming features including:</P
+>
+<UL
+>
+<LI
+>Class declaration and instantiation</LI
+>
+<LI
+>Methods and properties with type annotations</LI
+>
+<LI
+>Single and multiple inheritance</LI
+>
+<LI
+>Access control and encapsulation</LI
+>
+<LI
+>Operator overloading</LI
+>
+<LI
+>Static members and class methods</LI
+>
+<LI
+>Lambda functions and closures</LI
+>
+<LI
+>Concurrent programming with objects</LI
+>
+</UL
+>
+<P
+>Pike 8 introduces enhanced type safety with <TT
+CLASS="LITERAL"
+>#pragma strict_types</TT
+>, improved syntax, and better integration with modern asynchronous patterns using <TT
+CLASS="LITERAL"
+>Concurrent.Future</TT
+>.</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Simple Person class with Pike 8 features</span>
+<span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Person {
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+    <span class="keyword">protected</span> <span class="type">int</span> age;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_, <span class="type">int</span> age_) {
+        name = name_;
+        age = age_;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get_name() {
+        <span class="keyword">return</span> name;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> _sprintf(<span class="type">int</span> type) {
+        <span class="keyword">return</span> sprintf(<span class="string">"Person(%s, %d)"</span>, name, age);
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Usage</span>
+<span class="type">Person</span> p = Person(<span class="string">"Alice"</span>, <span class="number">30</span>);
+write(<span class="string">"%s\n"</span>, p);  <span class="comment-delimiter">// </span><span class="comment">Output: Person(Alice, 30)</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN707"
+>Constructing an Object</A
+></H2
+><P
+>Pike uses the <TT
+CLASS="LITERAL"
+>create()</TT
+> method as the constructor. The constructor is called automatically when you instantiate an object using the <TT
+CLASS="LITERAL"
+>ClassName()</TT
+> syntax.</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Employee {
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+    <span class="keyword">protected</span> <span class="type">int</span> id;
+    <span class="keyword">protected</span> <span class="type">float</span> salary;
+
+    <span class="comment-delimiter">// </span><span class="comment">Constructor with required parameters</span>
+    <span class="keyword">void</span> create(<span class="type">string</span> name_, <span class="type">int</span> id_, <span class="type">float</span> salary_) {
+        name = name_;
+        id = id_;
+        salary = salary_;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Constructor with default values</span>
+    <span class="keyword">void</span> create(<span class="type">string</span> name_, <span class="type">int</span> id_, <span class="type">void</span>|<span class="type">float</span> salary_) {
+        name = name_;
+        id = id_;
+        salary = undefinedp(salary_) ? <span class="number">0.0</span> : salary_;
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Creating objects</span>
+<span class="type">Employee</span> emp1 = Employee(<span class="string">"Bob"</span>, <span class="number">1001</span>, <span class="number">50000.0</span>);
+<span class="type">Employee</span> emp2 = Employee(<span class="string">"Carol"</span>, <span class="number">1002</span>);  <span class="comment-delimiter">// </span><span class="comment">salary defaults to 0.0</span>
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Pike 8 supports named parameters and optional parameters for more flexible constructors:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Config {
+    <span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) options;
+
+    <span class="comment-delimiter">// </span><span class="comment">Constructor with optional mapping parameter</span>
+    <span class="keyword">void</span> create(<span class="type">void</span>|<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) opts) {
+        options = opts || ([]);
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get(<span class="type">string</span> key, <span class="type">void</span>|<span class="type">string</span> default_) {
+        <span class="keyword">return</span> options[key] || default_ || <span class="string">""</span>;
+    }
+}
+
+<span class="type">Config</span> cfg1 = Config();
+<span class="type">Config</span> cfg2 = Config(([<span class="string">"host"</span>: <span class="string">"localhost"</span>, <span class="string">"port"</span>: <span class="string">"8080"</span>]));
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN710"
+>Destroying an Object</A
+></H2
+><P
+>Pike automatically handles object destruction through garbage collection. You can define a <TT
+CLASS="LITERAL"
+>destroy()</TT
+> method for cleanup when an object is garbage collected.</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> DatabaseConnection {
+    <span class="keyword">protected</span> <span class="type">string</span> connection_string;
+    <span class="keyword">protected</span> <span class="type">bool</span> is_connected = <span class="keyword">false</span>;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> conn_str) {
+        connection_string = conn_str;
+        is_connected = <span class="keyword">true</span>;
+        write(<span class="string">"Connected to: %s\n"</span>, conn_str);
+    }
+
+    <span class="keyword">void</span> destroy() {
+        <span class="keyword">if</span> (is_connected) {
+            write(<span class="string">"Closing connection to: %s\n"</span>, connection_string);
+            is_connected = <span class="keyword">false</span>;
+        }
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Object is automatically destroyed when out of scope</span>
+<span class="keyword">void</span> test_connection() {
+    <span class="type">DatabaseConnection</span> db = DatabaseConnection(<span class="string">"postgresql://localhost/test"</span>);
+    write(<span class="string">"Working with database...\n"</span>);
+}  <span class="comment-delimiter">// </span><span class="comment">destroy() called here</span>
+
+test_connection();
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For explicit resource management, Pike 8 works well with <TT
+CLASS="LITERAL"
+>Concurrent.Future</TT
+> and scoping:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Resource {
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        name = name_;
+        write(<span class="string">"Acquired: %s\n"</span>, name);
+    }
+
+    <span class="keyword">void</span> destroy() {
+        write(<span class="string">"Released: %s\n"</span>, name);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> use() {
+        write(<span class="string">"Using: %s\n"</span>, name);
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Using a block to control lifetime</span>
+{
+    <span class="type">Resource</span> r = Resource(<span class="string">"file.txt"</span>);
+    r->use();
+}  <span class="comment-delimiter">// </span><span class="comment">r destroyed here</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN713"
+>Managing Instance Data</A
+></H2
+><P
+>Instance data in Pike is managed through member variables. Use access modifiers to control visibility:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> BankAccount {
+    <span class="comment-delimiter">// </span><span class="comment">Private instance data (protected visibility)</span>
+    <span class="keyword">protected</span> <span class="type">string</span> account_number;
+    <span class="keyword">protected</span> <span class="type">float</span> balance;
+    <span class="keyword">protected</span> <span class="type">string</span> owner;
+
+    <span class="comment-delimiter">// </span><span class="comment">Public constant</span>
+    <span class="keyword">public</span> <span class="keyword">constant</span> OVERDRAFT_FEE = <span class="number">35.0</span>;
+
+    <span class="comment-delimiter">// </span><span class="comment">Constructor</span>
+    <span class="keyword">void</span> create(<span class="type">string</span> owner_, <span class="type">string</span> acct_num) {
+        owner = owner_;
+        account_number = acct_num;
+        balance = <span class="number">0.0</span>;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Public getter methods</span>
+    <span class="keyword">public</span> <span class="type">string</span> get_owner() {
+        <span class="keyword">return</span> owner;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> get_balance() {
+        <span class="keyword">return</span> balance;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Public setter with validation</span>
+    <span class="keyword">public</span> <span class="type">int</span> deposit(<span class="type">float</span> amount) {
+        <span class="keyword">if</span> (amount <= <span class="number">0</span>) {
+            <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Failure</span>
+        }
+        balance += amount;
+        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment-delimiter">// </span><span class="comment">Success</span>
+    }
+
+    <span class="keyword">public</span> <span class="type">int</span> withdraw(<span class="type">float</span> amount) {
+        <span class="keyword">if</span> (amount <= <span class="number">0</span> || amount > balance) {
+            <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Failure</span>
+        }
+        balance -= amount;
+        <span class="keyword">return</span> <span class="number">1</span>;  <span class="comment-delimiter">// </span><span class="comment">Success</span>
+    }
+}
+
+<span class="type">BankAccount</span> acct = BankAccount(<span class="string">"Alice"</span>, <span class="string">"123-456"</span>);
+acct->deposit(<span class="number">100.0</span>);
+acct->withdraw(<span class="number">50.0</span>);
+write(<span class="string">"Balance: $%.2f\n"</span>, acct->get_balance());
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Pike 8 supports property-like syntax with optional type annotations:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> User {
+    <span class="keyword">private</span> <span class="type">string</span> _email;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> email_) {
+        _email = validate_email(email_) ? email_ : <span class="string">""</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get_email() {
+        <span class="keyword">return</span> _email;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> set_email(<span class="type">string</span> email) {
+        <span class="keyword">if</span> (validate_email(email)) {
+            _email = email;
+        }
+    }
+
+    <span class="keyword">private</span> <span class="type">bool</span> validate_email(<span class="type">string</span> email) {
+        <span class="keyword">return</span> has_value(email, <span class="string">"@"</span>) && has_value(email, <span class="string">"."</span>);
+    }
+}
+
+<span class="type">User</span> u = User(<span class="string">"user@example.com"</span>);
+write(<span class="string">"%s\n"</span>, u->get_email());
+u->set_email(<span class="string">"new@example.com"</span>);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN716"
+>Managing Class Data</A
+></H2
+><P
+>Static class data is shared across all instances. Use <TT
+CLASS="LITERAL"
+>static</TT
+> for class-level variables:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Counter {
+    <span class="comment-delimiter">// </span><span class="comment">Static class data - shared across all instances</span>
+    <span class="keyword">static</span> <span class="type">int</span> instance_count = <span class="number">0</span>;
+    <span class="keyword">static</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">int</span>) registry = ([]);
+
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        name = name_;
+        instance_count++;
+        registry[name_] = instance_count;
+    }
+
+    <span class="keyword">void</span> destroy() {
+        instance_count--;
+        m_delete(registry, name);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Static class method</span>
+    <span class="keyword">static</span> <span class="type">int</span> get_instance_count() {
+        <span class="keyword">return</span> instance_count;
+    }
+
+    <span class="keyword">static</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">int</span>) get_registry() {
+        <span class="keyword">return</span> registry;
+    }
+}
+
+<span class="type">Counter</span> c1 = Counter(<span class="string">"first"</span>);
+<span class="type">Counter</span> c2 = Counter(<span class="string">"second"</span>);
+<span class="type">Counter</span> c3 = Counter(<span class="string">"third"</span>);
+
+write(<span class="string">"Instances: %d\n"</span>, Counter->get_instance_count());  <span class="comment-delimiter">// </span><span class="comment">Output: 3</span>
+write(<span class="string">"Registry: %O\n"</span>, Counter->get_registry());
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Class constants are defined using <TT
+CLASS="LITERAL"
+>constant</TT
+>:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> MathConstants {
+    <span class="keyword">public</span> <span class="keyword">constant</span> PI = <span class="number">3.141592653589793</span>;
+    <span class="keyword">public</span> <span class="keyword">constant</span> E = <span class="number">2.718281828459045</span>;
+    <span class="keyword">public</span> <span class="keyword">constant</span> GOLDEN_RATIO = <span class="number">1.618033988749895</span>;
+}
+
+write(<span class="string">"PI: %f\n"</span>, MathConstants->PI);
+write(<span class="string">"E: %f\n"</span>, MathConstants->E);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN719"
+>Using Classes as Structs</A
+></H2
+><P
+>Pike classes work well as lightweight structs. Use the <TT
+CLASS="LITERAL"
+>mapping</TT
+> type for simple data structures, or create proper classes for type safety:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Simple struct-like class</span>
+<span class="keyword">class</span> Point {
+    <span class="keyword">public</span> <span class="type">float</span> x;
+    <span class="keyword">public</span> <span class="type">float</span> y;
+
+    <span class="keyword">void</span> create(<span class="type">void</span>|<span class="type">float</span> x_, <span class="type">void</span>|<span class="type">float</span> y_) {
+        x = undefinedp(x_) ? <span class="number">0.0</span> : x_;
+        y = undefinedp(y_) ? <span class="number">0.0</span> : y_;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> distance(<span class="type">Point</span> other) {
+        <span class="type">float</span> dx = x - other->x;
+        <span class="type">float</span> dy = y - other->y;
+        <span class="keyword">return</span> sqrt(dx*dx + dy*dy);
+    }
+}
+
+<span class="type">Point</span> p1 = Point(<span class="number">3.0</span>, <span class="number">4.0</span>);
+<span class="type">Point</span> p2 = Point(<span class="number">0.0</span>, <span class="number">0.0</span>);
+write(<span class="string">"Distance: %f\n"</span>, p1->distance(p2));  <span class="comment-delimiter">// </span><span class="comment">Output: 5.0</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Alternative: using mapping for simple structs</span>
+<span class="type">mapping</span> <span class="variable-name">point</span> = ([<span class="string">"x"</span>: <span class="number">3.0</span>, <span class="string">"y"</span>: <span class="number">4.0</span>]);
+write(<span class="string">"Point: (%.1f, %.1f)\n"</span>, point->x, point->y);
+
+<span class="comment-delimiter">// </span><span class="comment">Safe property access with Pike 8</span>
+<span class="type">float</span>? x = point-><span class="string">"x"</span>;  <span class="comment-delimiter">// </span><span class="comment">Returns 3.0</span>
+<span class="type">float</span>? z = point-><span class="string">"z"</span>;  <span class="comment-delimiter">// </span><span class="comment">Returns UNDEFINED</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Safe access with default</span>
+<span class="type">float</span> z_safe = point-><span class="string">"z"</span> || <span class="number">0.0</span>;
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For more complex structs, use factory functions:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Record factory function</span>
+<span class="keyword">fun</span> make_person = <span class="keyword">lambda</span>(<span class="type">string</span> name, <span class="type">int</span> age, <span class="type">string</span> email) {
+    <span class="keyword">return</span> ([
+        <span class="string">"name"</span>: name,
+        <span class="string">"age"</span>: age,
+        <span class="string">"email"</span>: email,
+        <span class="string">"created"</span>: time()
+    ]);
+};
+
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mixed</span>) person = make_person(<span class="string">"Dave"</span>, <span class="number">25</span>, <span class="string">"dave@example.com"</span>);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN722"
+>Cloning Objects</A
+></H2
+><P
+>Pike provides several ways to clone objects. The simplest is to create a new instance with the same data:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Widget {
+    <span class="keyword">public</span> <span class="type">string</span> name;
+    <span class="keyword">public</span> <span class="type">int</span> id;
+    <span class="keyword">public</span> <span class="type">array</span>(<span class="type">mixed</span>) data;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_, <span class="type">int</span> id_) {
+        name = name_;
+        id = id_;
+        data = ({});
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Clone method</span>
+    <span class="keyword">public</span> <span class="type">Widget</span> clone() {
+        <span class="type">Widget</span> w = Widget(name, id);
+        w->data = data + ({});  <span class="comment-delimiter">// </span><span class="comment">Shallow copy of array</span>
+        <span class="keyword">return</span> w;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Deep clone method</span>
+    <span class="keyword">public</span> <span class="type">Widget</span> deep_clone() {
+        <span class="type">Widget</span> w = Widget(name, id);
+        w->data = copy_value(data);  <span class="comment-delimiter">// </span><span class="comment">Deep copy</span>
+        <span class="keyword">return</span> w;
+    }
+}
+
+<span class="type">Widget</span> original = Widget(<span class="string">"gadget"</span>, <span class="number">1</span>);
+original->data = ({<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>});
+
+<span class="type">Widget</span> shallow = original->clone();
+<span class="type">Widget</span> deep = original->deep_clone();
+
+original->data[<span class="number">0</span>] = <span class="number">99</span>;
+write(<span class="string">"Original: %O\n"</span>, original->data);  <span class="comment-delimiter">// </span><span class="comment">({99, 2, 3})</span>
+write(<span class="string">"Shallow: %O\n"</span>, shallow->data);    <span class="comment-delimiter">// </span><span class="comment">({99, 2, 3}) - shared reference!</span>
+write(<span class="string">"Deep: %O\n"</span>, deep->data);        <span class="comment-delimiter">// </span><span class="comment">({1, 2, 3}) - independent copy</span>
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Use <TT
+CLASS="LITERAL"
+>copy_value()</TT
+> for deep copying complex structures:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Config {
+    <span class="keyword">public</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mixed</span>) settings;
+
+    <span class="keyword">void</span> create() {
+        settings = ([]);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Create a deep copy</span>
+    <span class="keyword">public</span> <span class="type">Config</span> copy() {
+        <span class="type">Config</span> c = Config();
+        c->settings = copy_value(settings);
+        <span class="keyword">return</span> c;
+    }
+}
+
+<span class="type">Config</span> config1 = Config();
+config1->settings = ([
+    <span class="string">"database"</span>: ([<span class="string">"host"</span>: <span class="string">"localhost"</span>, <span class="string">"port"</span>: <span class="number">5432</span>]),
+    <span class="string">"features"</span>: ({<span class="string">"auth"</span>, <span class="string">"cache"</span>, <span class="string">"api"</span>})
+]);
+
+<span class="type">Config</span> config2 = config1->copy();
+config2->settings->database->host = <span class="string">"remote"</span>;
+
+write(<span class="string">"Config1 host: %s\n"</span>, config1->settings->database->host);  <span class="comment-delimiter">// </span><span class="comment">localhost</span>
+write(<span class="string">"Config2 host: %s\n"</span>, config2->settings->database->host);  <span class="comment-delimiter">// </span><span class="comment">remote</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN725"
+>Calling Methods Indirectly</A
+></H2
+><P
+>Pike supports several ways to call methods indirectly, including function references and the arrow operator:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Calculator {
+    <span class="keyword">public</span> <span class="type">float</span> add(<span class="type">float</span> a, <span class="type">float</span> b) { <span class="keyword">return</span> a + b; }
+    <span class="keyword">public</span> <span class="type">float</span> subtract(<span class="type">float</span> a, <span class="type">float</span> b) { <span class="keyword">return</span> a - b; }
+    <span class="keyword">public</span> <span class="type">float</span> multiply(<span class="type">float</span> a, <span class="type">float</span> b) { <span class="keyword">return</span> a * b; }
+    <span class="keyword">public</span> <span class="type">float</span> divide(<span class="type">float</span> a, <span class="type">float</span> b) { <span class="keyword">return</span> a / b; }
+}
+
+<span class="type">Calculator</span> calc = Calculator();
+
+<span class="comment-delimiter">// </span><span class="comment">Direct method call</span>
+<span class="type">float</span> result1 = calc->add(<span class="number">5.0</span>, <span class="number">3.0</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Method reference</span>
+<span class="keyword">fun</span> <span class="variable-name">add_ref</span> = calc->add;
+<span class="type">float</span> result2 = add_ref(<span class="number">5.0</span>, <span class="number">3.0</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Dynamic method name</span>
+<span class="type">string</span> method_name = <span class="string">"multiply"</span>;
+<span class="keyword">fun</span> <span class="variable-name">method</span> = calc[method_name];
+<span class="type">float</span> result3 = method(<span class="number">5.0</span>, <span class="number">3.0</span>);
+
+<span class="comment-delimiter">// </span><span class="comment">Using call_function</span>
+<span class="type">float</span> result4 = call_function(calc->subtract, <span class="number">5.0</span>, <span class="number">3.0</span>);
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For method dispatch tables, use mappings:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> CommandProcessor {
+    <span class="keyword">public</span> <span class="type">void</span> handle_create(<span class="type">mapping</span> data) { write(<span class="string">"Creating: %O\n"</span>, data); }
+    <span class="keyword">public</span> <span class="type">void</span> handle_update(<span class="type">mapping</span> data) { write(<span class="string">"Updating: %O\n"</span>, data); }
+    <span class="keyword">public</span> <span class="type">void</span> handle_delete(<span class="type">mapping</span> data) { write(<span class="string">"Deleting: %O\n"</span>, data); }
+    <span class="keyword">public</span> <span class="type">void</span> handle_default(<span class="type">mapping</span> data) { write(<span class="string">"Unknown: %O\n"</span>, data); }
+
+    <span class="comment-delimiter">// </span><span class="comment">Dispatch table</span>
+    <span class="keyword">private</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="keyword">fun</span>) <span class="variable-name">handlers</span>;
+
+    <span class="keyword">void</span> create() {
+        handlers = ([
+            <span class="string">"create"</span>: handle_create,
+            <span class="string">"update"</span>: handle_update,
+            <span class="string">"delete"</span>: handle_delete
+        ]);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> process(<span class="type">string</span> action, <span class="type">mapping</span> data) {
+        <span class="keyword">fun</span> <span class="variable-name">handler</span> = handlers[action] || handle_default;
+        handler(data);
+    }
+}
+
+<span class="type">CommandProcessor</span> proc = CommandProcessor();
+proc->process(<span class="string">"create"</span>, ([<span class="string">"id"</span>: <span class="number">1</span>]));
+proc->process(<span class="string">"update"</span>, ([<span class="string">"id"</span>: <span class="number">1</span>, <span class="string">"name"</span>: <span class="string">"Test"</span>]));
+proc->process(<span class="string">"unknown"</span>, ([<span class="string">"id"</span>: <span class="number">1</span>]));
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN728"
+>Determining Subclass Membership</A
+></H2
+><P
+>Use Pike's type checking system and the <TT
+CLASS="LITERAL"
+>object_program()</TT
+> function to determine class relationships:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Animal {
+    <span class="keyword">public</span> <span class="type">string</span> name;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        name = name_;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> speak() {
+        write(<span class="string">"%s makes a sound\n"</span>, name);
+    }
+}
+
+<span class="keyword">class</span> Dog {
+    <span class="keyword">inherit</span> Animal;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        ::create(name_);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> bark() {
+        write(<span class="string">"%s barks!\n"</span>, name);
+    }
+}
+
+<span class="keyword">class</span> Cat {
+    <span class="keyword">inherit</span> Animal;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        ::create(name_);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> meow() {
+        write(<span class="string">"%s meows!\n"</span>, name);
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Check object type</span>
+<span class="keyword">void</span> check_type(<span class="type">object</span> obj) {
+    <span class="comment-delimiter">// </span><span class="comment">Get the program (class) of the object</span>
+    <span class="keyword">program</span> p = object_program(obj);
+
+    write(<span class="string">"Object type: %s\n"</span>, master()->describe_program(p));
+
+    <span class="comment-delimiter">// </span><span class="comment">Check inheritance</span>
+    <span class="keyword">if</span> (object_program(obj) == Dog) {
+        write(<span class="string">"This is a Dog\n"</span>);
+    } <span class="keyword">else if</span> (object_program(obj) == Cat) {
+        write(<span class="string">"This is a Cat\n"</span>);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Check if object inherits from Animal</span>
+    <span class="keyword">if</span> (Program.inherits(object_program(obj), Animal)) {
+        write(<span class="string">"This is an Animal\n"</span>);
+    }
+}
+
+<span class="type">Animal</span> generic = Animal(<span class="string">"Creature"</span>);
+<span class="type">Dog</span> dog = Dog(<span class="string">"Buddy"</span>);
+<span class="type">Cat</span> cat = Cat(<span class="string">"Whiskers"</span>);
+
+check_type(generic);
+check_type(dog);
+check_type(cat);
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Use <TT
+CLASS="LITERAL"
+>catch()</TT
+> for safe type-based dispatch:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">void</span> handle_animal(<span class="type">Animal</span> animal) {
+    <span class="comment-delimiter">// </span><span class="comment">Try to call Dog-specific method</span>
+    <span class="keyword">if</span> (catch {
+        (<span class="type">Dog</span>)animal->bark();
+        write(<span class="string">"Handled as Dog\n"</span>);
+    }) {
+        write(<span class="string">"Not a Dog\n"</span>);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Or use object_program check</span>
+    <span class="keyword">if</span> (object_program(animal) == Dog) {
+        (<span class="type">Dog</span>)animal->bark();
+    }
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN731"
+>Writing an Inheritable Class</A
+></H2
+><P
+>Pike supports single and multiple inheritance using the <TT
+CLASS="LITERAL"
+>inherit</TT
+> keyword. Base classes should be designed with protected methods that can be overridden:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Shape {
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        name = name_;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Virtual method - to be overridden</span>
+    <span class="keyword">public</span> <span class="type">float</span> area() {
+        <span class="keyword">return</span> <span class="number">0.0</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> perimeter() {
+        <span class="keyword">return</span> <span class="number">0.0</span>;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Template method</span>
+    <span class="keyword">public</span> <span class="type">void</span> describe() {
+        write(<span class="string">"%s: area=%.2f, perimeter=%.2f\n"</span>,
+              name, area(), perimeter());
+    }
+}
+
+<span class="keyword">class</span> Rectangle {
+    <span class="keyword">inherit</span> Shape;
+
+    <span class="keyword">protected</span> <span class="type">float</span> width;
+    <span class="keyword">protected</span> <span class="type">float</span> height;
+
+    <span class="keyword">void</span> create(<span class="type">float</span> w, <span class="type">float</span> h) {
+        ::create(<span class="string">"Rectangle"</span>);
+        width = w;
+        height = h;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> area() {
+        <span class="keyword">return</span> width * height;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> perimeter() {
+        <span class="keyword">return</span> <span class="number">2</span> * (width + height);
+    }
+}
+
+<span class="keyword">class</span> Circle {
+    <span class="keyword">inherit</span> Shape;
+
+    <span class="keyword">protected</span> <span class="type">float</span> radius;
+
+    <span class="keyword">void</span> create(<span class="type">float</span> r) {
+        ::create(<span class="string">"Circle"</span>);
+        radius = r;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> area() {
+        <span class="keyword">return</span> Math.PI * radius * radius;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> perimeter() {
+        <span class="keyword">return</span> <span class="number">2</span> * Math.PI * radius;
+    }
+}
+
+<span class="type">array</span>(<span class="type">Shape</span>) shapes = ({
+    Rectangle(<span class="number">5.0</span>, <span class="number">3.0</span>),
+    Circle(<span class="number">2.5</span>),
+    Rectangle(<span class="number">10.0</span>, <span class="number">4.0</span>)
+});
+
+<span class="keyword">foreach</span>(shapes; <span class="type">int</span> i; <span class="type">Shape</span> shape) {
+    shape->describe();
+}
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Multiple inheritance in Pike:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Drawable {
+    <span class="keyword">public</span> <span class="type">void</span> draw() {
+        write(<span class="string">"Drawing...\n"</span>);
+    }
+}
+
+<span class="keyword">class</span> Serializable {
+    <span class="keyword">public</span> <span class="type">string</span> serialize() {
+        <span class="keyword">return</span> <span class="string">"serialized data"</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> deserialize(<span class="type">string</span> data) {
+        write(<span class="string">"Deserializing: %s\n"</span>, data);
+    }
+}
+
+<span class="keyword">class</span> Sprite {
+    <span class="keyword">inherit</span> Drawable;
+    <span class="keyword">inherit</span> Serializable;
+
+    <span class="keyword">protected</span> <span class="type">int</span> x = <span class="number">0</span>;
+    <span class="keyword">protected</span> <span class="type">int</span> y = <span class="number">0</span>;
+
+    <span class="keyword">public</span> <span class="type">void</span> move(<span class="type">int</span> dx, <span class="type">int</span> dy) {
+        x += dx;
+        y += dy;
+        write(<span class="string">"Moved to (%d, %d)\n"</span>, x, y);
+    }
+}
+
+<span class="type">Sprite</span> sprite = Sprite();
+sprite->draw();
+sprite->move(<span class="number">10</span>, <span class="number">20</span>);
+write(<span class="string">"%s\n"</span>, sprite->serialize());
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN734"
+>Accessing Overridden Methods</A
+></H2
+><P
+>Use the scope resolution operator <TT
+CLASS="LITERAL"
+>::</TT
+> to call overridden methods from parent classes:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Vehicle {
+    <span class="keyword">protected</span> <span class="type">string</span> make;
+    <span class="keyword">protected</span> <span class="type">string</span> model;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> make_, <span class="type">string</span> model_) {
+        make = make_;
+        model = model_;
+        write(<span class="string">"Vehicle created: %s %s\n"</span>, make, model);
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get_info() {
+        <span class="keyword">return</span> sprintf(<span class="string">"%s %s"</span>, make, model);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> start() {
+        write(<span class="string">"Vehicle starting...\n"</span>);
+    }
+}
+
+<span class="keyword">class</span> Car {
+    <span class="keyword">inherit</span> Vehicle;
+
+    <span class="keyword">protected</span> <span class="type">int</span> num_doors;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> make_, <span class="type">string</span> model_, <span class="type">int</span> doors) {
+        ::create(make_, model_);  <span class="comment-delimiter">// </span><span class="comment">Call parent constructor</span>
+        num_doors = doors;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Override and extend</span>
+    <span class="keyword">public</span> <span class="type">string</span> get_info() {
+        <span class="comment-delimiter">// </span><span class="comment">Call parent method and extend</span>
+        <span class="keyword">return</span> ::get_info() + sprintf(<span class="string">" (%d doors)"</span>, num_doors);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Override with completely different behavior</span>
+    <span class="keyword">public</span> <span class="type">void</span> start() {
+        write(<span class="string">"Car engine roaring!\n"</span>);
+    }
+}
+
+<span class="type">Car</span> car = Car(<span class="string">"Toyota"</span>, <span class="string">"Camry"</span>, <span class="number">4</span>);
+write(<span class="string">"%s\n"</span>, car->get_info());
+car->start();
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>With multiple inheritance, specify which parent to call:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Logger {
+    <span class="keyword">public</span> <span class="type">void</span> log(<span class="type">string</span> msg) {
+        write(<span class="string">"[LOG] %s\n"</span>, msg);
+    }
+}
+
+<span class="keyword">class</span> Validator {
+    <span class="keyword">public</span> <span class="type">bool</span> validate(<span class="type">string</span> data) {
+        <span class="keyword">return</span> sizeof(data) > <span class="number">0</span>;
+    }
+}
+
+<span class="keyword">class</span> DataProcessor {
+    <span class="keyword">inherit</span> Logger;
+    <span class="keyword">inherit</span> Validator;
+
+    <span class="keyword">public</span> <span class="type">void</span> process(<span class="type">string</span> data) {
+        <span class="comment-delimiter">// </span><span class="comment">Call validate from Validator parent</span>
+        <span class="keyword">if</span> (Validator::validate(data)) {
+            Logger::log(<span class="string">"Processing: "</span> + data);
+        }
+    }
+}
+
+<span class="type">DataProcessor</span> proc = DataProcessor();
+proc->process(<span class="string">"test data"</span>);
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN737"
+>Generating Attribute Methods Using AUTOLOAD</A
+></H2
+><P
+>Pike doesn't have AUTOLOAD like Perl, but you can create dynamic getters and setters using <TT
+CLASS="LITERAL"
+>`->()</TT
+> and <TT
+CLASS="LITERAL"
+>`[]()`</TT
+> operators. For dynamic method handling, use these special methods:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> DynamicObject {
+    <span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mixed</span>) attributes = ([]);
+
+    <span class="comment-delimiter">// </span><span class="comment">Override the [] operator for attribute access</span>
+    <span class="keyword">mixed</span> `[](<span class="type">string</span> key) {
+        <span class="keyword">return</span> attributes[key];
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Override the []= operator for attribute setting</span>
+    <span class="keyword">mixed</span> `[]=(<span class="type">string</span> key, <span class="type">mixed</span> value) {
+        attributes[key] = value;
+        <span class="keyword">return</span> value;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Override _indices to list all attributes</span>
+    <span class="keyword">array</span> <span class="variable-name">_indices</span>() {
+        <span class="keyword">return</span> indices(attributes);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Override _values to get all values</span>
+    <span class="keyword">array</span> <span class="variable-name">_values</span>() {
+        <span class="keyword">return</span> values(attributes);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Check if attribute exists</span>
+    <span class="keyword">public</span> <span class="type">bool</span> has_attribute(<span class="type">string</span> key) {
+        <span class="keyword">return</span> has_index(attributes, key);
+    }
+}
+
+<span class="type">DynamicObject</span> obj = DynamicObject();
+obj->name = <span class="string">"Alice"</span>;
+obj->age = <span class="number">30</span>;
+obj->email = <span class="string">"alice@example.com"</span>;
+
+write(<span class="string">"Name: %s\n"</span>, obj->name);
+write(<span class="string">"Age: %d\n"</span>, obj->age);
+
+<span class="keyword">foreach</span>(indices(obj); <span class="type">int</span> i; <span class="type">string</span> key) {
+    write(<span class="string">"%s: %O\n"</span>, key, obj[key]);
+}
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For method generation, use a factory pattern:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> PropertyAccessor {
+    <span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mixed</span>) data = ([]);
+
+    <span class="keyword">void</span> create(<span class="type">array</span>(<span class="type">string</span>) property_names) {
+        <span class="comment-delimiter">// </span><span class="comment">Create getter and setter for each property</span>
+        <span class="keyword">foreach</span>(property_names; <span class="type">int</span> i; <span class="type">string</span> prop) {
+            data[prop] = UNDEFINED;
+        }
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Generic getter</span>
+    <span class="keyword">public</span> <span class="type">mixed</span> get(<span class="type">string</span> prop) {
+        <span class="keyword">return</span> data[prop];
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Generic setter</span>
+    <span class="keyword">public</span> <span class="type">void</span> set(<span class="type">string</span> prop, <span class="type">mixed</span> value) {
+        data[prop] = value;
+    }
+}
+
+<span class="type">PropertyAccessor</span> person = PropertyAccessor(({<span class="string">"name"</span>, <span class="string">"age"</span>, <span class="string">"city"</span>}));
+person->set(<span class="string">"name"</span>, <span class="string">"Bob"</span>);
+person->set(<span class="string">"age"</span>, <span class="number">25</span>);
+write(<span class="string">"%s is %d years old\n"</span>, person->get(<span class="string">"name"</span>), person->get(<span class="string">"age"</span>));
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN740"
+>Solving the Data Inheritance Problem</A
+></H2
+><P
+>When using inheritance in Pike, each class maintains its own instance data. To share data properly, design your classes with clear separation of concerns:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Base class with common data</span>
+<span class="keyword">class</span> Entity {
+    <span class="keyword">protected</span> <span class="type">int</span> id;
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+    <span class="keyword">protected</span> <span class="type">int</span> created_at;
+
+    <span class="keyword">void</span> create(<span class="type">int</span> id_, <span class="type">string</span> name_) {
+        id = id_;
+        name = name_;
+        created_at = time();
+    }
+
+    <span class="keyword">public</span> <span class="type">int</span> get_id() { <span class="keyword">return</span> id; }
+    <span class="keyword">public</span> <span class="type">string</span> get_name() { <span class="keyword">return</span> name; }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">User extends Entity with its own data</span>
+<span class="keyword">class</span> User {
+    <span class="keyword">inherit</span> Entity;
+
+    <span class="keyword">protected</span> <span class="type">string</span> email;
+    <span class="keyword">protected</span> <span class="type">string</span> password_hash;
+    <span class="keyword">protected</span> <span class="type">bool</span> is_active = <span class="keyword">true</span>;
+
+    <span class="keyword">void</span> create(<span class="type">int</span> id_, <span class="type">string</span> name_, <span class="type">string</span> email_) {
+        ::create(id_, name_);
+        email = email_;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get_email() { <span class="keyword">return</span> email; }
+    <span class="keyword">public</span> <span class="type">bool</span> active() { <span class="keyword">return</span> is_active; }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Product extends Entity with different data</span>
+<span class="keyword">class</span> Product {
+    <span class="keyword">inherit</span> Entity;
+
+    <span class="keyword">protected</span> <span class="type">float</span> price;
+    <span class="keyword">protected</span> <span class="type">int</span> stock_qty;
+
+    <span class="keyword">void</span> create(<span class="type">int</span> id_, <span class="type">string</span> name_, <span class="type">float</span> price_) {
+        ::create(id_, name_);
+        price = price_;
+        stock_qty = <span class="number">0</span>;
+    }
+
+    <span class="keyword">public</span> <span class="type">float</span> get_price() { <span class="keyword">return</span> price; }
+    <span class="keyword">public</span> <span class="type">int</span> get_stock() { <span class="keyword">return</span> stock_qty; }
+}
+
+<span class="type">User</span> user = User(<span class="number">1</span>, <span class="string">"Alice"</span>, <span class="string">"alice@example.com"</span>);
+<span class="type">Product</span> product = Product(<span class="number">100</span>, <span class="string">"Widget"</span>, <span class="number">29.99</span>);
+
+write(<span class="string">"User: %s (%s)\n"</span>, user->get_name(), user->get_email());
+write(<span class="string">"Product: %s ($%.2f)\n"</span>, product->get_name(), product->get_price());
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For complex hierarchies, use composition over inheritance:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Component: Timestamps</span>
+<span class="keyword">class</span> Timestamps {
+    <span class="keyword">protected</span> <span class="type">int</span> created_at;
+    <span class="keyword">protected</span> <span class="type">int</span> updated_at;
+
+    <span class="keyword">void</span> create() {
+        created_at = time();
+        updated_at = time();
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> touch() {
+        updated_at = time();
+    }
+
+    <span class="keyword">public</span> <span class="type">int</span> get_created() { <span class="keyword">return</span> created_at; }
+    <span class="keyword">public</span> <span class="type">int</span> get_updated() { <span class="keyword">return</span> updated_at; }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Component: Identifiable</span>
+<span class="keyword">class</span> Identifiable {
+    <span class="keyword">protected</span> <span class="type">int</span> id;
+
+    <span class="keyword">public</span> <span class="type">void</span> set_id(<span class="type">int</span> id_) { id = id_; }
+    <span class="keyword">public</span> <span class="type">int</span> get_id() { <span class="keyword">return</span> id; }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Main class using composition</span>
+<span class="keyword">class</span> Article {
+    <span class="keyword">private</span> <span class="type">Timestamps</span> timestamps;
+    <span class="keyword">private</span> <span class="type">Identifiable</span> identifiable;
+
+    <span class="keyword">protected</span> <span class="type">string</span> title;
+    <span class="keyword">protected</span> <span class="type">string</span> content;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> title_, <span class="type">string</span> content_) {
+        timestamps = Timestamps();
+        identifiable = Identifiable();
+        title = title_;
+        content = content_;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Delegate to components</span>
+    <span class="keyword">public</span> <span class="type">void</span> set_id(<span class="type">int</span> id_) { identifiable->set_id(id_); }
+    <span class="keyword">public</span> <span class="type">int</span> get_id() { <span class="keyword">return</span> identifiable->get_id(); }
+    <span class="keyword">public</span> <span class="type">void</span> touch() { timestamps->touch(); }
+    <span class="keyword">public</span> <span class="type">int</span> get_created() { <span class="keyword">return</span> timestamps->get_created(); }
+
+    <span class="keyword">public</span> <span class="type">string</span> get_title() { <span class="keyword">return</span> title; }
+    <span class="keyword">public</span> <span class="type">string</span> get_content() { <span class="keyword">return</span> content; }
+}
+
+<span class="type">Article</span> article = Article(<span class="string">"Hello World"</span>, <span class="string">"My first article"</span>);
+article->set_id(<span class="number">42</span>);
+write(<span class="string">"Article %d: %s\n"</span>, article->get_id(), article->get_title());
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN743"
+>Coping with Circular Data Structures</A
+></H2
+><P
+>Circular references can prevent proper garbage collection. Use weak references or explicitly break cycles:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Node {
+    <span class="keyword">public</span> <span class="type">string</span> name;
+    <span class="keyword">public</span> <span class="type">array</span>(<span class="type">Node</span>) children = ({});
+    <span class="keyword">public</span> <span class="type">Node</span>|<span class="keyword">zero</span> parent = <span class="number">0</span>;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_) {
+        name = name_;
+    }
+
+    <span class="keyword">void</span> destroy() {
+        write(<span class="string">"Destroying node: %s\n"</span>, name);
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> add_child(<span class="type">Node</span> child) {
+        children += ({child});
+        child->parent = <span class="keyword">this</span>;  <span class="comment-delimiter">// </span><span class="comment">Creates circular reference!</span>
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Explicitly break the cycle</span>
+    <span class="keyword">public</span> <span class="void</span> cleanup() {
+        <span class="keyword">foreach</span>(children; <span class="type">int</span> i; <span class="type">Node</span> child) {
+            child->parent = <span class="number">0</span>;
+        }
+        children = ({});
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Create a circular structure</span>
+<span class="type">Node</span> parent = Node(<span class="string">"parent"</span>);
+<span class="type">Node</span> child = Node(<span class="string">"child"</span>);
+parent->add_child(child);
+
+<span class="comment-delimiter">// </span><span class="comment">Clean up explicitly to break the cycle</span>
+parent->cleanup();
+child->cleanup();
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Use <TT
+CLASS="LITERAL"
+>_destruct</TT
+> for automatic cleanup:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> GraphNode {
+    <span class="keyword">public</span> <span class="type">string</span> id;
+    <span class="keyword">public</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">GraphNode</span>) neighbors = ([]);
+
+    <span class="keyword">void</span> create(<span class="type">string</span> id_) {
+        id = id_;
+    }
+
+    <span class="keyword">void</span> add_edge(<span class="type">GraphNode</span> other) {
+        neighbors[other->id] = other;
+        other->neighbors[id] = <span class="keyword">this</span>;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Break all references on destruction</span>
+    <span class="keyword">void</span> destroy() {
+        <span class="keyword">foreach</span>(neighbors; <span class="type">string</span> nid; <span class="type">GraphNode</span> node) {
+            m_delete(node->neighbors, id);
+        }
+        neighbors = ([]);
+    }
+}
+
+<span class="type">GraphNode</span> a = GraphNode(<span class="string">"A"</span>);
+<span class="type">GraphNode</span> b = GraphNode(<span class="string">"B"</span>);
+a->add_edge(b);
+<span class="comment-delimiter">// </span><span class="comment">Edges automatically cleaned up when nodes are destroyed</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN746"
+>Overloading Operators</A
+></H2
+><P
+>Pike allows operator overloading by implementing special methods. Define operators like <TT
+CLASS="LITERAL"
+>`+</TT
+>, <TT
+CLASS="LITERAL"
+>`==</TT
+>, <TT
+CLASS="LITERAL"
+>`_sprintf()</TT
+>, etc:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Complex {
+    <span class="keyword">public</span> <span class="type">float</span> real;
+    <span class="keyword">public</span> <span class="type">float</span> imag;
+
+    <span class="keyword">void</span> create(<span class="type">float</span> r, <span class="type">float</span> i) {
+        real = r;
+        imag = i;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Overload + operator</span>
+    <span class="keyword">public</span> <span class="type">Complex</span> `+(<span class="type">mixed</span> other) {
+        <span class="keyword">if</span> (!objectp(other) || object_program(other) != Complex)
+            <span class="keyword">error</span>(<span class="string">"Can only add Complex to Complex\n"</span>);
+        <span class="keyword">return</span> Complex(real + other->real, imag + other->imag);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Overload - operator</span>
+    <span class="keyword">public</span> <span class="type">Complex</span> `-(<span class="type">mixed</span> other) {
+        <span class="keyword">if</span> (!objectp(other) || object_program(other) != Complex)
+            <span class="keyword">error</span>(<span class="string">"Can only subtract Complex from Complex\n"</span>);
+        <span class="keyword">return</span> Complex(real - other->real, imag - other->imag);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Overload * operator</span>
+    <span class="keyword">public</span> <span class="type">Complex</span> `*(<span class="type">mixed</span> other) {
+        <span class="keyword">if</span> (!objectp(other) || object_program(other) != Complex)
+            <span class="keyword">error</span>(<span class="string">"Can only multiply Complex by Complex\n"</span>);
+        <span class="comment-delimiter">// </span><span class="comment">(a+bi)(c+di) = (ac-bd) + (ad+bc)i</span>
+        <span class="type">float</span> r = real * other->real - imag * other->imag;
+        <span class="type">float</span> i = real * other->imag + imag * other->real;
+        <span class="keyword">return</span> Complex(r, i);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Overload == operator</span>
+    <span class="keyword">public</span> <span class="type">int</span> `==(<span class="type">mixed</span> other) {
+        <span class="keyword">return</span> objectp(other) &&
+               object_program(other) == Complex &&
+               real == other->real &&
+               imag == other->imag;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">String representation</span>
+    <span class="keyword">public</span> <span class="type">string</span> _sprintf(<span class="type">int</span> type) {
+        <span class="keyword">if</span> (type == <span class="string">'O'</span> || type == <span class="string">'s'</span>) {
+            <span class="keyword">return</span> sprintf(<span class="string">"Complex(%.2f%+.2fi)"</span>, real, imag);
+        }
+        <span class="keyword">return</span> sprintf(<span class="string">"%O"</span>, <span class="keyword">this</span>);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Hash value for use in mappings</span>
+    <span class="keyword">public</span> <span class="type">int</span> _hash() {
+        <span class="keyword">return</span> hash_value(real) ^ hash_value(imag);
+    }
+}
+
+<span class="type">Complex</span> c1 = Complex(<span class="number">3.0</span>, <span class="number">4.0</span>);
+<span class="type">Complex</span> c2 = Complex(<span class="number">1.0</span>, <span class="number">2.0</span>);
+
+<span class="type">Complex</span> sum = c1 + c2;
+<span class="type">Complex</span> diff = c1 - c2;
+<span class="type">Complex</span> product = c1 * c2;
+
+write(<span class="string">"c1: %s\n"</span>, c1);
+write(<span class="string">"c2: %s\n"</span>, c2);
+write(<span class="string">"sum: %s\n"</span>, sum);
+write(<span class="string">"diff: %s\n"</span>, diff);
+write(<span class="string">"product: %s\n"</span>, product);
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>More operator overloading examples:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">class</span> Vector {
+    <span class="keyword">public</span> <span class="type">array</span>(<span class="type">float</span>) elements;
+
+    <span class="keyword">void</span> create(<span class="type">array</span>(<span class="type">float</span>) elems) {
+        elements = elems;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Index access: v[index]</span>
+    <span class="keyword">public</span> <span class="type">float</span> `[](<span class="type">int</span> index) {
+        <span class="keyword">return</span> elements[index];
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Index assignment: v[index] = value</span>
+    <span class="keyword">public</span> <span class="type">float</span> `[]=(<span class="type">int</span> index, <span class="type">float</span> value) {
+        elements[index] = value;
+        <span class="keyword">return</span> value;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Sizeof: sizeof(v)</span>
+    <span class="keyword">public</span> <span class="type">int</span> _sizeof() {
+        <span class="keyword">return</span> sizeof(elements);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Iteration: foreach(v; int i; float val)</span>
+    <span class="keyword">public</span> <span class="type">array</span> <span class="variable-name">_indices</span>() {
+        <span class="keyword">return</span> indices(elements);
+    }
+
+    <span class="keyword">public</span> <span class="type">array</span> <span class="variable-name">_values</span>() {
+        <span class="keyword">return</span> values(elements);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Comparison</span>
+    <span class="keyword">public</span> <span class="type">int</span> `==(<span class="type">mixed</span> other) {
+        <span class="keyword">return</span> objectp(other) &&
+               object_program(other) == Vector &&
+               equal(elements, other->elements);
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> _sprintf(<span class="type">int</span> type) {
+        <span class="keyword">return</span> sprintf(<span class="string">"Vector(%s)"</span>, sprintf(<span class="string">"%O"</span>, elements));
+    }
+}
+
+<span class="type">Vector</span> v = Vector(({<span class="number">1.0</span>, <span class="number">2.0</span>, <span class="number">3.0</span>, <span class="number">4.0</span>}));
+write(<span class="string">"%s\n"</span>, v);
+write(<span class="string">"Size: %d\n"</span>, sizeof(v));
+write(<span class="string">"v[1]: %f\n"</span>, v[<span class="number">1</span>]);
+
+v[<span class="number">2</span>] = <span class="number">10.0</span>;
+write(<span class="string">"After v[2] = 10.0: %s\n"</span>, v);
+
+<span class="keyword">foreach</span>(v; <span class="type">int</span> i; <span class="type">float</span> val) {
+    write(<span class="string">"v[%d] = %f\n"</span>, i, val);
+}
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN749"
+>Creating Magic Variables with tie</A
+></H2
+><P
+>Pike doesn't have Perl's <TT
+CLASS="LITERAL"
+>tie()</TT
+> mechanism, but you can achieve similar behavior using objects with operator overloading. Create wrapper objects that intercept all operations:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Traced variable - logs all accesses</span>
+<span class="keyword">class</span> TracedVariable {
+    <span class="keyword">protected</span> <span class="type">mixed</span> value;
+    <span class="keyword">protected</span> <span class="type">string</span> name;
+
+    <span class="keyword">void</span> create(<span class="type">string</span> name_, <span class="type">mixed</span> initial) {
+        name = name_;
+        value = initial;
+        write(<span class="string">"[TRACE] %s created with value: %O\n"</span>, name, value);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Overload cast to mixed</span>
+    <span class="keyword">public</span> <span class="type">mixed</span> cast(<span class="keyword">program</span> to) {
+        <span class="keyword">if</span> (to == <span class="keyword">typeof</span>(value)) {
+            write(<span class="string">"[TRACE] %s read: %O\n"</span>, name, value);
+        }
+        <span class="keyword">return</span> value;
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Assignment</span>
+    <span class="keyword">public</span> <span class="type">mixed</span> `=(<span class="type">mixed</span> new_value) {
+        write(<span class="string">"[TRACE] %s: %O -> %O\n"</span>, name, value, new_value);
+        value = new_value;
+        <span class="keyword">return</span> value;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> _sprintf(<span class="type">int</span> type) {
+        <span class="keyword">return</span> sprintf(<span class="string">"TracedVariable(%s: %O)"</span>, name, value);
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Validated variable</span>
+<span class="keyword">class</span> ValidatedString {
+    <span class="keyword">protected</span> <span class="type">string</span> value;
+    <span class="keyword">protected</span> <span class="type">function</span>(<span class="type">string</span>:<span class="type">int</span>) validator;
+
+    <span class="keyword">void</span> create(<span class="type">function</span>(<span class="type">string</span>:<span class="type">int</span>) validate_, <span class="type">string</span> initial) {
+        validator = validate_;
+        set(initial);
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> get() {
+        <span class="keyword">return</span> value;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> set(<span class="type">string</span> new_value) {
+        <span class="keyword">if</span> (!validator(new_value)) {
+            <span class="keyword">error</span>(<span class="string">"Invalid value: %s\n"</span>, new_value);
+        }
+        value = new_value;
+    }
+
+    <span class="keyword">public</span> <span class="type">string</span> _sprintf(<span class="type">int</span> type) {
+        <span class="keyword">return</span> sprintf(<span class="string">"%s"</span>, value);
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Email validator</span>
+<span class="keyword">fun</span> is_valid_email = <span class="keyword">lambda</span>(<span class="type">string</span> email) {
+    <span class="keyword">return</span> has_value(email, <span class="string">"@"</span>) && sizeof(email) > <span class="number">3</span>;
+};
+
+<span class="type">ValidatedString</span> email = ValidatedString(is_valid_email, <span class="string">"user@example.com"</span>);
+write(<span class="string">"Email: %s\n"</span>, email->get());
+email->set(<span class="string">"admin@example.com"</span>);
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>Create lazy-evaluated variables using closures:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="comment-delimiter">// </span><span class="comment">Lazy-evaluated value</span>
+<span class="keyword">class</span> Lazy {
+    <span class="keyword">protected</span> <span class="type">mixed</span> _computed_value = UNDEFINED;
+    <span class="keyword">protected</span> <span class="type">bool</span> _computed = <span class="keyword">false</span>;
+    <span class="keyword">protected</span> <span class="keyword">fun</span> _compute_fn;
+
+    <span class="keyword">void</span> create(<span class="keyword">fun</span> compute_fn) {
+        _compute_fn = compute_fn;
+    }
+
+    <span class="keyword">public</span> <span class="type">mixed</span> get() {
+        <span class="keyword">if</span> (!_computed) {
+            _computed_value = _compute_fn();
+            _computed = <span class="keyword">true</span>;
+            write(<span class="string">"[LAZY] Computed value\n"</span>);
+        }
+        <span class="keyword">return</span> _computed_value;
+    }
+
+    <span class="keyword">public</span> <span class="type">void</span> reset() {
+        _computed = <span class="keyword">false</span>;
+        _computed_value = UNDEFINED;
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Expensive computation</span>
+<span class="type">Lazy</span> expensive_result = Lazy(<span class="keyword">lambda</span>() {
+    write(<span class="string">"Computing expensive result...\n"</span>);
+    <span class="comment-delimiter">// </span><span class="comment">Simulate expensive work</span>
+    <span class="type">int</span> sum = <span class="number">0</span>;
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i < <span class="number">1000000</span>; i++) {
+        sum += i;
+    }
+    <span class="keyword">return</span> sum;
+});
+
+write(<span class="string">"First access: %d\n"</span>, expensive_result->get());
+write(<span class="string">"Second access: %d\n"</span>, expensive_result->get());  <span class="comment-delimiter">// </span><span class="comment">Cached!</span>
+</PRE
+></TD
+></TR
+></TABLE
+>
+<P
+>For advanced integration with Pike 8's async features, use <TT
+CLASS="LITERAL"
+>Concurrent.Future</TT
+>:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">pragma</span> strict_types
+
+<span class="keyword">import</span> Concurrent.Future;
+
+<span class="comment-delimiter">// </span><span class="comment">Async wrapper that returns futures</span>
+<span class="keyword">class</span> AsyncCache {
+    <span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">Future</span>) cache = ([]);
+
+    <span class="keyword">public</span> <span class="type">Future</span> get(<span class="type">string</span> key, <span class="keyword">fun</span> fetch_fn) {
+        <span class="comment-delimiter">// </span><span class="comment">Return cached future if available</span>
+        <span class="keyword">if</span> (cache[key]) {
+            <span class="keyword">return</span> cache[key];
+        }
+
+        <span class="comment-delimiter">// </span><span class="comment">Create new future for the fetch</span>
+        <span class="type">Future</span> result = fetch_fn();
+        cache[key] = result;
+
+        <span class="comment-delimiter">// </span><span class="comment">Clean up on error</span>
+        result->on_failure(<span class="keyword">lambda</span>(<span class="type">mixed</span> err) {
+            m_delete(cache, key);
+        });
+
+        <span class="keyword">return</span> result;
+    }
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Usage example</span>
+<span class="type">AsyncCache</span> cache = AsyncCache();
+
+<span class="keyword">fun</span> fetch_user = <span class="keyword">lambda</span>(<span class="type">string</span> user_id) {
+    <span class="comment-delimiter">// </span><span class="comment">Simulate async fetch</span>
+    <span class="keyword">return</span> Future(lambda(<span class="keyword">fun</span> success, <span class="keyword">fun</span> failure) {
+        <span class="comment-delimiter">// </span><span class="comment">In real code, this would be an async operation</span>
+        success(([<span class="string">"id"</span>: user_id, <span class="string">"name"</span>: <span class="string">"User"</span> + user_id]));
+    });
+};
+
+<span class="type">Future</span> user_future = cache->get(<span class="string">"123"</span>, fetch_user);
+user_future->on_success(<span class="keyword">lambda</span>(<span class="type">mapping</span> user) {
+    write(<span class="string">"Got user: %O\n"</span>, user);
+});
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="packagesetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="dbaccess.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Packages, Libraries, and Modules</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Database Access</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>

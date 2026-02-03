@@ -1,0 +1,553 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML><HEAD><TITLE>User Interfaces</TITLE><META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK REL="HOME" TITLE="PLEAC-Pike" HREF="index.html"><LINK REL="PREVIOUS" TITLE="Database Access" HREF="dbaccess.html"><LINK REL="NEXT" TITLE="Process Management and Communication" HREF="processmanagementetc.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83" CLASS="SECT1" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#840084" ALINK="#0000FF"><DIV CLASS="NAVHEADER"><TABLE SUMMARY="Header navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TH COLSPAN="3" ALIGN="center">PLEAC-Pike</TH></TR><TR><TD WIDTH="10%" ALIGN="left" VALIGN="bottom"><A HREF="dbaccess.html" ACCESSKEY="P">Prev</A></TD><TD WIDTH="80%" ALIGN="center" VALIGN="bottom"></TD><TD WIDTH="10%" ALIGN="right" VALIGN="bottom"><A HREF="processmanagementetc.html" ACCESSKEY="N">Next</A></TD></TR></TABLE><HR ALIGN="LEFT" WIDTH="100%"></DIV><DIV CLASS="SECT1"><H1 CLASS="SECT1"><A NAME="USERINTERFACES">15. User Interfaces</A></H1><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN792">Introduction</A></H2><P>This chapter covers user interface programming in Pike 8, from terminal/console applications to graphical interfaces with GTK2/GTK3. Pike provides excellent support for both text-based and graphical user interfaces through modern, type-safe APIs.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">User Interfaces in Pike 8</span>
+<span class="comment-delimiter">// </span><span class="comment">Demonstrating terminal, console, and GUI programming</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Available UI modules:</span>
+<span class="comment-delimiter">// </span><span class="comment">- Stdio.Readline: Interactive console input</span>
+<span class="comment-delimiter">// </span><span class="comment">- GTK2/GTK3: Graphical user interfaces</span>
+<span class="comment-delimiter">// </span><span class="comment">- NCurses: Terminal screen management</span>
+<span class="comment-delimiter">// </span><span class="comment">- ANSI escape codes: Terminal control</span>
+
+<span class="keyword">import</span> <span class="module">Stdio</span><span class="punctuation">;</span>
+
+<span class="keyword">void</span> check_ui_modules<span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="comment-delimiter">//</span><span class="comment"> Check terminal capabilities</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>isatty<span class="punctuation">(</span>STDOUT<span class="operator">-></span><span class="function-name">fd</span><span class="punctuation">()))</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Running in terminal mode\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Running in non-interactive mode\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Check for optional modules</span>
+<span class="preprocessor">#ifdef</span> <span class="constant">__GTK2__</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"GTK2 support available\n"</span><span class="punctuation">);</span>
+<span class="preprocessor">#else</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"GTK2 not available\n"</span><span class="punctuation">);</span>
+<span class="preprocessor">#endif</span>
+
+<span class="preprocessor">#ifdef</span> <span class="constant">__NCURSES__</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"NCurses support available\n"</span><span class="punctuation">);</span>
+<span class="preprocessor">#else</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"NCurses not available\n"</span><span class="punctuation">);</span>
+<span class="preprocessor">#endif</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN795">Parsing Program Arguments</A></H2><P>Pike 8 provides the <CODE>Getopt</CODE> module for sophisticated command-line argument parsing. This modern approach handles short options, long options, and arguments with type safety.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.1: Parsing Program Arguments with Getopt</span>
+<span class="keyword">import</span> <span class="module">Getopt</span><span class="punctuation">;</span>
+
+<span class="keyword">int</span> verbose<span class="punctuation">;</span>
+<span class="keyword">string</span> output_file<span class="punctuation">;</span>
+<span class="keyword">int</span> number<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Define all options</span>
+<span class="keyword">foreach</span> <span class="punctuation">(</span><span class="function-name">find_all_options</span><span class="punctuation">(</span>argv<span class="punctuation">,</span> <span class="punctuation">(</span><span class="punctuation">{</span>
+    <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"help"</span><span class="punctuation">,</span> <span class="constant">NO_ARG</span><span class="punctuation">,</span> <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"-h"</span><span class="punctuation">,</span> <span class="string">"--help"</span><span class="punctuation">}</span><span class="punctuation">)}),</span>
+    <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"verbose"</span><span class="punctuation">,</span> <span class="constant">NO_ARG</span><span class="punctuation">,</span> <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"-v"</span><span class="punctuation">,</span> <span class="string">"--verbose"</span><span class="punctuation">}</span><span class="punctuation">)}),</span>
+    <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"output"</span><span class="punctuation">,</span> <span class="constant">HAS_ARG</span><span class="punctuation">,</span> <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"-o"</span><span class="punctuation">,</span> <span class="string">"--output"</span><span class="punctuation">}</span><span class="punctuation">)}),</span>
+    <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"number"</span><span class="punctuation">,</span> <span class="constant">HAS_ARG</span><span class="punctuation">,</span> <span class="punctuation">(</span><span class="punctuation">{</span><span class="string">"-n"</span><span class="punctuation">,</span> <span class="string">"--number"</span><span class="punctuation">}</span><span class="punctuation">)}),</span>
+<span class="punctuation">}</span><span class="punctuation">),</span> <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> opt<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">switch</span><span class="punctuation">(</span>opt<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">])</span> <span class="punctuation">{</span>
+        <span class="keyword">case</span> <span class="string">"help"</span><span class="punctuation">:</span>
+            <span class="function-name">usage</span><span class="punctuation">();</span>
+            <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+        <span class="keyword">case</span> <span class="string">"verbose"</span><span class="punctuation">:</span>
+            verbose<span class="punctuation">;</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+        <span class="keyword">case</span> <span class="string">"output"</span><span class="punctuation">:</span>
+            output_file<span class="punctuation">;</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+        <span class="keyword">case</span> <span class="string">"number"</span><span class="punctuation">:</span>
+            number<span class="punctuation">;</span>
+            <span class="keyword">break</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Get remaining arguments</span>
+<span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> args<span class="punctuation">;</span>
+args<span class="punctuation">;</span>
+</PRE></TD></TR></TABLE><P>The example demonstrates all major features of Getopt: short options (<CODE>-v</CODE>), long options (<CODE>--verbose</CODE>), options with arguments (<CODE>-o file</CODE> or <CODE>--output=file</CODE>), and automatic help generation.</P></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN798">Testing Whether a Program Is Running Interactively</A></H2><P>Use <CODE>Stdio.isatty()</CODE> to detect if your program is running in an interactive terminal or being piped/redirected. This is crucial for deciding whether to use colors, progress indicators, or fancy terminal output.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.2: Testing for Interactive Terminal</span>
+
+<span class="keyword">int</span> is_interactive<span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="function-name">isatty</span><span class="punctuation">(</span>STDOUT<span class="operator">-></span><span class="function-name">fd</span><span class="punctuation">());</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">void</span> smart_output<span class="punctuation">(</span><span class="keyword">string</span> msg<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">is_interactive</span><span class="punctuation">())</span> <span class="punctuation">{</span>
+        <span class="comment-delimiter">//</span><span class="comment"> Use colors and fancy output</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[1;32m%s\033[0m\n"</span><span class="punctuation">,</span> msg<span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+        <span class="comment-delimiter">//</span><span class="comment"> Plain text for pipes/redirection</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"%s\n"</span><span class="punctuation">,</span> msg<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE><P>Checking <CODE>isatty()</CODE> before using ANSI escape codes or terminal-specific features ensures your program works correctly when output is redirected to files or piped to other programs.</P></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN801">Clearing the Screen</A></H2><P>Use ANSI escape sequences for screen clearing and cursor positioning. Always check if you're in a terminal first.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.3: Clearing the Screen and Terminal Control</span>
+
+<span class="keyword">constant</span> ANSI_CLEAR<span class="punctuation">;</span>
+<span class="keyword">constant</span> ANSI_HOME<span class="punctuation">;</span>
+<span class="keyword">constant</span> ANSI_RESET<span class="punctuation">;</span>
+
+<span class="keyword">void</span> clear_screen<span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">isatty</span><span class="punctuation">(</span>STDOUT<span class="operator">-></span><span class="function-name">fd</span><span class="punctuation">()))</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>ANSI_CLEAR<span class="punctuation">);</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>ANSI_HOME<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> ANSI color codes</span>
+<span class="keyword">constant</span> COLORS<span class="punctuation">;</span>
+
+<span class="keyword">void</span> colored_write<span class="punctuation">(</span><span class="keyword">string</span> color<span class="punctuation">,</span> <span class="keyword">string</span> msg<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">isatty</span><span class="punctuation">(</span>STDOUT<span class="operator">-></span><span class="function-name">fd</span><span class="punctuation">()))</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>COLORS<span class="punctuation">[</span>color<span class="punctuation">]);</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>msg<span class="punctuation">);</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>ANSI_RESET<span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>msg<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN804">Determining Terminal or Window Size</A></H2><P>Use <CODE>Stdio.get_terminal_size()</CODE> to get terminal dimensions for proper text layout and UI sizing.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.4: Getting Terminal Size</span>
+
+<span class="keyword">mapping</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">:</span><span class="keyword">int</span><span class="punctuation">)</span> size<span class="punctuation">;</span>
+size<span class="punctuation">;</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>size<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">int</span> cols<span class="punctuation">;</span>
+    <span class="keyword">int</span> rows<span class="punctuation">;</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Terminal: %dx%d\n"</span><span class="punctuation">,</span> cols<span class="punctuation">,</span> rows<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Responsive text wrapping</span>
+<span class="keyword">string</span> wrap_text<span class="punctuation">(</span><span class="keyword">string</span> text<span class="punctuation">,</span> <span class="keyword">int</span> width<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> words<span class="punctuation">;</span>
+    <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> lines<span class="punctuation">;</span>
+    <span class="keyword">string</span> current<span class="punctuation">;</span>
+
+    <span class="keyword">foreach</span> <span class="punctuation">(</span>words<span class="punctuation">,</span> <span class="keyword">string</span> word<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">sizeof</span><span class="punctuation">(</span>current<span class="punctuation">)</span> <span class="operator">+</span> <span class="function-name">sizeof</span><span class="punctuation">(</span>word<span class="punctuation">)</span> <span class="operator">+</span> <span class="number">1</span> <span class="operator">></span> width<span class="punctuation">)</span> <span class="punctuation">{</span>
+            lines<span class="punctuation">;</span>
+            current<span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+        current<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>current<span class="punctuation">)</span> lines<span class="punctuation">;</span>
+
+    <span class="keyword">return</span> lines <span class="operator">*</span> <span class="string">"\n"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN807">Changing Text Color</A></H2><P>ANSI color codes provide colored terminal output. Always wrap with <CODE>isatty()</CODE> checks.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.5: Terminal Colors with ANSI</span>
+
+<span class="keyword">constant</span> COLORS<span class="punctuation">;</span>
+<span class="keyword">constant</span> BG_COLORS<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Text styling</span>
+<span class="keyword">constant</span> BOLD<span class="punctuation">;</span>
+<span class="keyword">constant</span> DIM<span class="punctuation">;</span>
+<span class="keyword">constant</span> UNDERLINE<span class="punctuation">;</span>
+<span class="keyword">constant</span> BLINK<span class="punctuation">;</span>
+<span class="keyword">constant</span> REVERSE<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Colored write function</span>
+<span class="keyword">void</span> cwrite<span class="punctuation">(</span><span class="keyword">string</span> fg<span class="punctuation">,</span> <span class="keyword">string</span> msg<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">isatty</span><span class="punctuation">(</span>STDOUT<span class="operator">-></span><span class="function-name">fd</span><span class="punctuation">()))</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>COLORS<span class="punctuation">[</span>fg<span class="punctuation">]);</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>msg<span class="punctuation">);</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[0m"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span>msg<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Progress bar example</span>
+<span class="keyword">void</span> progress_bar<span class="punctuation">(</span><span class="keyword">int</span> percent<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">int</span> width<span class="punctuation">;</span>
+    <span class="keyword">int</span> filled<span class="punctuation">;</span>
+
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\r["</span><span class="punctuation">);</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[42m"</span>);  <span class="comment-delimiter">// </span><span class="comment">Green background</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">" "</span> <span class="operator">*</span> filled<span class="punctuation">);</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[0m"</span><span class="punctuation">);</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"%s] %3d%%"</span><span class="punctuation">,</span> <span class="string">" "</span> <span class="operator">*</span> <span class="punctuation">(</span>width <span class="operator">-</span> filled<span class="punctuation">),</span> percent<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN810">Reading from the Keyboard</A></H2><P><CODE>Stdio.Readline</CODE> provides interactive input with history, editing, and completion support - perfect for command-line applications.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.6: Interactive Input with Readline</span>
+
+<span class="keyword">class</span> <span class="type">ReadlineUI</span> <span class="punctuation">{</span>
+    <span class="keyword">inherit</span> <span class="type">Stdio</span><span class="punctuation">.</span><span class="type">Readline</span><span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">create</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">|</span><span class="keyword">void</span> prompt<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="punctuation">::</span><span class="function-name">create</span><span class="punctuation">();</span>
+        <span class="function-name">set_prompt</span><span class="punctuation">(</span>prompt <span class="operator">||</span> <span class="string">"> "</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Get a single line</span>
+    <span class="keyword">string</span> <span class="function-name">get_line</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="function-name">read</span><span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Confirm y/n</span>
+    <span class="keyword">int</span> <span class="function-name">confirm</span><span class="punctuation">(</span><span class="keyword">string</span> question<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">string</span> old_prompt<span class="punctuation">;</span>
+        <span class="function-name">set_prompt</span><span class="punctuation">(</span>question <span class="operator">+</span> <span class="string">" [y/N]: "</span><span class="punctuation">);</span>
+        <span class="keyword">string</span> answer<span class="punctuation">;</span>
+        <span class="function-name">set_prompt</span><span class="punctuation">(</span>old_prompt<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="function-name">lower_case</span><span class="punctuation">(</span>answer<span class="punctuation">)</span> <span class="operator">==</span> <span class="string">"y"</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Menu selection</span>
+    <span class="keyword">int</span> <span class="function-name">menu</span><span class="punctuation">(</span><span class="keyword">string</span> title<span class="punctuation">,</span> <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> options<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\n%s\n"</span><span class="punctuation">,</span> title<span class="punctuation">);</span>
+        <span class="keyword">for</span> <span class="punctuation">(</span><span class="keyword">int</span> i<span class="punctuation">;</span> i <span class="operator">&lt;</span> <span class="function-name">sizeof</span><span class="punctuation">(</span>options<span class="punctuation">);</span> i<span class="operator">++</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"  %d. %s\n"</span><span class="punctuation">,</span> i <span class="operator">+</span> <span class="number">1</span><span class="punctuation">,</span> options<span class="punctuation">[</span>i<span class="punctuation">]);</span>
+        <span class="punctuation">}</span>
+
+        <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="function-name">set_prompt</span><span class="punctuation">(</span><span class="string">"Choose: "</span><span class="punctuation">);</span>
+            <span class="keyword">string</span> input<span class="punctuation">;</span>
+            <span class="keyword">int</span> choice<span class="punctuation">;</span>
+
+            <span class="keyword">if</span> <span class="punctuation">(</span>choice <span class="operator">&gt;</span> <span class="number">0</span> <span class="operator">&amp;&amp;</span> choice <span class="operator">&lt;=</span> <span class="function-name">sizeof</span><span class="punctuation">(</span>options<span class="punctuation">))</span> <span class="punctuation">{</span>
+                <span class="keyword">return</span> choice <span class="operator">-</span> <span class="number">1</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+            <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Invalid choice\n"</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN813">Reading Passwords</A></H2><P>For password input, disable terminal echo using <CODE>tcsetattr()</CODE> to prevent characters from being displayed.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.7: Secure Password Input</span>
+
+<span class="keyword">string</span> <span class="function-name">get_password</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">|</span><span class="keyword">void</span> prompt<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">string</span> p<span class="punctuation">;</span>
+    <span class="function-name">write</span><span class="punctuation">(</span>p<span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Disable echo using modern Pike 8 syntax</span>
+    <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(([</span><span class="string">"ECHO"</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">]));</span>
+
+    <span class="keyword">string</span> password<span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Restore echo</span>
+    <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(([</span><span class="string">"ECHO"</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">]));</span>
+
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+    <span class="keyword">return</span> password <span class="operator">||</span> <span class="string">""</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Password confirmation</span>
+<span class="keyword">int</span> <span class="function-name">confirm_password</span><span class="punctuation">(</span><span class="keyword">string</span> prompt<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">string</span> pass1<span class="punctuation">;</span>
+    <span class="keyword">string</span> pass2<span class="punctuation">;</span>
+
+    <span class="keyword">if</span> <span class="punctuation">(</span>pass1 <span class="operator">==</span> pass2 <span class="operator">&amp;&amp;</span> <span class="function-name">sizeof</span><span class="punctuation">(</span>pass1<span class="punctuation">)</span> <span class="operator">&gt;</span> <span class="number">0</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Passwords don't match\n"</span><span class="punctuation">);</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN816">Using POSIX termios</A></H2><P>Pike's <CODE>Stdio.File.tcsetattr()</CODE> provides direct access to POSIX termios for fine-grained terminal control.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.8: Terminal Control with termios</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Save current settings</span>
+<span class="keyword">mapping</span> old_settings<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Create new settings (no echo, raw mode)</span>
+<span class="keyword">mapping</span> new_settings<span class="punctuation">;</span>
+new_settings<span class="operator">-></span>c_lflag <span class="operator">&amp;=</span> <span class="operator">~</span><span class="constant">Constants</span><span class="punctuation">.</span><span class="constant">System</span><span class="punctuation">.</span><span class="constant">ECHO</span><span class="punctuation">;</span>
+new_settings<span class="operator">-></span>c_lflag <span class="operator">&amp;=</span> <span class="operator">~</span><span class="constant">Constants</span><span class="punctuation">.</span><span class="constant">System</span><span class="punctuation">.</span><span class="constant">ICANON</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Apply settings</span>
+<span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(</span>new_settings<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Read single character (non-blocking)</span>
+<span class="keyword">int</span> ch<span class="punctuation">;</span>
+<span class="keyword">while</span> <span class="punctuation">(</span>ch <span class="operator">==</span> <span class="number">-1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    ch<span class="punctuation">;</span>
+    <span class="comment-delimiter">//</span><span class="comment"> Do other work while waiting</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Restore original settings</span>
+<span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(</span>old_settings<span class="punctuation">);</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN819">Checking for Waiting Input</A></H2><P>Use <CODE>Stdio.File.peek()</CODE> or <CODE>select()</code> to check for available input without blocking.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.9: Non-blocking Input Check</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Check if input is available</span>
+<span class="keyword">int</span> <span class="function-name">has_input</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">peek</span><span class="punctuation">()</span> <span class="operator">!=</span> <span class="string">""</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Wait for input with timeout</span>
+<span class="keyword">int</span> <span class="function-name">wait_for_input</span><span class="punctuation">(</span><span class="keyword">float</span> timeout<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="function-name">select</span><span class="punctuation">(({</span><span class="constant">STDIN</span><span class="punctuation">}),</span> <span class="punctuation">({}),</span> <span class="punctuation">({}),</span> timeout<span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Read with timeout</span>
+<span class="keyword">string</span><span class="punctuation">|</span><span class="keyword">zero</span> <span class="function-name">read_with_timeout</span><span class="punctuation">(</span><span class="keyword">float</span> timeout<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(!</span><span class="function-name">wait_for_input</span><span class="punctuation">(</span>timeout<span class="punctuation">))</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+    <span class="keyword">return</span> <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">gets</span><span class="punctuation">();</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN822">Editing Input</A></H2><P><CODE>Stdio.Readline</CODE> automatically provides line editing (arrow keys, backspace, delete, home/end) and command history.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.10: Readline with History and Editing</span>
+
+<span class="keyword">class</span> <span class="type">InteractiveShell</span> <span class="punctuation">{</span>
+    <span class="keyword">inherit</span> <span class="type">Stdio</span><span class="punctuation">.</span><span class="type">Readline</span><span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">create</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="punctuation">::</span><span class="function-name">create</span><span class="punctuation">();</span>
+        <span class="function-name">set_prompt</span><span class="punctuation">(</span><span class="string">"shell> "</span><span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment"> Enable history</span>
+        <span class="function-name">enable_history</span><span class="punctuation">(</span><span class="number">100</span><span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment"> Load/save history</span>
+        <span class="function-name">read_history</span><span class="punctuation">(</span><span class="string">".pike_history"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">run</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="keyword">while</span> <span class="punctuation">(</span><span class="keyword">string</span> line<span class="punctuation">;</span> line<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span><span class="function-name">sizeof</span><span class="punctuation">(</span>line<span class="punctuation">))</span> <span class="punctuation">{</span>
+                <span class="function-name">add_history</span><span class="punctuation">(</span>line<span class="punctuation">);</span>
+                <span class="function-name">execute_command</span><span class="punctuation">(</span>line<span class="punctuation">);</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+
+        <span class="function-name">write_history</span><span class="punctuation">(</span><span class="string">".pike_history"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">execute_command</span><span class="punctuation">(</span><span class="keyword">string</span> cmd<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="comment-delimiter">//</span><span class="comment"> Process command</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Executed: %s\n"</span><span class="punctuation">,</span> cmd<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN825">Managing the Screen</A></H2><P>For complex terminal UIs, use NCurses or create your own screen management with ANSI codes and positioning.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.11: Simple Screen Management</span>
+
+<span class="keyword">class</span> <span class="type">Screen</span> <span class="punctuation">{</span>
+    <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">))</span> buffer<span class="punctuation">;</span>
+    <span class="keyword">int</span> width<span class="punctuation">;</span>
+    <span class="keyword">int</span> height<span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">create</span><span class="punctuation">(</span><span class="keyword">int</span> w<span class="punctuation">,</span> <span class="keyword">int</span> h<span class="punctuation">)</span> <span class="punctuation">{</span>
+        width<span class="punctuation">;</span>
+        height<span class="punctuation">;</span>
+        buffer<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">clear</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        buffer<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">write</span><span class="punctuation">(</span><span class="keyword">int</span> x<span class="punctuation">,</span> <span class="keyword">int</span> y<span class="punctuation">,</span> <span class="keyword">string</span> text<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>y <span class="operator">&gt;=</span> <span class="number">0</span> <span class="operator">&amp;&amp;</span> y <span class="operator">&lt;</span> height <span class="operator">&amp;&amp;</span> x <span class="operator">&gt;=</span> <span class="number">0</span> <span class="operator">&amp;&amp;</span> x <span class="operator">&lt;</span> width<span class="punctuation">)</span> <span class="punctuation">{</span>
+            buffer<span class="punctuation">[</span>y<span class="punctuation">][</span>x<span class="punctuation">..</span>x<span class="operator">+</span><span class="function-name">sizeof</span><span class="punctuation">(</span>text<span class="punctuation">)</span><span class="operator">-</span><span class="number">1</span><span class="punctuation">]</span> <span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">refresh</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[2J\033[H"</span><span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">Clear and home</span>
+        <span class="keyword">foreach</span><span class="punctuation">(</span>buffer<span class="punctuation">;</span> <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> line<span class="punctuation">;</span> <span class="keyword">int</span> y<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[%d;0H%s\n"</span><span class="punctuation">,</span> y<span class="operator">+</span><span class="number">1</span><span class="punctuation">,</span> line <span class="operator">*</span> <span class="string">""</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN828">Creating GUI Applications with GTK2</A></H2><P>GTK2 provides full-featured GUI development with Pike. Use lambda functions for callbacks and modern Pike 8 syntax.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="preprocessor">#ifdef</span> <span class="constant">__GTK2__</span>
+<span class="keyword">import</span> <span class="module">GTK2</span><span class="punctuation">;</span>
+
+<span class="keyword">class</span> <span class="type">SimpleWindow</span> <span class="punctuation">{</span>
+    <span class="keyword">inherit</span> <span class="type">Window</span><span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">create</span><span class="punctuation">(</span><span class="keyword">string</span> title<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="punctuation">::</span><span class="function-name">create</span><span class="punctuation">(</span><span class="constant">GTK2_WINDOW_TOPLEVEL</span><span class="punctuation">);</span>
+        <span class="function-name">set_title</span><span class="punctuation">(</span>title<span class="punctuation">);</span>
+        <span class="function-name">set_default_size</span><span class="punctuation">(</span><span class="number">400</span><span class="punctuation">,</span> <span class="number">300</span><span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment"> Connect signals with lambda functions</span>
+        <span class="function-name">signal_connect</span><span class="punctuation">(</span><span class="string">"destroy"</span><span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+            <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Exiting...\n"</span><span class="punctuation">);</span>
+            <span class="constant">GTK2</span><span class="punctuation">.</span><span class="function-name">main_quit</span><span class="punctuation">();</span>
+        <span class="punctuation">});</span>
+
+        <span class="function-name">setup_widgets</span><span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">setup_widgets</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="type">VBox</span> vbox<span class="punctuation">;</span>
+        <span class="function-name">add</span><span class="punctuation">(</span>vbox<span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment"> Add button</span>
+        <span class="type">Button</span> btn<span class="punctuation">;</span>
+        btn<span class="operator">-></span><span class="function-name">signal_connect</span><span class="punctuation">(</span><span class="string">"clicked"</span><span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">(</span><span class="keyword">mixed</span> self<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"Button clicked!\n"</span><span class="punctuation">);</span>
+        <span class="punctuation">});</span>
+        vbox<span class="operator">-></span><span class="function-name">pack_start</span><span class="punctuation">(</span>btn<span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment"> Add text entry</span>
+        <span class="type">Entry</span> entry<span class="punctuation">;</span>
+        vbox<span class="operator">-></span><span class="function-name">pack_start</span><span class="punctuation">(</span>entry<span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="number">5</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">run</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="function-name">show</span><span class="punctuation">();</span>
+        <span class="constant">GTK2</span><span class="punctuation">.</span><span class="function-name">main</span><span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> <span class="function-name">main</span><span class="punctuation">(</span><span class="keyword">int</span> argc<span class="punctuation">,</span> <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="constant">GTK2</span><span class="punctuation">.</span><span class="function-name">setup_gtk</span><span class="punctuation">(</span>argc<span class="punctuation">,</span> argv<span class="punctuation">);</span>
+    <span class="type">SimpleWindow</span> app<span class="punctuation">;</span>
+    app<span class="operator">-></span><span class="function-name">run</span><span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="preprocessor">#else</span>
+<span class="keyword">int</span> <span class="function-name">main</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"GTK2 not available\n"</span><span class="punctuation">);</span>
+    <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="preprocessor">#endif</span>
+</PRE></TD></TR></TABLE><P>The GTK2 example shows window creation, widget layout with containers, and event handling using lambda functions - all with Pike 8's type-safe syntax.</P></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN831">Event-Driven Programming</A></H2><P>Pike's backend provides an event loop for timers, I/O events, and asynchronous operations.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 15.13: Event Loop and Async I/O</span>
+
+<span class="keyword">class</span> <span class="type">EventApplication</span> <span class="punctuation">{</span>
+    <span class="keyword">int</span> running<span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Add timer event</span>
+    <span class="keyword">int</span> <span class="function-name">add_timer</span><span class="punctuation">(</span><span class="keyword">float</span> delay<span class="punctuation">,</span> <span class="keyword">function</span> callback<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="constant">Pike</span><span class="punctuation">.</span><span class="constant">Backend</span><span class="punctuation">()</span><span class="operator">-></span><span class="function-name">call_out</span><span class="punctuation">(</span>callback<span class="punctuation">,</span> delay<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Monitor file descriptor</span>
+    <span class="keyword">void</span> <span class="function-name">add_io</span><span class="punctuation">(</span><span class="type">Stdio</span><span class="punctuation">.</span><span class="type">File</span> file<span class="punctuation">,</span> <span class="keyword">function</span> callback<span class="punctuation">)</span> <span class="punctuation">{</span>
+        file<span class="operator">-></span><span class="function-name">set_callback</span><span class="punctuation">(</span>callback<span class="punctuation">);</span>
+        file<span class="operator">-></span><span class="function-name">set_nonblocking</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">,</span> <span class="number">0</span><span class="punctuation">,</span> <span class="constant">Pike</span><span class="punctuation">.</span><span class="constant">POLLIN</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Run event loop</span>
+    <span class="keyword">void</span> <span class="function-name">run</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        running<span class="punctuation">;</span>
+        <span class="keyword">while</span> <span class="punctuation">(</span>running<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="constant">Pike</span><span class="punctuation">.</span><span class="constant">Backend</span><span class="punctuation">()</span><span class="operator">-></span><span class="function-name">wait</span><span class="punctuation">(</span><span class="number">1.0</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">stop</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        running<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Example: Async HTTP client</span>
+<span class="keyword">class</span> <span class="type">AsyncClient</span> <span class="punctuation">{</span>
+    <span class="keyword">inherit</span> <span class="type">EventApplication</span><span class="punctuation">;</span>
+
+    <span class="type">Protocols</span><span class="punctuation">.</span><span class="type">HTTP</span><span class="punctuation">.</span><span class="type">Query</span> query<span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">fetch</span><span class="punctuation">(</span><span class="keyword">string</span> url<span class="punctuation">,</span> <span class="keyword">function</span> cb<span class="punctuation">)</span> <span class="punctuation">{</span>
+        query<span class="punctuation">;</span>
+        <span class="function-name">add_timer</span><span class="punctuation">(</span><span class="number">30.0</span><span class="punctuation">,</span> <span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+            query<span class="operator">-></span><span class="function-name">async_fetch</span><span class="punctuation">(</span>cb<span class="punctuation">);</span>
+        <span class="punctuation">});</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN834">Program: Interactive Menu System</A></H2><P>Complete terminal-based menu system with keyboard navigation, using Readline and ANSI codes.</P><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Program: Full-Featured Terminal Menu System</span>
+
+<span class="keyword">class</span> <span class="type">MenuSystem</span> <span class="punctuation">{</span>
+    <span class="keyword">inherit</span> <span class="type">Stdio</span><span class="punctuation">.</span><span class="type">Readline</span><span class="punctuation">;</span>
+
+    <span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> items<span class="punctuation">;</span>
+    <span class="keyword">int</span> selected<span class="punctuation">;</span>
+
+    <span class="keyword">void</span> <span class="function-name">create</span><span class="punctuation">(</span><span class="keyword">array</span><span class="punctuation">(</span><span class="keyword">string</span><span class="punctuation">)</span> opts<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="punctuation">::</span><span class="function-name">create</span><span class="punctuation">();</span>
+        items<span class="punctuation">;</span>
+        selected<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> <span class="function-name">display</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[2J\033[H"</span><span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">Clear screen</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[1;36m=== Pike Menu ===\033[0m\n\n"</span><span class="punctuation">);</span>
+
+        <span class="keyword">foreach</span><span class="punctuation">(</span>items<span class="punctuation">;</span> <span class="keyword">string</span> item<span class="punctuation">;</span> <span class="keyword">int</span> i<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span>i <span class="operator">==</span> selected<span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\033[7m"</span><span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">Reverse video</span>
+                <span class="function-name">write</span><span class="punctuation">(</span><span class="string">">%2d. %s\033[0m\n"</span><span class="punctuation">,</span> i<span class="operator">+</span><span class="number">1</span><span class="punctuation">,</span> item<span class="punctuation">);</span>
+            <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+                <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"  %d. %s\n"</span><span class="punctuation">,</span> i<span class="operator">+</span><span class="number">1</span><span class="punctuation">,</span> item<span class="punctuation">);</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\nUse arrow keys, Enter to select, Q to quit\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">int</span><span class="punctuation">|</span><span class="keyword">zero</span> <span class="function-name">navigate</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(([</span><span class="string">"ECHO"</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span> <span class="string">"ICANON"</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">]));</span>
+
+        <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="function-name">display</span><span class="punctuation">();</span>
+
+            <span class="keyword">string</span> input<span class="punctuation">;</span>
+            <span class="keyword">int</span> ch<span class="punctuation">;</span>
+
+            <span class="keyword">if</span> <span class="punctuation">(!</span><span class="function-name">sizeof</span><span class="punctuation">(</span>input<span class="punctuation">))</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+            ch<span class="punctuation">;</span>
+
+            <span class="keyword">switch</span><span class="punctuation">(</span>ch<span class="punctuation">)</span> <span class="punctuation">{</span>
+                <span class="keyword">case</span> <span class="string">'A'</span><span class="punctuation">:</span>  <span class="comment-delimiter">// </span><span class="comment">Up arrow</span>
+                    selected<span class="punctuation">;</span>
+                    <span class="keyword">break</span><span class="punctuation">;</span>
+                <span class="keyword">case</span> <span class="string">'B'</span><span class="punctuation">:</span>  <span class="comment-delimiter">// </span><span class="comment">Down arrow</span>
+                    selected<span class="punctuation">;</span>
+                    <span class="keyword">break</span><span class="punctuation">;</span>
+                <span class="keyword">case</span> <span class="string">'\r'</span><span class="punctuation">:</span>  <span class="comment-delimiter">// </span><span class="comment">Enter</span>
+                    <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(([</span><span class="string">"ECHO"</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span> <span class="string">"ICANON"</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">]));</span>
+                    <span class="keyword">return</span> selected<span class="punctuation">;</span>
+                <span class="keyword">case</span> <span class="string">'q'</span><span class="punctuation">:</span>
+                <span class="keyword">case</span> <span class="string">'Q'</span><span class="punctuation">:</span>
+                    <span class="constant">STDIN</span><span class="operator">-></span><span class="function-name">tcsetattr</span><span class="punctuation">(([</span><span class="string">"ECHO"</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span> <span class="string">"ICANON"</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">]));</span>
+                    <span class="keyword">return</span> <span class="number">-1</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> <span class="function-name">main</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+    <span class="type">MenuSystem</span> menu<span class="punctuation">;</span>
+
+    <span class="keyword">int</span><span class="punctuation">|</span><span class="keyword">zero</span> choice<span class="punctuation">;</span>
+    choice<span class="punctuation">;</span>
+
+    <span class="keyword">if</span> <span class="punctuation">(</span>choice <span class="operator">&gt;=</span> <span class="number">0</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="function-name">write</span><span class="punctuation">(</span><span class="string">"\nYou selected: %s\n"</span><span class="punctuation">,</span> menu<span class="operator">-></span>items<span class="punctuation">[</span>choice<span class="punctuation">]);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE></TD></TR></TABLE><P>This complete menu system demonstrates combining Readline, ANSI escape codes, and termios control for professional terminal UIs in Pike 8.</P></DIV></DIV><DIV CLASS="NAVFOOTER"><HR ALIGN="LEFT" WIDTH="100%"><TABLE SUMMARY="Footer navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top"><A HREF="dbaccess.html" ACCESSKEY="P">Prev</A></TD><TD WIDTH="34%" ALIGN="center" VALIGN="top"><A HREF="index.html" ACCESSKEY="H">Home</A></TD><TD WIDTH="33%" ALIGN="right" VALIGN="top"><A HREF="processmanagementetc.html" ACCESSKEY="N">Next</A></TD></TR><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top">Database Access</TD><TD WIDTH="34%" ALIGN="center" VALIGN="top">&nbsp;</TD><TD WIDTH="33%" ALIGN="right" VALIGN="top">Process Management and Communication</TD></TR></TABLE></DIV></BODY></HTML>

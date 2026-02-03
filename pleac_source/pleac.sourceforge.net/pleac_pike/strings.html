@@ -1,0 +1,1112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Strings</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="NEXT"
+TITLE="Numbers"
+HREF="numbers.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="numbers.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="STRINGS"
+>1. Strings</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN14"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">in pike only double quotes are used for strings</span>
+<span class="comment-delimiter">// </span><span class="comment">they are not interpolated.</span>
+<span class="comment-delimiter">// </span><span class="comment">single quotes are used for chars (the integer value of a character)</span>
+<span class="comment-delimiter">// </span><span class="comment">see chapter 1.4</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> str<span class="punctuation">;</span>                     <span class="comment-delimiter">// </span><span class="comment">declare a variable of type string</span>
+str = <span class="string">"\n"</span><span class="punctuation">;</span>                     <span class="comment-delimiter">// </span><span class="comment">a "newline" character</span>
+str = <span class="string">"Jon \"Maddog\" Orwant"</span><span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">literal double quotes</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+str =
+#<span class="string">"This is a multiline string
+terminated by a double-quote like any other string"</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN17"
+>Accessing Substrings</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">accessing part of a string</span>
+<span class="comment-delimiter">//</span><span class="comment">------------------------------</span>
+<span class="type">string</span> str, value<span class="punctuation">;</span>
+<span class="type">int</span> offset, count<span class="punctuation">;</span>
+value = str<span class="punctuation">[</span>offset..offset+count<span class="punctuation">];</span>
+value = str<span class="punctuation">[</span>offset..<span class="punctuation">];</span>
+
+<span class="type">string</span> newstring, newtail<span class="punctuation">;</span>
+str = str<span class="punctuation">[</span>..offset<span class="number">-1</span><span class="punctuation">]</span>+newstring+str<span class="punctuation">[</span>offset+count..<span class="punctuation">];</span>
+str = str<span class="punctuation">[</span>..offset<span class="number">-1</span><span class="punctuation">]</span>+newtail<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">------------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">get a 5-byte string, skip 3, then grab 2 8-byte strings, then the rest</span>
+<span class="type">string</span> leading, s1, s2, trailing<span class="punctuation">;</span>
+<span class="punctuation">[</span>leading, s1, s2, trailing<span class="punctuation">]</span> = array_sscanf<span class="punctuation">(</span>str, <span class="string">"%5s%*3s%8s%8s%s"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">split at five byte boundaries</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> fivers = str/<span class="number">5</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">chop string into individual characters</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> chars = str/<span class="string">""</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">------------------------------</span>
+
+str = <span class="string">"This is what you have"</span><span class="punctuation">;</span> 
+
+<span class="type">string</span> first, start, rest, last, end, piece<span class="punctuation">;</span>
+<span class="type">int</span> t = str<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">84</span>
+first = str<span class="punctuation">[</span><span class="number">0</span>..<span class="number">0</span><span class="punctuation">];</span>                     
+<span class="comment-delimiter">// </span><span class="comment">"T"          </span>
+start = str<span class="punctuation">[</span><span class="number">5</span>..<span class="number">5</span>+<span class="number">1</span><span class="punctuation">];</span> 
+<span class="comment-delimiter">// </span><span class="comment">"is"</span>
+rest  = str<span class="punctuation">[</span><span class="number">13</span>..<span class="punctuation">];</span>   
+<span class="comment-delimiter">// </span><span class="comment">"you have"</span>
+last  = str<span class="punctuation">[</span>sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-1</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">"e"</span>
+end   = str<span class="punctuation">[</span>sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-4</span>..<span class="punctuation">];</span> 
+<span class="comment-delimiter">// </span><span class="comment">"have"                 </span>
+piece = str<span class="punctuation">[</span>sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-8</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-8</span>+<span class="number">2</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">"you"</span>
+               
+str = <span class="string">"This is what you have"</span><span class="punctuation">;</span>               
+str = replace<span class="punctuation">(</span>str, <span class="punctuation">([</span> <span class="string">" is "</span>:<span class="string">" wasn't "</span> <span class="punctuation">])</span> <span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">"This wasn't what you have"</span>
+str = str<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-13</span><span class="punctuation">]</span>+<span class="string">"ondrous"</span><span class="punctuation">;</span>       
+<span class="comment-delimiter">// </span><span class="comment">"This wasn't wondrous"</span>
+str = str<span class="punctuation">[</span><span class="number">1</span>..<span class="punctuation">];</span> 
+<span class="comment-delimiter">// </span><span class="comment">"his wasn't wondrous"               </span>
+str = str<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-11</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">"his wasn'"            </span>
+str = <span class="string">"This is what you have"</span><span class="punctuation">;</span>
+str = replace<span class="punctuation">(</span>str<span class="punctuation">[</span>..<span class="number">4</span><span class="punctuation">]</span>, <span class="punctuation">([</span> <span class="string">"is"</span>:<span class="string">"at"</span> <span class="punctuation">])</span> <span class="punctuation">)</span>+str<span class="punctuation">[</span><span class="number">5</span>..<span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">"That is what you have"    </span>
+str = <span class="string">"make a hat"</span><span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">"make a hat"          </span>
+<span class="punctuation">[</span>str<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, str<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]]</span> = <span class="punctuation">({</span> str<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]</span>, str<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> <span class="punctuation">});</span>
+<span class="comment-delimiter">// </span><span class="comment">"take a ham"</span>
+
+<span class="type">string</span> a, b, c<span class="punctuation">;</span>
+a = <span class="string">"To be or not to be"</span><span class="punctuation">;</span>    
+b = a<span class="punctuation">[</span><span class="number">6</span>..<span class="number">11</span><span class="punctuation">];</span>      
+<span class="comment-delimiter">// </span><span class="comment">"or not"                </span>
+b = a<span class="punctuation">[</span><span class="number">6</span>..<span class="number">7</span><span class="punctuation">];</span> c=a<span class="punctuation">[</span><span class="number">3</span>..<span class="number">4</span><span class="punctuation">];</span>            
+write<span class="punctuation">(</span><span class="string">"%s\n%s\n"</span>, b, c<span class="punctuation">);</span>
+<span class="comment-delimiter">/*</span><span class="comment">
+or                  
+be
+*/</span>
+<span class="comment-delimiter">//</span><span class="comment">------------------------------------------------</span>
+
+<span class="type">string</span> cut2fmt<span class="punctuation">(</span><span class="type">int</span> ... positions<span class="punctuation">)</span>
+<span class="punctuation">{</span> 
+  <span class="type">string</span> template = <span class="string">""</span><span class="punctuation">;</span>
+  <span class="type">int</span> lastpos  = <span class="number">1</span><span class="punctuation">;</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>positions <span class="punctuation">;;</span> <span class="type">int</span> place<span class="punctuation">)</span> 
+  <span class="punctuation">{</span>      
+    template += <span class="string">"A"</span> + <span class="punctuation">(</span>place - lastpos<span class="punctuation">)</span> + <span class="string">" "</span><span class="punctuation">;</span>
+    lastpos = place<span class="punctuation">;</span>     
+  <span class="punctuation">}</span>
+  template += <span class="string">"A*"</span><span class="punctuation">;</span>
+  <span class="keyword">return</span> template<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">string</span> fmt = cut2fmt<span class="punctuation">(</span><span class="number">8</span>, <span class="number">14</span>, <span class="number">20</span>, <span class="number">26</span>, <span class="number">30</span><span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, fmt<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment">A7 A6 A6 A6 A4 A*         </span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN20"
+>Establishing a Default Value</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">set a default, ie, only set the value if no other value is set.</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">use b if b is true, else c</span>
+a = b || c<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">set x to y unless x is already true</span>
+<span class="keyword">if</span><span class="punctuation">(</span>!x<span class="punctuation">)</span>
+  x = y<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">use b if b is defined, else c</span>
+<span class="comment-delimiter">// </span><span class="comment">an undefined variable would be a compile time error so this</span>
+<span class="comment-delimiter">// </span><span class="comment">does not really apply. </span>
+
+<span class="comment-delimiter">// </span><span class="comment">return b if b is defined (was supplied by the caller), else c</span>
+<span class="type">int</span> foo<span class="punctuation">(</span><span class="type">int</span> c, <span class="type">int</span>|<span class="type">void</span> b<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> zero_type<span class="punctuation">(</span>b<span class="punctuation">)</span> ? c : b<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+foo = bar || <span class="string">"DEFAULT VALUE"</span><span class="punctuation">;</span>
+argv = argv<span class="punctuation">[</span><span class="number">1</span>..<span class="punctuation">];</span>              <span class="comment-delimiter">// </span><span class="comment">remove program, as that is always set.</span>
+dir = argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> || <span class="string">"/tmp"</span><span class="punctuation">;</span>       <span class="comment-delimiter">// </span><span class="comment">and see if anything is left...</span>
+dir = sizeof<span class="punctuation">(</span>argv<span class="punctuation">)</span> ? argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> : <span class="string">"/tmp"</span><span class="punctuation">;</span>
+count<span class="punctuation">[</span>shell||<span class="string">"/bin/sh"</span><span class="punctuation">]</span>++<span class="punctuation">;</span>     
+
+user = getenv<span class="punctuation">(</span><span class="string">"USER"</span><span class="punctuation">)</span> || getenv<span class="punctuation">(</span><span class="string">"LOGNAME"</span><span class="punctuation">)</span> || getpwuid<span class="punctuation">(</span>getuid<span class="punctuation">())[</span><span class="number">0</span><span class="punctuation">]</span> ||
+<span class="string">"Unknown uid number "</span>+getuid<span class="punctuation">();</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>!starting_point<span class="punctuation">)</span>
+  starting_point = <span class="string">"Greenwich"</span><span class="punctuation">;</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>!sizeof<span class="punctuation">(</span>a<span class="punctuation">))</span>                  
+  a = b<span class="punctuation">;</span>              <span class="comment-delimiter">// </span><span class="comment">copy only if empty              </span>
+a = <span class="punctuation">(</span>sizeof<span class="punctuation">(</span>b<span class="punctuation">)</span>?b:c<span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">assign b if nonempty, else c</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN23"
+>Exchanging Values Without Using Temporary Variables</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="punctuation">[</span>var1, var2<span class="punctuation">]</span> = <span class="punctuation">({</span> var2, var1 <span class="punctuation">});</span>  <span class="comment-delimiter">// </span><span class="comment">gee, i love this example.        </span>
+                                  <span class="comment-delimiter">// </span><span class="comment">it didn't even occur to me before</span>
+                                  <span class="comment-delimiter">// </span><span class="comment">:-)</span>
+temp = a<span class="punctuation">;</span>
+a    = b<span class="punctuation">;</span>             
+b    = temp<span class="punctuation">;</span>
+
+a = <span class="string">"alpha"</span><span class="punctuation">;</span>
+b = <span class="string">"omega"</span><span class="punctuation">;</span>
+<span class="punctuation">[</span>a, b<span class="punctuation">]</span> = <span class="punctuation">({</span> b, a <span class="punctuation">});</span>
+
+<span class="punctuation">[</span>alpha, beta, production<span class="punctuation">]</span> = <span class="string">"January March August"</span>/<span class="string">" "</span><span class="punctuation">;</span>
+<span class="punctuation">[</span>alpha, beta, production<span class="punctuation">]</span> = <span class="punctuation">({</span> beta, production, alpha <span class="punctuation">});</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN26"
+>Converting Between ASCII Characters and Values</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">print the ascii value of a char, or the char from its ascii value</span>
+<span class="type">int</span> i<span class="punctuation">;</span>                          <span class="comment-delimiter">// </span><span class="comment">declare a variable of type int             </span>
+i = <span class="string">'a'</span><span class="punctuation">;</span>                        <span class="comment-delimiter">// </span><span class="comment">the ascii value of "a"</span>
+i = <span class="string">'\n'</span><span class="punctuation">;</span>                       <span class="comment-delimiter">// </span><span class="comment">the ascii value of a "newline"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> char = <span class="string">"foo"</span><span class="punctuation">;</span>
+<span class="type">int</span> num = char<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>   <span class="comment-delimiter">// </span><span class="comment">gets the ascii value from the first char (that's</span>
+                     <span class="comment-delimiter">// </span><span class="comment">what ord() in perl does)</span>
+char = <span class="constant">String</span>.int2char<span class="punctuation">(</span>num<span class="punctuation">);</span>
+
+char = sprintf<span class="punctuation">(</span><span class="string">"%c"</span>,num<span class="punctuation">);</span>   <span class="comment-delimiter">// </span><span class="comment">the same as String.int2char(num) :-)</span>
+write<span class="punctuation">(</span><span class="string">"Number %d is character %[0]c\n"</span>, num<span class="punctuation">);</span>
+
+Number <span class="number">101</span> is character e
+
+<span class="type">string</span> str<span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr<span class="punctuation">;</span>
+arr = <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span>str<span class="punctuation">;</span>
+str = <span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span>arr<span class="punctuation">;</span>
+<span class="type">int</span> ascii_value = <span class="string">'e'</span><span class="punctuation">;</span>                      <span class="comment-delimiter">// </span><span class="comment">now 101</span>
+<span class="type">string</span> character = <span class="constant">String</span>.int2char<span class="punctuation">(</span><span class="number">101</span><span class="punctuation">);</span>    <span class="comment-delimiter">// </span><span class="comment">now "e"                  </span>
+
+write<span class="punctuation">(</span><span class="string">"Number %d is character %[0]c\n"</span>, <span class="number">101</span><span class="punctuation">);</span>
+
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ascii_character_numbers = <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span><span class="string">"sample"</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">))</span>ascii_character_numbers*<span class="string">" "</span><span class="punctuation">);</span>    
+
+<span class="type">string</span> word = <span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span>ascii_character_numbers<span class="punctuation">;</span>
+<span class="type">string</span> word = <span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)({</span> <span class="number">115</span>, <span class="number">97</span>, <span class="number">109</span>, <span class="number">112</span>, <span class="number">108</span>, <span class="number">101</span> <span class="punctuation">});</span>  <span class="comment-delimiter">// </span><span class="comment">same</span>
+write<span class="punctuation">(</span>word+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">sample           </span>
+
+<span class="type">string</span> hal =<span class="string">"HAL"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ascii = <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span>hal<span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ibm = ascii<span class="punctuation">[</span>*<span class="punctuation">]</span>+<span class="number">1</span><span class="punctuation">;</span>       <span class="comment-delimiter">// </span><span class="comment">add 1 to each element in the array.</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ibm = map<span class="punctuation">(</span>ascii, `+, <span class="number">1</span><span class="punctuation">)</span> <span class="comment-delimiter">// </span><span class="comment">apply the function +, with the argument</span>
+                                   <span class="comment-delimiter">// </span><span class="comment">1, to each element in the array.</span>
+write<span class="punctuation">(</span>ibm+<span class="string">"\n"</span><span class="punctuation">);</span>                   <span class="comment-delimiter">// </span><span class="comment">prints "IBM"</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN29"
+>Processing a String One Character at a Time</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> hello = <span class="string">"Hello world!"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> chars = hello/<span class="string">""</span><span class="punctuation">;</span>     <span class="comment-delimiter">// </span><span class="comment">array of characters as strings</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>chars<span class="punctuation">;;</span> <span class="type">string</span> char<span class="punctuation">)</span>        <span class="comment-delimiter">// </span><span class="comment">this also matches newlines</span>
+  <span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">do stuff with char</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> data = <span class="string">"an apple a day"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> chars = data/<span class="string">""</span><span class="punctuation">;</span>
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> seen = <span class="punctuation">([]);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>chars <span class="punctuation">;;</span> <span class="type">string</span> char<span class="punctuation">)</span>
+  seen<span class="punctuation">[</span>char<span class="punctuation">]</span>++<span class="punctuation">;</span> 
+
+write<span class="punctuation">(</span><span class="string">"unique chars are: %s\n"</span>, sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>seen<span class="punctuation">))</span>*<span class="string">""</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">unique chars are:  adelnpy</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> data = <span class="string">"an apple a day"</span><span class="punctuation">;</span>
+<span class="type">string</span> result = sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>mkmapping<span class="punctuation">(</span>data/<span class="string">""</span>, allocate<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>data<span class="punctuation">))))</span>*<span class="string">""</span><span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"unique chars are: %s\n"</span>, result<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">unique chars are:  adelnpy</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> data = <span class="string">"an apple a day"</span><span class="punctuation">;</span>
+<span class="type">int</span> sum<span class="punctuation">;</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>data <span class="punctuation">;;</span> <span class="type">int</span> char<span class="punctuation">)</span>
+  sum += char<span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"sum is %d\n"</span>, sum<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">sum is 1248</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> data = <span class="string">"an apple a day"</span><span class="punctuation">;</span>
+<span class="type">int</span> sum=`+<span class="punctuation">(</span>@<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span>data<span class="punctuation">);</span>  
+
+write<span class="punctuation">(</span><span class="string">"sum is %d\n"</span>, sum<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">sum is 1248</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/sum.html">download the following standalone program</a></font>
+</span>#/usr/bin/pike
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.5
+</span><span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> data = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+  <span class="type">int</span> checksum<span class="punctuation">;</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>data <span class="punctuation">;;</span> <span class="type">int</span> char<span class="punctuation">)</span>
+    checksum += char<span class="punctuation">;</span>
+
+  checksum %= pow<span class="punctuation">(</span><span class="number">2</span>,<span class="number">16</span><span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">;</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, checksum<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">alternate version</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/sum2.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.5
+</span><span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> data=<span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+  <span class="type">int</span> checksum = `+<span class="punctuation">(</span>@<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span>data<span class="punctuation">)</span> % <span class="punctuation">((</span><span class="number">1</span>&lt;&lt;<span class="number">16</span><span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">);</span>
+  write<span class="punctuation">(</span><span class="string">"%d\n"</span>, checksum<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/slowcat.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.5
+</span><span class="comment-delimiter">// </span><span class="comment">slowcat - emulate a   s l o w  line printer
+</span><span class="comment-delimiter">// </span><span class="comment">usage: slowcat [-DELAY] [files ...]
+</span><span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> files<span class="punctuation">;</span>
+  <span class="type">int</span> delay = <span class="number">1</span><span class="punctuation">;</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">][</span><span class="number">0</span><span class="punctuation">]</span> == <span class="string">'-'</span><span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    files = argv<span class="punctuation">[</span><span class="number">2</span>..<span class="punctuation">];</span>
+    delay = <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">][</span><span class="number">1</span>..<span class="punctuation">];</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">else</span>
+    files = argv<span class="punctuation">[</span><span class="number">1</span>..<span class="punctuation">];</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>files, <span class="type">string</span> file<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">string</span> data = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>file<span class="punctuation">);</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>data/<span class="string">""</span>, <span class="type">string</span> char<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      write<span class="punctuation">(</span>char<span class="punctuation">);</span>
+      sleep<span class="punctuation">(</span><span class="number">0.005</span>*delay<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN32"
+>Reversing a String by Word or Character</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">#1.6 (reverse a string by char/word)</span>
+<span class="comment-delimiter">// </span><span class="comment">by Olivier Girondel</span>
+
+<span class="type">string</span> s = <span class="string">"This is  a string"</span><span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This is  a string"</span>
+
+reverse<span class="punctuation">(</span>s<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "gnirts a  si sihT"</span>
+
+reverse<span class="punctuation">(</span>s/<span class="string">" "</span><span class="punctuation">)</span> * <span class="string">" "</span><span class="punctuation">;</span>               <span class="comment-delimiter">// </span><span class="comment">preserve whitespace</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "string a  is This"</span>
+
+<span class="punctuation">(</span>reverse<span class="punctuation">(</span>s/<span class="string">" "</span><span class="punctuation">)</span>-<span class="punctuation">({</span> <span class="string">""</span> <span class="punctuation">}))</span> * <span class="string">" "</span><span class="punctuation">;</span>    <span class="comment-delimiter">// </span><span class="comment">collapse whitespace</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "string a is This"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> word = <span class="string">"reviver"</span><span class="punctuation">;</span>
+<span class="type">int</span> is_palindrome = word==reverse<span class="punctuation">(</span>word<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/palindrome.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.6
+</span><span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> data=<span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>data/<span class="string">"\n"</span>, <span class="type">string</span> line<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>line==reverse<span class="punctuation">(</span>line<span class="punctuation">)</span> &amp;&amp; sizeof<span class="punctuation">(</span>line<span class="punctuation">)</span>&gt;<span class="number">5</span><span class="punctuation">)</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, line<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN35"
+>Expanding and Compressing Tabs</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> s = <span class="string">"This         is                a    \n   string"</span><span class="punctuation">;</span>
+
+<span class="type">string</span> notabs=<span class="constant">String</span>.expand_tabs<span class="punctuation">(</span>s<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This     is                a    \n   string"</span>
+
+<span class="type">string</span> notabs=<span class="constant">String</span>.expand_tabs<span class="punctuation">(</span>s, <span class="number">4</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This     is            a    \n   string"</span>
+
+<span class="type">string</span> notabs=<span class="constant">String</span>.expand_tabs<span class="punctuation">(</span>s, <span class="number">4</span>, <span class="string">"-"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This   - is --------   a ---\n   string"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> s = <span class="string">"This     is      a     string"</span><span class="punctuation">;</span>
+<span class="type">string</span> tabs=<span class="string">""</span><span class="punctuation">;</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>s/<span class="number">8.0</span> <span class="punctuation">;;</span> <span class="type">string</span> stop<span class="punctuation">)</span>
+<span class="punctuation">{</span> 
+  <span class="type">int</span> spaces=sizeof<span class="punctuation">(</span><span class="constant">String</span>.common_prefix<span class="punctuation">(({</span> reverse<span class="punctuation">(</span>stop<span class="punctuation">)</span>, <span class="string">"        "</span><span class="punctuation">})));</span> 
+  tabs+=stop<span class="punctuation">[</span>..<span class="number">7</span>-spaces<span class="punctuation">];</span> 
+  <span class="keyword">if</span><span class="punctuation">(</span>spaces<span class="punctuation">)</span>
+    tabs+=<span class="string">"^I"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This\t is\t a     string"</span>
+
+<span class="type">string</span> notabs=<span class="string">""</span><span class="punctuation">;</span> 
+<span class="keyword">foreach</span><span class="punctuation">(</span>tabs/<span class="string">"^I"</span> <span class="punctuation">;;</span> <span class="type">string</span> stop<span class="punctuation">)</span>
+<span class="punctuation">{</span> 
+  notabs+=stop<span class="punctuation">;</span> 
+  <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>stop<span class="punctuation">)</span>&lt;<span class="number">8</span><span class="punctuation">)</span> 
+    notabs+=<span class="string">" "</span>*<span class="punctuation">(</span><span class="number">8</span>-sizeof<span class="punctuation">(</span>stop<span class="punctuation">));</span> 
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "This     is      a     string"</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN38"
+>Expanding Variables in User Input</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">since variable names in pike do not have a special notation we need to </span>
+<span class="comment-delimiter">// </span><span class="comment">"invent" one for this.</span>
+<span class="comment-delimiter">// </span><span class="comment">there are a few ways to solve this problem.</span>
+<span class="comment-delimiter">// </span><span class="comment">here is one:</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> vars = <span class="punctuation">([</span> <span class="string">"$fruit$"</span>:<span class="string">"apple"</span>, <span class="string">"$desert$"</span>:<span class="string">"pudding"</span> <span class="punctuation">]);</span>
+<span class="type">string</span> template  = <span class="string">"Todays fruit is $fruit$, and for desert we have $desert$"</span><span class="punctuation">;</span>
+<span class="type">string</span> menu = replace<span class="punctuation">(</span>template, vars<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Result: "Todays fruit is apple, and for desert we have pudding"</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN41"
+>Controlling Case</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> upper, lower, result<span class="punctuation">;</span>
+upper = <span class="string">"DON'T SHOUT!"</span><span class="punctuation">;</span>
+result = lower_case<span class="punctuation">(</span>upper<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "don't shout!"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+lower = <span class="string">"speak up"</span><span class="punctuation">;</span>
+result = upper_case<span class="punctuation">(</span>lower<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "SPEAK UP"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+result = <span class="constant">String</span>.capitalize<span class="punctuation">(</span>lower<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "Speak up"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> text = <span class="string">"thIS is a loNG liNE"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> words = text/<span class="string">" "</span><span class="punctuation">;</span>       <span class="comment-delimiter">// </span><span class="comment">splits the line into words</span>
+words = lower_case<span class="punctuation">(</span>words<span class="punctuation">[</span>*<span class="punctuation">]);</span>         <span class="comment-delimiter">// </span><span class="comment">lower_case each word</span>
+words = <span class="constant">String</span>.capitalize<span class="punctuation">(</span>words<span class="punctuation">[</span>*<span class="punctuation">]);</span>  <span class="comment-delimiter">// </span><span class="comment">capitalize each word</span>
+text = words*<span class="string">" "</span><span class="punctuation">;</span>                     <span class="comment-delimiter">// </span><span class="comment">join back</span>
+<span class="comment-delimiter">// </span><span class="comment">you may do the same in one short line:</span>
+text = <span class="constant">String</span>.capitalize<span class="punctuation">(</span>lower_case<span class="punctuation">((</span>text/<span class="string">" "</span><span class="punctuation">)[</span>*<span class="punctuation">])[</span>*<span class="punctuation">])</span>*<span class="string">" "</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/randcap">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.9
+</span><span class="comment-delimiter">// </span><span class="comment">randcap: filter to randomly capitalize 20% of the letters
+</span>
+<span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> input<span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>input=<span class="constant">Stdio</span>.<span class="constant">stdin</span>.read<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">))</span>
+    write<span class="punctuation">(</span>randcap<span class="punctuation">(</span>input<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+
+<span class="type">string</span> randcap<span class="punctuation">(</span><span class="type">string</span> char<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>random<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">)</span>&lt;<span class="number">20</span><span class="punctuation">)</span>
+    char=<span class="constant">String</span>.capitalize<span class="punctuation">(</span>char<span class="punctuation">);</span>
+  <span class="keyword">return</span> char<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN44"
+>Interpolating Functions and Expressions Within Strings</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">since pike does not provide any string interpolation </span>
+<span class="comment-delimiter">// </span><span class="comment">there are no sneaky tricks here.</span>
+<span class="comment-delimiter">// </span><span class="comment">a solution could be similar to the one in chapter 1.8</span>
+<span class="comment-delimiter">// </span><span class="comment">putting functions into the mapping instead of string values, or use xml and</span>
+<span class="comment-delimiter">// </span><span class="comment">callbacks</span>
+<span class="comment-delimiter">// </span><span class="comment">TODO: provide an example of using the xml parser here</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN47"
+>Indenting Here Documents</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">we believe that indenting the string and then removing that indent does not</span>
+<span class="comment-delimiter">// </span><span class="comment">actually enhance readability of the code.</span>
+<span class="comment-delimiter">// </span><span class="comment">but if you insist the following will remove all whitespace at the beginning</span>
+<span class="comment-delimiter">// </span><span class="comment">of each line:</span>
+<span class="type">string</span> here=#<span class="string">"your text
+              goes here"</span><span class="punctuation">;</span>
+    
+<span class="type">string</span> there=array_sscanf<span class="punctuation">((</span>here/<span class="string">"\n"</span><span class="punctuation">)[</span>*<span class="punctuation">]</span>, <span class="string">"%*[\t ]%s"</span><span class="punctuation">)[</span>*<span class="punctuation">][</span><span class="number">0</span><span class="punctuation">]</span>*<span class="string">"\n"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">expanded version:</span>
+<span class="type">array</span> tmp=<span class="punctuation">({});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>here/<span class="string">"\n"</span><span class="punctuation">;;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  tmp+=array_sscanf<span class="punctuation">(</span>line, <span class="string">"%*[\t ]%s"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="type">string</span> there=tmp*<span class="string">"\n"</span><span class="punctuation">;</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN50"
+>Reformatting Paragraphs</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">pike sprintf() provides a facility for wrapping (column mode):</span>
+<span class="comment-delimiter">// </span><span class="comment">sprintf("%-=&lt;int width&gt;s", text);</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch01/wrapdemo">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 1.12
+</span><span class="comment-delimiter">// </span><span class="comment">wrapdemo - show how wrapping with sprintf works
+</span><span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> input = <span class="punctuation">({</span> <span class="string">"Folding and splicing is the work of an editor,"</span>,
+                           <span class="string">"not a mere collection of silicon"</span>,
+                           <span class="string">"and"</span>,
+                           <span class="string">"mobile electrons!"</span><span class="punctuation">});</span>
+  <span class="type">int</span> columns = <span class="number">20</span><span class="punctuation">;</span>
+
+  write<span class="punctuation">(</span><span class="string">"0123456789"</span>*<span class="number">2</span>+<span class="string">"\n"</span><span class="punctuation">);</span>
+  write<span class="punctuation">(</span>wrap<span class="punctuation">(</span>input*<span class="string">" "</span>, <span class="number">20</span>, <span class="string">"  "</span>, <span class="string">"  "</span><span class="punctuation">)</span>+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">unlike the perl version here leadtab is relative to nexttab, 
+</span><span class="comment-delimiter">// </span><span class="comment">to get a shorter lead use a negative int value. this allows the default of 0
+</span><span class="comment-delimiter">// </span><span class="comment">to be a lead indent that is the same as nexttab, and it also has the
+</span><span class="comment-delimiter">// </span><span class="comment">advantage of allowing you to change the indent without having to worry about
+</span><span class="comment-delimiter">// </span><span class="comment">the lead getting messed up.
+</span><span class="comment-delimiter">// </span><span class="comment">a negative lead will cut away from the nexttab which will be visible if you
+</span><span class="comment-delimiter">// </span><span class="comment">use something other than spaces
+</span><span class="type">string</span> wrap<span class="punctuation">(</span><span class="type">string</span> text, <span class="type">void</span>|<span class="type">int</span> width, 
+            <span class="type">void</span>|<span class="type">string</span>|<span class="type">int</span> nexttab, <span class="type">void</span>|<span class="type">string</span>|<span class="type">int</span> leadtab<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> leadindent=<span class="string">""</span><span class="punctuation">;</span>
+  <span class="type">string</span> indent=<span class="string">""</span><span class="punctuation">;</span> 
+  <span class="type">string</span> indent2=<span class="string">""</span><span class="punctuation">;</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>!width<span class="punctuation">)</span>
+    width=<span class="constant">Stdio</span>.stdout-&gt;tcgetattr<span class="punctuation">()</span>-&gt;columns<span class="punctuation">;</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>stringp<span class="punctuation">(</span>nexttab<span class="punctuation">))</span>
+  <span class="punctuation">{</span>
+    indent=nexttab<span class="punctuation">;</span>
+    width-=sizeof<span class="punctuation">(</span>nexttab<span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">this will be off if there are chars that have a
+</span>                             <span class="comment-delimiter">// </span><span class="comment">different width than 1.
+</span>  <span class="punctuation">}</span>
+  <span class="keyword">else</span> <span class="keyword">if</span><span class="punctuation">(</span>intp<span class="punctuation">(</span>nexttab<span class="punctuation">))</span>
+  <span class="punctuation">{</span>
+    indent=<span class="string">" "</span>*nexttab<span class="punctuation">;</span>
+    width-=nexttab<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>stringp<span class="punctuation">(</span>leadtab<span class="punctuation">))</span>
+    leadindent=leadtab<span class="punctuation">;</span>
+  <span class="keyword">else</span> <span class="keyword">if</span><span class="punctuation">(</span>intp<span class="punctuation">(</span>leadtab<span class="punctuation">))</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>leadtab &gt; <span class="number">0</span><span class="punctuation">)</span>
+      leadindent=<span class="string">" "</span>*leadtab<span class="punctuation">;</span>
+    <span class="keyword">else</span> <span class="keyword">if</span><span class="punctuation">(</span>leadtab &lt; <span class="number">0</span><span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      write<span class="punctuation">(</span>indent+<span class="string">".\n"</span><span class="punctuation">);</span>
+      indent=indent<span class="punctuation">[</span>..<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>indent<span class="punctuation">)</span>+leadtab<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">];</span>
+      write<span class="punctuation">(</span>indent+<span class="string">".\n"</span><span class="punctuation">);</span>
+      indent2=text<span class="punctuation">[</span>..-leadtab<span class="number">-1</span><span class="punctuation">];</span> 
+      text=text<span class="punctuation">[</span>-leadtab..<span class="punctuation">];</span>
+    <span class="punctuation">}</span>
+  <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"%^s%=*s%-=*s"</span>, indent, sizeof<span class="punctuation">(</span>indent2<span class="punctuation">)</span>, indent2, 
+                                 width, leadindent+text<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">----------------------------------------------</span>
+$ ./wrapdemo 
+<span class="number">01234567890123456789</span>
+    Folding and     
+  splicing is the   
+  work of an editor,
+  not a mere        
+  collection of     
+  silicon and mobile
+  electrons!        
+
+<span class="comment-delimiter">// </span><span class="comment">merge multiple lines into one, then wrap one long line</span>
+<span class="keyword">inherit</span> <span class="string">"wrapdemo.pike"</span><span class="punctuation">;</span>
+wrap<span class="punctuation">(</span>replace<span class="punctuation">(</span>text, <span class="string">"\n"</span>, <span class="string">" "</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">read stdin and split by paragraph,</span>
+<span class="comment-delimiter">// </span><span class="comment">remove \n in paragraphs</span>
+<span class="comment-delimiter">// </span><span class="comment">reformat</span>
+<span class="comment-delimiter">// </span><span class="comment">add paragraph break</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Stdio</span>.stdin-&gt;read<span class="punctuation">()</span>/<span class="string">"\n\n"</span><span class="punctuation">;;</span> <span class="type">string</span> para<span class="punctuation">)</span>
+  write<span class="punctuation">(</span>wrap<span class="punctuation">(</span>replace<span class="punctuation">(</span>para, <span class="string">"\n"</span>, <span class="string">" "</span><span class="punctuation">))</span>+<span class="string">"\n\n"</span><span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN53"
+>Escaping Characters</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">we need to escape the \ for this example, ironic, eh?</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> charlist=<span class="punctuation">({</span> <span class="string">"%"</span>, <span class="string">"\\"</span> <span class="punctuation">});</span> 
+<span class="type">string</span> var=<span class="string">"some input % text with \\"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">backslash</span>
+var=replace<span class="punctuation">(</span>var, charlist, <span class="string">"\\"</span>+charlist<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">double</span>
+var=replace<span class="punctuation">(</span>var, charlist, charlist<span class="punctuation">[</span>*<span class="punctuation">]</span>+charlist<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN56"
+>Trimming Blanks from the Ends of a String</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> line=<span class="string">" foo\n\t "</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> many=<span class="punctuation">({</span> <span class="string">" bar\n\t "</span>, <span class="string">" baz\t "</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">remove spaces and tabs</span>
+line=<span class="constant">String</span>.trim_whites<span class="punctuation">(</span>line<span class="punctuation">);</span>
+many=<span class="constant">String</span>.trim_whites<span class="punctuation">(</span>many<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">remove spaces, tabs, newlines and carriage returns</span>
+line=<span class="constant">String</span>.trim_all_whites<span class="punctuation">(</span>line<span class="punctuation">);</span>
+many=<span class="constant">String</span>.trim_all_whites<span class="punctuation">(</span>many<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN59"
+>Parsing Comma-Separated Data</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN62"
+>Soundex Matching</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">contributed by martin nilsson</span>
+
+write<span class="punctuation">(</span><span class="string">"Lookup user: "</span><span class="punctuation">);</span>
+<span class="type">string</span> user = <span class="constant">String</span>.soundex<span class="punctuation">(</span><span class="constant">Stdio</span>.<span class="constant">stdin</span>.gets<span class="punctuation">());</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>get_all_users<span class="punctuation">()</span>, <span class="type">array</span> u<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+  <span class="type">string</span> firstname=<span class="string">""</span>, lastname=<span class="string">""</span><span class="punctuation">;</span>
+  sscanf<span class="punctuation">(</span>u<span class="punctuation">[</span><span class="number">4</span><span class="punctuation">]</span>, <span class="string">"%s %s,"</span>, firstname, lastname<span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span> user==<span class="constant">String</span>.soundex<span class="punctuation">(</span>u<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">])</span> ||
+      user==<span class="constant">String</span>.soundex<span class="punctuation">(</span>firstname<span class="punctuation">)</span> ||
+      user==<span class="constant">String</span>.soundex<span class="punctuation">(</span>lastname<span class="punctuation">)</span> <span class="punctuation">)</span>
+    write<span class="punctuation">(</span><span class="string">"%s: %s %s\n"</span>, u<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, firstname, lastname<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN65"
+>Program: fixstyle</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN68"
+>Program: psgrep</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="numbers.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>PLEAC-Pike
+</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Numbers</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

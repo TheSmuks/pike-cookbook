@@ -1,0 +1,1073 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>File Contents</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="File Access"
+HREF="fileaccess.html"><LINK
+REL="NEXT"
+TITLE="Directories"
+HREF="directories.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="fileaccess.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="directories.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FILECONTENTS"
+>8. File Contents</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN430"
+>Introduction</A
+></H2
+><P
+>Reading and processing file contents is a fundamental task in Pike. This chapter covers various techniques for working with file data, including text processing, binary file handling, and random-access I/O.</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Basic file reading in Pike 8</span>
+<span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(<span class="string">"file.txt"</span>);
+
+<span class="comment">// Process line by line</span>
+<span class="keyword">foreach</span>(content / <span class="string">"\n"</span>; <span class="type">string</span> line) {
+    <span class="comment">// Process each line</span>
+}
+
+<span class="comment">// Using file object for more control</span>
+<span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(<span class="string">"file.txt"</span>, <span class="string">"r"</span>);
+<span class="keyword">foreach</span>(file-&gt;<span class="function-name">line_iterator</span>(<span class="number">1</span>); <span class="type">int</span> lineno; <span class="type">string</span> line) {
+    <span class="function-name">write</span>(<span class="string">"Line %d: %s\n"</span>, lineno, line);
+}
+file-&gt;<span class="function-name">close</span>();</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN433"
+>Reading Lines with Continuation Characters</A
+></H2
+><P
+>Handle lines that continue with backslashes:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read file and join continued lines</span>
+<span class="type">array</span>(<span class="type">string</span>) <span class="function-name">read_continued_lines</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+    <span class="type">array</span>(<span class="type">string</span>) result = ({});
+    <span class="type">string</span> current = <span class="string">""</span>;
+
+    <span class="keyword">foreach</span>(lines; <span class="type">int</span> i; <span class="type">string</span> line) {
+        <span class="comment">// Remove trailing backslash if present</span>
+        <span class="type">int</span> len = <span class="function-name">sizeof</span>(line);
+        <span class="keyword">if</span> (len &gt; <span class="number">0</span> &amp;&amp; line[-<span class="number">1</span>] == <span class="string">'\\'</span>) {
+            current += line[<span class="number">0</span>..<span class="number">len-2</span>];  <span class="comment">// Remove backslash</span>
+        } <span class="keyword">else</span> {
+            current += line;
+            result += ({current});
+            current = <span class="string">""</span>;
+        }
+    }
+
+    <span class="keyword">return</span> result;
+}
+
+<span class="comment">// Alternative: Using regex to join lines</span>
+<span class="type">string</span> <span class="function-name">join_continuations</span>(<span class="type">string</span> text) {
+    <span class="keyword">return</span> <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\\\\\s*\\n"</span>)-&gt;<span class="function-name">replace</span>(text, <span class="string">""</span>);
+}
+
+<span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(<span class="string">"config.txt"</span>);
+<span class="type">string</span> joined = <span class="function-name">join_continuations</span>(content);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN436"
+>Counting Lines (or Paragraphs or Records) in a File</A
+></H2
+><P
+>Count lines, paragraphs, or other records:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Count lines (handles empty files correctly)</span>
+<span class="type">int</span> <span class="function-name">count_lines</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="keyword">if</span> (!content) <span class="keyword">return</span> <span class="number">0</span>;
+
+    <span class="type">int</span> count = <span class="number">0</span>;
+    <span class="type">object</span> f = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename);
+    <span class="keyword">foreach</span>(f-&gt;<span class="function-name">line_iterator</span>(f); <span class="type">int</span> number; <span class="type">string</span> paragraph) {
+        count++;
+    }
+    <span class="keyword">return</span> count;
+}
+
+<span class="comment">// Count paragraphs (separated by blank lines)</span>
+<span class="type">int</span> <span class="function-name">count_paragraphs</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) paras = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\n\\s*\\n"</span>)-&gt;<span class="function-name">split</span>(content);
+    <span class="comment">// Filter out empty paragraphs</span>
+    <span class="keyword">return</span> <span class="function-name">sizeof</span>(<span class="function-name">filter</span>(paras, <span class="keyword">lambda</span>(<span class="type">string</span> p) { <span class="keyword">return</span> <span class="function-name">sizeof</span>(p - <span class="string">" "</span> - <span class="string">"\n"</span> - <span class="string">"\t"</span>) &gt; <span class="number">0</span>; }));
+}
+
+<span class="comment">// Count arbitrary records</span>
+<span class="type">int</span> <span class="function-name">count_records</span>(<span class="type">string</span> filename, <span class="type">string</span> separator) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="keyword">return</span> <span class="function-name">sizeof</span>(content / separator);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN439"
+>Processing Every Word in a File</A
+></H2
+><P
+>Process individual words:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Extract and process all words</span>
+<span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(<span class="string">"text.txt"</span>);
+
+<span class="comment">// Method 1: Split on whitespace</span>
+<span class="type">array</span>(<span class="type">string</span>) words = content / <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\s+"</span>);
+
+<span class="comment">// Method 2: Extract word characters only</span>
+<span class="type">array</span>(<span class="type">string</span>) word_chars = ({});
+<span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\b(\\w+)\\b"</span>)-&gt;<span class="function-name">matchall</span>(content,
+    <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+        word_chars += ({ match[<span class="number">1</span>] });
+    }
+);
+
+<span class="comment">// Count word frequency</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">int</span>) <span class="function-name">word_frequency</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> text = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">int</span>) freq = (<span class="type">mapping</span>);
+
+    <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"\\b(\\w+)\\b"</span>)-&gt;<span class="function-name">matchall</span>(text,
+        <span class="keyword">lambda</span>(<span class="type">array</span> match) {
+            <span class="type">string</span> word = <span class="function-name">lower_case</span>(match[<span class="number">1</span>]);
+            freq[word] = (<span class="function-name">zero_type</span>(freq[word]) ? <span class="number">1</span> : freq[word] + <span class="number">1</span>);
+        }
+    );
+
+    <span class="keyword">return</span> freq;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN442"
+>Reading a File Backwards by Line or Paragraph</A
+></H2
+><P
+>Read file in reverse order:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read file backwards line by line</span>
+<span class="type">void</span> <span class="function-name">print_file_backwards</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+
+    <span class="comment">// Print in reverse order</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="function-name">sizeof</span>(lines) - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) {
+        <span class="function-name">write</span>(<span class="string">"%s\n"</span>, lines[i]);
+    }
+}
+
+<span class="comment">// Memory-efficient reverse reading for large files</span>
+<span class="type">void</span> <span class="function-name">print_backwards_efficient</span>(<span class="type">string</span> filename) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+    <span class="type">array</span>(<span class="type">string</span>) lines = ({});
+
+    <span class="comment">// Read all lines into memory</span>
+    <span class="keyword">foreach</span>(file-&gt;<span class="function-name">line_iterator</span>(<span class="number">1</span>); <span class="type">int</span> lineno; <span class="type">string</span> line;) {
+        lines += ({line});
+    }
+    file-&gt;<span class="function-name">close</span>();
+
+    <span class="comment">// Print backwards</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="function-name">sizeof</span>(lines) - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i--) {
+        <span class="function-name">write</span>(<span class="string">"%s\n"</span>, lines[i]);
+    }
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN445"
+>Trailing a Growing File</A
+></H2
+><P
+>Monitor a file as it grows (like tail -f):</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Simple tail -f implementation</span>
+<span class="type">void</span> <span class="function-name">tail_follow</span>(<span class="type">string</span> filename, <span class="type">int</span>|<span class="type">void</span> lines) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+
+    <span class="comment">// Seek to end if showing only new content</span>
+    <span class="keyword">if</span> (!lines) {
+        file-&gt;<span class="function-name">seek</span>(<span class="number">0</span>, <span class="constant">Stdio</span>.<span class="constant">SEEK_END</span>);
+    }
+
+    <span class="comment">// Continuously read and display new lines</span>
+    <span class="keyword">while</span> (<span class="keyword">true</span>) {
+        <span class="type">string</span> line = file-&gt;<span class="function-name">gets</span>();
+        <span class="keyword">if</span> (line) {
+            <span class="function-name">write</span>(<span class="string">"%s\n"</span>, line);
+        } <span class="keyword">else</span> {
+            <span class="comment">// Wait a bit before checking again</span>
+            <span class="function-name">sleep</span>(<span class="number">0.1</span>);
+        }
+    }
+}
+
+<span class="comment">// More efficient version with polling</span>
+<span class="type">void</span> <span class="function-name">tail_f</span>(<span class="type">string</span> filename) {
+    <span class="type">int</span> last_size = <span class="number">0</span>;
+
+    <span class="keyword">while</span> (<span class="keyword">true</span>) {
+        <span class="type">mapping</span> stat = <span class="function-name">file_stat</span>(filename);
+        <span class="keyword">if</span> (stat &amp;&amp; stat-&gt;size &gt; last_size) {
+            <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+            file-&gt;<span class="function-name">seek</span>(last_size);
+            <span class="keyword">while</span> (<span class="type">string</span> line = file-&gt;<span class="function-name">gets</span>()) {
+                <span class="function-name">write</span>(<span class="string">"%s\n"</span>, line);
+            }
+            file-&gt;<span class="function-name">close</span>();
+            last_size = stat-&gt;size;
+        }
+        <span class="function-name">sleep</span>(<span class="number">0.5</span>);
+    }
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN448"
+>Picking a Random Line from a File</A
+></H2
+><P
+>Randomly select a line from a file:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Random line selection (reservoir sampling)</span>
+<span class="type">string</span> <span class="function-name">random_line</span>(<span class="type">string</span> filename) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+    <span class="type">string</span> selected = <span class="number">0</span>;
+    <span class="type">int</span> count = <span class="number">0</span>;
+
+    <span class="keyword">foreach</span>(file-&gt;<span class="function-name">line_iterator</span>(<span class="number">1</span>); <span class="type">int</span> lineno; <span class="type">string</span> line) {
+        count++;
+        <span class="comment">// Replace selected line with probability 1/count</span>
+        <span class="keyword">if</span> (<span class="function-name">random</span>(count) == <span class="number">0</span>) {
+            selected = line;
+        }
+    }
+
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> selected;
+}
+
+<span class="comment">// Alternative: Read all lines and pick one (simpler but uses more memory)</span>
+<span class="type">string</span> <span class="function-name">random_line_simple</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+    <span class="keyword">return</span> lines[<span class="function-name">random</span>(<span class="function-name">sizeof</span>(lines))];
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN451"
+>Randomizing All Lines</A
+></H2
+><P
+>Shuffle lines randomly:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Fisher-Yates shuffle for lines</span>
+<span class="type">string</span> <span class="function-name">shuffle_lines</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+
+    <span class="comment">// Fisher-Yates shuffle</span>
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="function-name">sizeof</span>(lines) - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--) {
+        <span class="type">int</span> j = <span class="function-name">random</span>(i + <span class="number">1</span>);
+        <span class="comment">// Swap lines[i] and lines[j]</span>
+        <span class="type">string</span> temp = lines[i];
+        lines[i] = lines[j];
+        lines[j] = temp;
+    }
+
+    <span class="keyword">return</span> lines * <span class="string">"\n"</span>;
+}
+
+<span class="comment">// Using Pike's built-in array shuffle</span>
+<span class="type">string</span> <span class="function-name">shuffle_lines_builtin</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+    <span class="function-name">predef::</span><span class="function-name">shuffle</span>(lines);
+    <span class="keyword">return</span> lines * <span class="string">"\n"</span>;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN454"
+>Reading a Particular Line in a File</A
+></H2
+><P
+>Access a specific line by number:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read specific line (1-indexed)</span>
+<span class="type">string</span>|<span class="type">zero</span> <span class="function-name">get_line</span>(<span class="type">string</span> filename, <span class="type">int</span> line_num) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+    <span class="type">int</span> current = <span class="number">0</span>;
+
+    <span class="keyword">foreach</span>(file-&gt;<span class="function-name">line_iterator</span>(<span class="number">1</span>); <span class="type">int</span> lineno; <span class="type">string</span> line) {
+        <span class="keyword">if</span> (++current == line_num) {
+            file-&gt;<span class="function-name">close</span>();
+            <span class="keyword">return</span> line;
+        }
+    }
+
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Line not found</span>
+}
+
+<span class="comment">// Alternative: Read all and index (simpler but uses more memory)</span>
+<span class="type">string</span>|<span class="type">zero</span> <span class="function-name">get_line_array</span>(<span class="type">string</span> filename, <span class="type">int</span> line_num) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+
+    <span class="keyword">if</span> (line_num &gt; <span class="number">0</span> &amp;&amp; line_num &lt;= <span class="function-name">sizeof</span>(lines)) {
+        <span class="keyword">return</span> lines[line_num - <span class="number">1</span>];  <span class="comment-delimiter">// </span><span class="comment">Convert to 0-indexed</span>
+    }
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN457"
+>Processing Variable-Length Text Fields</A
+></H2
+><P
+>Parse fixed-format with variable-length fields:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Parse variable-length fields separated by delimiter</span>
+<span class="type">array</span>(<span class="type">string</span>) <span class="function-name">parse_fields</span>(<span class="type">string</span> line, <span class="type">string</span> delimiter) {
+    <span class="keyword">return</span> line / delimiter;
+}
+
+<span class="comment">// Parse fields with positions</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) <span class="function-name">parse_fixed_positions</span>(
+    <span class="type">string</span> line,
+    <span class="type">array</span>(<span class="type">array</span>(<span class="type">string</span>|<span class="type">int</span>)) fields
+) {
+    <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) result = (<span class="type">mapping</span>);
+
+    <span class="keyword">foreach</span>(fields; <span class="type">int</span> i; [<span class="type">string</span> name, <span class="type">int</span> start, <span class="type">int</span> length]) {
+        <span class="keyword">if</span> (start + length &lt;= <span class="function-name">sizeof</span>(line)) {
+            result[name] = line[start..start+length-<span class="number">1</span>];
+        }
+    }
+
+    <span class="keyword">return</span> result;
+}
+
+<span class="comment">// Example usage</span>
+<span class="type">string</span> line = <span class="string">"John Doe      12345 555-1234"</span>;
+<span class="type">mapping</span> data = <span class="function-name">parse_fixed_positions</span>(line, ({
+    ({<span class="string">"name"</span>, <span class="number">0</span>, <span class="number">12</span>}),
+    ({<span class="string">"id"</span>, <span class="number">13</span>, <span class="number">5</span>}),
+    ({<span class="string">"phone"</span>, <span class="number">19</span>, <span class="number">8</span>})
+}));
+<span class="comment-delimiter">// </span><span class="comment">Result: (["name": "John Doe", "id": "12345", "phone": "555-1234"])</span></PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN460"
+>Removing the Last Line of a File</A
+></H2
+><P
+>Delete the last line from a file:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Remove last line from file</span>
+<span class="type">void</span> <span class="function-name">remove_last_line</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">array</span>(<span class="type">string</span>) lines = content / <span class="string">"\n"</span>;
+
+    <span class="comment">// Remove last line if not empty</span>
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(lines) &gt; <span class="number">0</span>) {
+        lines = lines[<span class="number">0</span>..<span class="function-name">sizeof</span>(lines)-<span class="number">2</span>];
+    }
+
+    <span class="comment">// Write back</span>
+    <span class="constant">Stdio</span>.<span class="function-name">write_file</span>(filename, lines * <span class="string">"\n"</span>);
+}
+
+<span class="comment">// More efficient for large files (using seek)</span>
+<span class="type">void</span> <span class="function-name">remove_last_line_efficient</span>(<span class="type">string</span> filename) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rw"</span>);
+    <span class="type">string</span> last_content = <span class="string">""</span>;
+    <span class="type">string</span> line;
+
+    <span class="comment">// Read all lines keeping track of position</span>
+    <span class="type">int</span> pos = <span class="number">0</span>;
+    <span class="keyword">while</span> (line = file-&gt;<span class="function-name">gets</span>()) {
+        pos = file-&gt;<span class="function-name">tell</span>();
+    }
+
+    <span class="comment">// Truncate at position before last line</span>
+    file-&gt;<span class="function-name">truncate</span>(pos);
+    file-&gt;<span class="function-name">close</span>();
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN463"
+>Processing Binary Files</A
+></H2
+><P
+>Read and write binary data:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read binary file</span>
+<span class="type">string</span> <span class="function-name">read_binary</span>(<span class="type">string</span> filename) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rb"</span>);
+    <span class="type">string</span> data = file-&gt;<span class="function-name">read</span>(file-&gt;<span class="function-name">stat</span>()-&gt;size);
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> data;
+}
+
+<span class="comment">// Write binary file</span>
+<span class="type">void</span> <span class="function-name">write_binary</span>(<span class="type">string</span> filename, <span class="type">string</span> data) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"wb"</span>);
+    file-&gt;<span class="function-name">write</span>(data);
+    file-&gt;<span class="function-name">close</span>();
+}
+
+<span class="comment">// Process binary data as integers</span>
+<span class="type">array</span>(<span class="type">int</span>) <span class="function-name">binary_to_ints</span>(<span class="type">string</span> data, <span class="type">int</span> bytes_per_int) {
+    <span class="type">array</span>(<span class="type">int</span>) result = ({});
+
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="function-name">sizeof</span>(data); i += bytes_per_int) {
+        <span class="type">int</span> value = <span class="number">0</span>;
+        <span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; bytes_per_int &amp;&amp; i+j &lt; <span class="function-name">sizeof</span>(data); j++) {
+            value |= data[i+j] &lt;&lt; (j * <span class="number">8</span>);
+        }
+        result += ({value});
+    }
+
+    <span class="keyword">return</span> result;
+}
+
+<span class="comment">// Example: Read 32-bit integers</span>
+<span class="type">string</span> binary_data = <span class="function-name">read_binary</span>(<span class="string">"data.bin"</span>);
+<span class="type">array</span>(<span class="type">int</span>) ints = <span class="function-name">binary_to_ints</span>(binary_data, <span class="number">4</span>);</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN466"
+>Using Random-Access I/O</A
+></H2
+><P
+>Read and write at specific positions:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Random access read/write</span>
+<span class="type">string</span> <span class="function-name">read_at</span>(<span class="type">string</span> filename, <span class="type">int</span> pos, <span class="type">int</span> length) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"r"</span>);
+    file-&gt;<span class="function-name">seek</span>(pos);
+    <span class="type">string</span> data = file-&gt;<span class="function-name">read</span>(length);
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> data;
+}
+
+<span class="type">void</span> <span class="function-name">write_at</span>(<span class="type">string</span> filename, <span class="type">int</span> pos, <span class="type">string</span> data) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rw"</span>);
+    file-&gt;<span class="function-name">seek</span>(pos);
+    file-&gt;<span class="function-name">write</span>(data);
+    file-&gt;<span class="function-name">close</span>();
+}
+
+<span class="comment">// Update specific record in fixed-size record file</span>
+<span class="type">void</span> <span class="function-name">update_record</span>(
+    <span class="type">string</span> filename,
+    <span class="type">int</span> record_num,
+    <span class="type">int</span> record_size,
+    <span class="type">string</span> data
+) {
+    <span class="type">int</span> pos = record_num * record_size;
+    <span class="function-name">write_at</span>(filename, pos, data);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN469"
+>Updating a Random-Access File</A
+></H2
+><P
+>Modify file in place:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Update file record in place</span>
+<span class="type">void</span> <span class="function-name">update_database</span>(
+    <span class="type">string</span> filename,
+    <span class="type">int</span> record_num,
+    <span class="type">string</span> new_data
+) {
+    <span class="type">int</span> record_size = <span class="number">64</span>;  <span class="comment-delimiter">// </span><span class="comment">Fixed record size</span>
+
+    <span class="comment">// Pad or truncate to exact size</span>
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(new_data) &lt; record_size) {
+        new_data = <span class="function-name">sprintf</span>(<span class="string">"%-"</span> + record_size + <span class="string">"s"</span>, new_data);
+    } <span class="keyword">else</span> {
+        new_data = new_data[<span class="number">0</span>..record_size-<span class="number">1</span>];
+    }
+
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rw"</span>);
+    file-&gt;<span class="function-name">seek</span>(record_num * record_size);
+    file-&gt;<span class="function-name">write</span>(new_data);
+    file-&gt;<span class="function-name">close</span>();
+}
+
+<span class="comment">// Lock file during update</span>
+<span class="type">void</span> <span class="function-name">safe_update</span>(<span class="type">string</span> filename, <span class="type">int</span> record_num, <span class="type">string</span> data) {
+    <span class="type">object</span> lock = <span class="constant">Thread</span>.<span class="constant">Mutex</span>();
+
+    lock-&gt;<span class="function-name">lock</span>();
+    <span class="keyword">catch</span> {
+        <span class="function-name">update_database</span>(filename, record_num, data);
+    };
+    lock-&gt;<span class="function-name">unlock</span>();
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN472"
+>Reading a String from a Binary File</A
+></H2
+><P
+>Extract null-terminated or length-prefixed strings:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read null-terminated string</span>
+<span class="type">string</span> <span class="function-name">read_c_string</span>(<span class="type">string</span> filename, <span class="type">int</span> offset) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rb"</span>);
+    file-&gt;<span class="function-name">seek</span>(offset);
+
+    <span class="type">string</span> result = <span class="string">""</span>;
+    <span class="type">int</span> c;
+
+    <span class="keyword">while</span> ((c = file-&gt;<span class="function-name">read</span>(<span class="number">1</span>)[<span class="number">0</span>]) != <span class="number">0</span>) {
+        result += <span class="function-name">sprintf</span>(<span class="string">"%c"</span>, c);
+    }
+
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> result;
+}
+
+<span class="comment">// Read length-prefixed string (Pascal-style)</span>
+<span class="type">string</span> <span class="function-name">read_pascal_string</span>(<span class="type">string</span> filename, <span class="type">int</span> offset) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rb"</span>);
+    file-&gt;<span class="function-name">seek</span>(offset);
+
+    <span class="comment">// Read length byte</span>
+    <span class="type">int</span> len = file-&gt;<span class="function-name">read</span>(<span class="number">1</span>)[<span class="number">0</span>];
+
+    <span class="comment">// Read string data</span>
+    <span class="type">string</span> data = file-&gt;<span class="function-name">read</span>(len);
+    file-&gt;<span class="function-name">close</span>();
+
+    <span class="keyword">return</span> data;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN475"
+>Reading Fixed-Length Records</A
+></H2
+><P
+>Process fixed-size database records:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Read all fixed-length records</span>
+<span class="type">array</span>(<span class="type">string</span>) <span class="function-name">read_records</span>(<span class="type">string</span> filename, <span class="type">int</span> record_size) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rb"</span>);
+    <span class="type">int</span> file_size = file-&gt;<span class="function-name">stat</span>()-&gt;size;
+    <span class="type">array</span>(<span class="type">string</span>) records = ({});
+
+    <span class="keyword">for</span> (<span class="type">int</span> pos = <span class="number">0</span>; pos + record_size &lt;= file_size; pos += record_size) {
+        file-&gt;<span class="function-name">seek</span>(pos);
+        records += ({ file-&gt;<span class="function-name">read</span>(record_size) });
+    }
+
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> records;
+}
+
+<span class="comment">// Read specific record</span>
+<span class="type">string</span> <span class="function-name">read_record</span>(<span class="type">string</span> filename, <span class="type">int</span> record_num, <span class="type">int</span> record_size) {
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(filename, <span class="string">"rb"</span>);
+    file-&gt;<span class="function-name">seek</span>(record_num * record_size);
+    <span class="type">string</span> record = file-&gt;<span class="function-name">read</span>(record_size);
+    file-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> record;
+}
+
+<span class="comment">// Parse structured record</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>) <span class="function-name">parse_record</span>(<span class="type">string</span> record) {
+    <span class="keyword">return</span> (<span class="type">mapping</span>)([
+        <span class="string">"id"</span>: record[<span class="number">0</span>..<span class="number">3</span>],
+        <span class="string">"name"</span>: record[<span class="number">4</span>..<span class="number">23</span>],
+        <span class="string">"value"</span>: record[<span class="number">24</span>..<span class="number">27</span>]
+    ]);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN478"
+>Reading Configuration Files</A
+></H2
+><P
+>Parse INI-style configuration files:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Parse INI file format</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>)) <span class="function-name">read_ini</span>(<span class="type">string</span> filename) {
+    <span class="type">string</span> content = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(filename);
+    <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">string</span>)) config = (<span class="type">mapping</span>);
+    <span class="type">string</span> current_section = <span class="string">"default"</span>;
+    config[current_section] = (<span class="type">mapping</span>);
+
+    <span class="keyword">foreach</span>(content / <span class="string">"\n"</span>; <span class="type">int</span> i; <span class="type">string</span> line) {
+        <span class="comment">// Strip whitespace and comments</span>
+        line = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"[#;].*"</span>)-&gt;<span class="function-name">replace</span>(line, <span class="string">""</span>);
+        line = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^\\s+|\\s+$"</span>)-&gt;<span class="function-name">replace</span>(line, <span class="string">""</span>);
+
+        <span class="comment">// Skip empty lines</span>
+        <span class="keyword">if</span> (!<span class="function-name">sizeof</span>(line)) <span class="keyword">continue</span>;
+
+        <span class="comment">// Check for section header</span>
+        <span class="type">array</span> section_match = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^\\[([^\\]]+)\\]$"</span>)-&gt;<span class="function-name">split2</span>(line);
+        <span class="keyword">if</span> (section_match) {
+            current_section = section_match[<span class="number">1</span>];
+            config[current_section] = (<span class="type">mapping</span>);
+            <span class="keyword">continue</span>;
+        }
+
+        <span class="comment">// Parse key=value</span>
+        <span class="type">array</span> kv_match = <span class="constant">Regexp</span>.<span class="constant">PCRE</span>(<span class="string">"^([^=]+)=(.*)$"</span>)-&gt;<span class="function-name">split2</span>(line);
+        <span class="keyword">if</span> (kv_match) {
+            <span class="type">string</span> key = kv_match[<span class="number">1</span>];
+            <span class="type">string</span> value = kv_match[<span class="number">2</span>];
+            config[current_section][key] = value;
+        }
+    }
+
+    <span class="keyword">return</span> config;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN481"
+>Testing a File for Trustworthiness</A
+></H2
+><P
+>Check file permissions and ownership:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Check if file is safe to read</span>
+<span class="type">int</span>(<span class="number">0</span>..<span class="number">1</span>) <span class="function-name">is_safe_file</span>(<span class="type">string</span> filename) {
+    <span class="type">mapping</span> stat = <span class="function-name">file_stat</span>(filename);
+
+    <span class="keyword">if</span> (!stat) <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">File doesn't exist</span>
+
+    <span class="comment">// Check if it's a regular file</span>
+    <span class="keyword">if</span> (stat-&gt;mode &amp; <span class="constant">Stat</span>.<span class="constant">S_IFREG</span> == <span class="number">0</span>) {
+        <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Not a regular file</span>
+    }
+
+    <span class="comment">// Check if readable</span>
+    <span class="keyword">if</span> (<span class="function-name">file_stat</span>(filename)-&gt;mode &amp; <span class="number">0400</span> == <span class="number">0</span>) {
+        <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">Not readable by owner</span>
+    }
+
+    <span class="comment">// Check if writable by others (security risk)</span>
+    <span class="keyword">if</span> (stat-&gt;mode &amp; <span class="number">0002</span>) {
+        <span class="keyword">return</span> <span class="number">0</span>;  <span class="comment-delimiter">// </span><span class="comment">World-writable!</span>
+    }
+
+    <span class="keyword">return</span> <span class="number">1</span>;
+}
+
+<span class="comment">// Detailed file security check</span>
+<span class="type">mapping</span>(<span class="type">string</span>:<span class="type">mixed</span>) <span class="function-name">file_security_check</span>(<span class="type">string</span> filename) {
+    <span class="type">mapping</span> stat = <span class="function-name">file_stat</span>(filename);
+    <span class="keyword">if</span> (!stat) {
+        <span class="keyword">return</span> ([<span class="string">"safe"</span>: <span class="number">0</span>, <span class="string">"error"</span>: <span class="string">"File not found"</span>]);
+    }
+
+    <span class="keyword">return</span> (<span class="type">mapping</span>) ([
+        <span class="string">"safe"</span>: <span class="function-name">is_safe_file</span>(filename),
+        <span class="string">"size"</span>: stat-&gt;size,
+        <span class="string">"mode"</span>: <span class="function-name">sprintf</span>(<span class="string">"%04o"</span>, stat-&gt;mode &amp; <span class="number">0777</span>),
+        <span class="string">"is_readable"</span>: (stat-&gt;mode &amp; <span class="number">0400</span>) != <span class="number">0</span>,
+        <span class="string">"is_writable"</span>: (stat-&gt;mode &amp; <span class="number">0200</span>) != <span class="number">0</span>,
+        <span class="string">"world_readable"</span>: (stat-&gt;mode &amp; <span class="number">0004</span>) != <span class="number">0</span>,
+        <span class="string">"world_writable"</span>: (stat-&gt;mode &amp; <span class="number">0002</span>) != <span class="number">0</span>
+    ]);
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN484"
+>Program: tailwtmp</A
+></H2
+><P
+>Monitor wtmp file for new login records:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Simplified wtmp monitor (Unix-like systems)</span>
+<span class="type">void</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv) {
+    <span class="type">string</span> wtmp_file = argc &gt; <span class="number">1</span> ? argv[<span class="number">1</span>] : <span class="string">"/var/log/wtmp"</span>;
+
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(wtmp_file, <span class="string">"rb"</span>);
+    <span class="keyword">if</span> (!file) {
+        <span class="function-name">werror</span>(<span class="string">"Cannot open %s\n"</span>, wtmp_file);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">// Seek to end</span>
+    file-&gt;<span class="function-name">seek</span>(<span class="number">0</span>, <span class="constant">Stdio</span>.<span class="constant">SEEK_END</span>);
+    <span class="type">int</span> last_pos = file-&gt;<span class="function-name">tell</span>();
+
+    <span class="function-name">write</span>(<span class="string">"Monitoring %s (Ctrl-C to quit)...\n"</span>, wtmp_file);
+
+    <span class="keyword">while</span> (<span class="keyword">true</span>) {
+        file-&gt;<span class="function-name">seek</span>(last_pos);
+        <span class="type">string</span> record = file-&gt;<span class="function-name">read</span>(<span class="number">376</span>);  <span class="comment-delimiter">// </span><span class="comment">Typical utmp record size</span>
+
+        <span class="keyword">if</span> (<span class="function-name">sizeof</span>(record) == <span class="number">376</span>) {
+            <span class="type">string</span> user = record[<span class="number">0</span>..<span class="number">7</span>];
+            <span class="type">string</span> tty = record[<span class="number">8</span>..<span class="number">31</span>];
+
+            <span class="comment">// Print if not empty (LOGIN_PROCESS)</span>
+            <span class="keyword">if</span> (<span class="function-name">sizeof</span>(user - <span class="string">"\\0"</span>)) {
+                <span class="function-name">write</span>(<span class="string">"%s on %s at %s\n"</span>,
+                       user - <span class="string">"\\0"</span>,
+                       tty - <span class="string">"\\0"</span>,
+                       <span class="function-name">ctime</span>(<span class="function-name">time</span>()));
+            }
+
+            last_pos = file-&gt;<span class="function-name">tell</span>();
+        }
+
+        <span class="function-name">sleep</span>(<span class="number">1</span>);
+    }
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN487"
+>Program: tctee</A
+></H2
+><P
+>Tee with timestamping:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Tctee: tee with timestamps</span>
+<span class="type">void</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv) {
+    <span class="keyword">if</span> (argc &lt; <span class="number">2</span>) {
+        <span class="function-name">write</span>(<span class="string">"Usage: %s &lt;output_file&gt;\n"</span>, argv[<span class="number">0</span>]);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="type">string</span> outfile = argv[<span class="number">1</span>];
+    <span class="type">object</span> out = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(outfile, <span class="string">"wa"</span>);
+
+    <span class="keyword">if</span> (!out) {
+        <span class="function-name">werror</span>(<span class="string">"Cannot open %s for writing\n"</span>, outfile);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">// Read from stdin, write to both stdout and file with timestamp</span>
+    <span class="type">string</span> line;
+    <span class="keyword">while</span> (line = <span class="constant">Stdio</span>.<span class="constant">stdin</span>-&gt;<span class="function-name">gets</span>()) {
+        <span class="type">string</span> timestamp = <span class="function-name">ctime</span>(<span class="function-name">time</span>());
+        <span class="type">string</span> output = <span class="function-name">sprintf</span>(<span class="string">"[%s] %s"</span>, timestamp, line);
+
+        <span class="constant">Stdio</span>.<span class="constant">stdout</span>-&gt;<span class="function-name">write</span>(output);
+        out-&gt;<span class="function-name">write</span>(output);
+    }
+
+    out-&gt;<span class="function-name">close</span>();
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</PRE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN490"
+>Program: laston</A
+></H2
+><P
+>Show when a user was last on:</P
+><PRE
+CLASS="SCREEN"
+><span class="comment">// Laston: Find last login for user</span>
+<span class="type">int</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv) {
+    <span class="type">string</span> username = argc &gt; <span class="number">1</span> ? argv[<span class="number">1</span>] : <span class="function-name">getenv</span>(<span class="string">"USER"</span>);
+
+    <span class="keyword">if</span> (!username) {
+        <span class="function-name">werror</span>(<span class="string">"Usage: %s [username]\n"</span>, argv[<span class="number">0</span>]);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">// Try to read from lastlog file</span>
+    <span class="type">object</span> file = <span class="constant">Stdio</span>.<span class="constant">FILE</span>(<span class="string">"/var/log/lastlog"</span>, <span class="string">"rb"</span>);
+
+    <span class="keyword">if</span> (!file) {
+        <span class="function-name">werror</span>(<span class="string">"Cannot open lastlog database\n"</span>);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">// Simple: just check wtmp (Linux)</span>
+    <span class="type">string</span> wtmp = <span class="constant">Stdio</span>.<span class="function-name">read_file</span>(<span class="string">"/var/log/wtmp"</span>);
+
+    <span class="keyword">if</span> (!wtmp) {
+        <span class="function-name">werror</span>(<span class="string">"Cannot read wtmp file\n"</span>);
+        <span class="keyword">return</span> <span class="number">1</span>;
+    }
+
+    <span class="comment">// For demonstration, just show we found the file</span>
+    <span class="function-name">write</span>(<span class="string">"Checking last login for: %s\n"</span>, username);
+    <span class="function-name">write</span>(<span class="string">"Lastlog file size: %d bytes\n"</span>, <span class="function-name">sizeof</span>(wtmp));
+
+    <span class="comment">// In real implementation, parse utmp/wtmp structures</span>
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</PRE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="fileaccess.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="directories.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>File Access</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Directories</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

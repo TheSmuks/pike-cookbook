@@ -1,0 +1,566 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML><HEAD><TITLE>Strings</TITLE><META NAME="GENERATOR" CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK REL="HOME" TITLE="PLEAC-Pike" HREF="index.html"><LINK REL="PREVIOUS" TITLE="PLEAC-Pike" HREF="index.html"><LINK REL="NEXT" TITLE="Numbers" HREF="numbers.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83" CLASS="SECT1" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#840084" ALINK="#0000FF"><DIV CLASS="NAVHEADER"><TABLE SUMMARY="Header navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TH COLSPAN="3" ALIGN="center">PLEAC-Pike</TH></TR><TR><TD WIDTH="10%" ALIGN="left" VALIGN="bottom"><A HREF="index.html" ACCESSKEY="P">Prev</A></TD><TD WIDTH="80%" ALIGN="center" VALIGN="bottom"></TD><TD WIDTH="10%" ALIGN="right" VALIGN="bottom"><A HREF="numbers.html" ACCESSKEY="N">Next</A></TD></TR></TABLE><HR ALIGN="LEFT" WIDTH="100%"></DIV><DIV CLASS="SECT1"><H1 CLASS="SECT1"><A NAME="STRINGS">1. Strings</A></H1><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN14">Introduction</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Strings in Pike 8 - Modern Implementation</span>
+<span class="comment-delimiter">// </span><span class="comment">Using String.pmod with strict types and modern features</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern string imports for enhanced functionality</span>
+<span class="keyword">import</span> <span class="module">String</span><span class="punctuation">;</span>
+<span class="keyword">import</span> <span class="module">Array</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pike 8 string constants and features</span>
+constant Buffer = __builtin.Buffer;
+constant Iterator = __builtin.string_iterator;
+constant SplitIterator = __builtin.string_split_iterator;
+
+<span class="comment-delimiter">//</span><span class="comment"> Basic string declarations (unchanged but documented)</span>
+<span class="type">string</span> str<span class="punctuation">;</span>                     <span class="comment-delimiter">// </span><span class="comment">declare a variable of type string</span>
+str = <span class="string">"\n"</span><span class="punctuation">;</span>                     <span class="comment-delimiter">// </span><span class="comment">a "newline" character</span>
+str = <span class="string">"Jon \"Maddog\" Orwant"</span><span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">literal double quotes</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pike 8: Multiline strings with here document syntax</span>
+str =
+#<span class="string">"This is a multiline string
+terminated by a double-quote like any other string"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern Pike 8 String Operations</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> String length and modern utility functions</span>
+<span class="type">int</span> len = sizeof<span class="punctuation">(</span>str<span class="punctuation">);</span>                   <span class="comment-delimiter">// </span><span class="comment">modern way to get length</span>
+<span type="string">string</span> trimmed = trim_whites<span class="punctuation">(</span>str<span class="punctuation">);</span>         <span class="comment-delimiter">// </span><span class="comment">String.pmod trim</span>
+<span type="string">string</span> normalized = normalize_space<span class="punctuation">(</span>str<span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">String.pmod normalize</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Unicode-aware operations</span>
+<span type="string">string</span> clean = filter_non_unicode<span class="punctuation">(</span>str<span class="punctuation">);</span>        <span class="comment-delimiter">// </span><span class="comment">Filter out non-unicode chars</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern String Formatting</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using modern sprintf with Pike 8 features</span>
+<span class="type">string</span> formatted = sprintf<span class="punctuation">(</span><span class="string">"Hello %s, you have %d messages"</span><span class="punctuation">,</span>
+                               <span class="string">"Alice"</span><span class="punctuation">,</span> <span class="number">42</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Memory size formatting (Pike 8 feature)</span>
+<span class="type">int</span> bytes = 1024 * 1024 * 5;  <span class="comment-delimiter">// </span><span class="comment">5MB</span>
+<span class="type">string</span> size_str = int2size<span class="punctuation">(</span>bytes<span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> "5.0 MB"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN17">Accessing Substrings</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 1.1: Accessing Substrings - Modern Pike 8</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="type">string</span> str = <span class="string">"This is what you have"</span><span class="punctuation">;</span>
+<span class="type">string</span> first, start, rest, last, end, piece<span class="punctuation">;</span>
+<span class="type">int</span> t<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Basic substring access (Pike syntax)</span>
+first = str[<span class="number">0</span>..<span class="number">0</span><span class="punctuation">];</span>                     <span class="comment-delimiter">// </span><span class="comment">"T"</span>
+start = str[<span class="number">5</span>..<span class="number">5</span>+<span class="number">1</span><span class="punctuation">];</span>               <span class="comment-delimiter">// </span><span class="comment">"is"</span>
+rest  = str[<span class="number">13</span>..<span class="punctuation">];</span>                  <span class="comment-delimiter">// </span><span class="comment">"you have"</span>
+last  = str[sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-1</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">];</span>  <span class="comment-delimiter">// </span><span class="comment">"e"</span>
+end   = str[sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-4</span>..<span class="punctuation">];</span>        <span class="comment-delimiter">// </span><span class="comment">"have"</span>
+piece = str[sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-8</span>..sizeof<span class="punctuation">(</span>str<span class="punctuation">)</span><span class="number">-8</span>+<span class="number">2</span><span class="punctuation">];</span> <span class="comment-delimiter">// </span><span class="comment">"you"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.2: Extracting Multiple Parts</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using sscanf for structured extraction</span>
+<span class="type">string</span> name = <span class="string">"John Doe, 30"</span><span class="punctuation">;</span>
+<span class="type">string</span> first_name, last_name<span class="punctuation">;</span>
+<span class="type">int</span> age<span class="punctuation">;</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>sscanf<span class="punctuation">(</span>name<span class="punctuation">,</span> <span class="string">"%s %s, %d"</span><span class="punctuation">,</span> first_name<span class="punctuation">,</span> last_name<span class="punctuation">,</span> age<span class="punctuation">)</span> <span class="operator">==</span> <span class="number">3</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Name: %s %s, Age: %d\n"</span><span class="punctuation">,</span> first_name<span class="punctuation">,</span> last_name<span class="punctuation">,</span> age<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using array_sscanf for complex patterns</span>
+<span class="type">string</span> data = <span class="string">"Header:Important:Data:12345"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> parts = array_sscanf<span class="punctuation">(</span>data<span class="punctuation">,</span> <span class="string">"%[^:]:%[^:]:%[^:]:%s"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "Header", "Important", "Data", "12345" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.3: Splitting Strings</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Split at character boundaries</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> fivers = str/<span class="number">5</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment"> Split into 5-character chunks</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Split into individual characters</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> chars = str/<span class="string">""</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using modern String.pmod splitting</span>
+<span class="type">string</span> text = <span class="string">"  word1  word2  word3  "</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> words = normalize_space<span class="punctuation">(</span>text<span class="punctuation">)</span>/<span class="string">" "</span><span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment"> ({ "word1", "word2", "word3" })</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN23">Exchanging Values Without Using Temporary Variables</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 1.4: Value Exchange - Pike 8 Modern Patterns</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Classic array swap (unchanged)</span>
+<span class="punctuation">[</span>var1<span class="punctuation">,</span> var2<span class="punctuation">]</span> = <span class="punctuation">({</span> var2<span class="punctuation">,</span> var1 <span class="punctuation">});</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern Pike 8 functional approach</span>
+<span class="keyword">void</span> swap_vars<span class="punctuation">(</span><span class="keyword">ref</span> <span class="type">string</span> a<span class="punctuation">,</span> <span class="keyword">ref</span> <span class="type">string</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="punctuation">[</span>a<span class="punctuation">,</span> b<span class="punctuation">]</span> = <span class="punctuation">({</span> b<span class="punctuation">,</span> a <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Example usage</span>
+<span class="type">string</span> a = <span class="string">"alpha"</span><span class="punctuation">;</span>
+<span class="type">string</span> b = <span class="string">"omega"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Multiple value assignment and swap</span>
+<span class="punctuation">[</span>a<span class="punctuation">,</span> b<span class="punctuation">]</span> = <span class="punctuation">({</span> b<span class="punctuation">,</span> a <span class="punctuation">});</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Array-based operations</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> months = <span class="punctuation">({</span><span class="string">"January"</span><span class="punctuation">,</span> <span class="string">"March"</span><span class="punctuation">,</span> <span class="string">"August"</span><span class="punctuation">});</span>
+<span class="type">string</span> alpha = months[<span class="number">0</span><span class="punctuation">];</span>
+<span class="type">string</span> beta = months[<span class="number">1</span><span class="punctuation">];</span>
+<span class="type">string</span> production = months[<span class="number">2</span><span class="punctuation">];</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Rotate array elements</span>
+<span class="punctuation">[</span>alpha<span class="punctuation">,</span> beta<span class="punctuation">,</span> production<span class="punctuation">]</span> = <span class="punctuation">({</span> beta<span class="punctuation">,</span> production<span class="punctuation">,</span> alpha <span class="punctuation">});</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN26">Converting Between ASCII Characters and Values</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 1.5: Character/ASCII Conversion - Pike 8 Modern</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pike 8: Character to integer conversion</span>
+<span class="type">int</span> char_code = <span class="string">'a'</span><span class="punctuation">;</span>                    <span class="comment-delimiter">// </span><span class="comment">ASCII value of 'a'</span>
+<span class="type">int</span> newline_code = <span class="string">'\n'</span><span class="punctuation">;</span>             <span class="comment-delimiter">// </span><span class="comment">ASCII value of newline</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Integer to character conversion using String.pmod</span>
+<span class="type">string</span> char_from_code = String.int2char<span class="punctuation">(</span>char_code<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Alternative using sprintf (compatible)</span>
+<span class="type">string</span> char_from_sprintf = sprintf<span class="punctuation">(</span><span class="string">"%c"</span><span class="punctuation">,</span> char_code<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Demonstration</span>
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Number %d is character %c\n"</span><span class="punctuation">,</span> char_code<span class="punctuation">,</span> char_code<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern Pike 8: Convert entire string to ASCII array</span>
+<span class="type">string</span> text = <span class="string">"sample"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> ascii_values = <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span>text<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Convert back to string</span>
+<span class="type">string</span> reconstructed = <span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span>ascii_values<span class="punctuation">;</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Original: %s, ASCII: %s, Reconstructed: %s\n"</span><span class="punctuation">,</span>
+               text<span class="punctuation">,</span> ascii_values*<span class="string">" "</span><span class="punctuation">,</span> reconstructed<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.6: Unicode Character Handling</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pike 8: Handle Unicode characters properly</span>
+<span class="type">string</span> unicode_str = <span class="string">"Héllo 世界"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract Unicode characters</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> unicode_chars = unicode_str/<span class="string">""</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Filter using modern functions</span>
+<span type="string">string</span> ascii_only = filter_non_unicode<span class="punctuation">(</span>unicode_str<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> String width calculation (for display)</span>
+<span type="int">string</span> display_width = String.width<span class="punctuation">(</span>unicode_str<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="SECT2"><H2 CLASS="SECT2"><A NAME="AEN30">Modern String Processing</A></H2><TABLE BORDER="0" BGCOLOR="#2F4F4F" WIDTH="100%"><TR><TD><PRE CLASS="SCREEN"><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Recipe 1.7: Advanced String Processing with Pike 8</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String.pmod functions for efficiency</span>
+<span class="type">string</span> messy = <span class="string">"  Hello   World!  "</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Multiple whitespace trimming options</span>
+<span type="string">string</span> trimmed_basic = trim_whites<span class="punctuation">(</span>messy<span class="punctuation">);</span>           <span class="comment-delimiter">// </span><span class="comment">"Hello   World!"</span>
+<span type="string">string</span> trimmed_all = trim_all_whites<span class="punctuation">(</span>messy<span class="punctuation">);</span>        <span class="comment-delimiter">// </span><span class="comment">"Hello World!"</span>
+<span type="string">string</span> normalized = normalize_space<span class="punctuation">(</span>messy<span class="punctuation">);</span>      <span class="comment-delimiter">// </span><span class="comment">"Hello World!"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.8: String Building and Buffer Operations</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using Buffer for efficient string building</span>
+Buffer buffer = Buffer<span class="punctuation">();</span>
+buffer-&gt;add<span class="punctuation">(</span><span class="string">"Processing: "</span><span class="punctuation">);</span>
+buffer-&gt;add<span class="punctuation">(</span>trimmed_basic<span class="punctuation">);</span>
+buffer-&gt;add<span class="punctuation">(</span><span class="string">"\nResult: "</span><span class="punctuation">);</span>
+
+<span class="type">string</span> result = buffer-&gt;get<span class="punctuation">();</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.9: String Iteration and Processing</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String Iterator for character-by-character processing</span>
+<span class="type">string</span> input = <span class="string">"Hello, World!"</span><span class="punctuation">;</span>
+String.Iterator iterator = Iterator<span class="punctuation">(</span>input<span class="punctuation">);</span>
+
+<span class="type">string</span> filtered = <span class="string">""</span><span class="punctuation">;</span>
+<span class="keyword">while</span> <span class="punctuation">(</span>iterator-&gt;index<span class="punctuation">()</span> <span class="operator"><</span> sizeof<span class="punctuation">(</span>iterator-&gt;value<span class="punctuation">())</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="type">string</span> c = iterator-&gt;value<span class="punctuation">()</span>[iterator-&gt;index<span class="punctuation">()];</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>c <span class="operator">!=</span> <span class="string">','</span> <span class="operator">&amp;&amp;</span> c <span class="operator">!=</span> <span class="string">'!'</span><span class="punctuation">)</span>
+        filtered += c<span class="punctuation">;</span>
+    iterator-&gt;next<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.10: String Comparison and Matching</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using modern comparison functions</span>
+<span class="type">string</span> s1 = <span class="string">"hello"</span><span class="punctuation">;</span>
+<span class="type">string</span> s2 = <span class="string">"Hello"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Case-sensitive comparison</span>
+<span class="keyword">int</span> compare_result = s1 <span class="operator">==</span> s2<span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">0 (false)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Case-insensitive comparison</span>
+<span class="keyword">int</span> case_insensitive = lower_case<span class="punctuation">(</span>s1<span class="punctuation">)</span> <span class="operator">==</span> lower_case<span class="punctuation">(</span>s2<span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">1 (true)</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String.pmod functions</span>
+<span class="keyword">int</span> similarity = String.fuzzymatch<span class="punctuation">(</span>s1<span class="punctuation">,</span> s2<span class="punctuation">);</span>
+<span class="keyword">int</span> distance = String.levenshtein_distance<span class="punctuation">(</span>s1<span class="punctuation">,</span> s2<span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Strings: '%s' and '%s'\n"</span><span class="punctuation">,</span> s1<span class="punctuation">,</span> s2<span class="punctuation">);</span>
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Similarity: %d%%, Distance: %d\n"</span><span class="punctuation">,</span> similarity<span class="punctuation">,</span> distance<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.11: Reversing Strings - Pike 8 Modern</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Character-by-character reversal using modern String.pmod</span>
+<span class="type">string</span> text = <span class="string">"Hello, World!"</span><span class="punctuation">;</span>
+<span class="type">string</span> reversed = String.reverse<span class="punctuation">(</span>text<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Word-by-word reversal with modern split/join</span>
+<span class="type">string</span> sentence = <span class="string">"The quick brown fox"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> words = sentence/<span class="string">" "</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> reversed_words = reverse<span class="punctuation">(</span>words<span class="punctuation">);</span>
+<span class="type">string</span> reversed_sentence = reversed_words*<span class="string">" "</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using Buffer for efficient reversal</span>
+Buffer buffer = Buffer<span class="punctuation">();</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>reverse<span class="punctuation">(</span>text/<span class="string">""</span><span class="punctuation">),</span> <span class="type">string</span> char<span class="punctuation">)</span> <span class="punctuation">{</span>
+    buffer-&gt;add<span class="punctuation">(</span>char<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Original: %s\nReversed: %s\n"</span><span class="punctuation">,</span> text<span class="punctuation">,</span> reversed<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.12: Case Manipulation - Pike 8 Unicode</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Unicode-aware case conversion</span>
+<span class="type">string</span> mixed_case = <span class="string">"Héllo 世界 123"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern String.pmod functions</span>
+<span class="type">string</span> upper = upper_case<span class="punctuation">(</span>mixed_case<span class="punctuation">);</span>        <span class="comment-delimiter">// </span><span class="comment">"HÉLLO 世界 123"</span>
+<span class="type">string</span> lower = lower_case<span class="punctuation">(</span>mixed_case<span class="punctuation">);</span>        <span class="comment-delimiter">// </span><span class="comment">"héllo 世界 123"</span>
+<span class="type">string</span> title = String.capitalize<span class="punctuation">(</span>mixed_case<span class="punctuation">);</span>    <span class="comment-delimiter">// </span><span class="comment">First character uppercase</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Case mapping with locale support</span>
+<span type="string">string</span> upper_locale = String.upper_case<span class="punctuation">(</span>mixed_case<span class="punctuation">,</span> <span class="string">"UTF-8"</span><span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Original: %s\nUpper: %s\nLower: %s\n"</span><span class="punctuation">,</span>
+           mixed_case<span class="punctuation">,</span> upper<span class="punctuation">,</span> lower<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.13: Pattern Matching with Regex - Pike 8</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern regular expressions with Pike 8</span>
+<span class="type">string</span> email = <span class="string">"user@example.com"</span><span class="punctuation">;</span>
+<span class="type">array</span> matches = Regexp(<span class="string">"([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})"</span>)-&gt;match<span class="punctuation">(</span>email<span class="punctuation">);</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>matches<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Email: %s\nUsername: %s\nDomain: %s\n"</span><span class="punctuation">,</span>
+               matches[0]<span class="punctuation">,</span> matches[1]<span class="punctuation">,</span> matches[2]<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using sscanf for complex patterns</span>
+<span class="type">string</span> log_entry = <span class="string">"2023-01-15 14:30:25 INFO: User login successful"</span><span class="punctuation">;</span>
+<span class="type">string</span> date<span class="punctuation">,</span> time<span class="punctuation">,</span> level<span class="punctuation">,</span> message<span class="punctuation">;</span>
+
+<span class="keyword">if</span> <span class="punctuation">(</span>sscanf<span class="punctuation">(</span>log_entry<span class="punctuation">,</span> <span class="string">"%s %s %[^:]: %s"</span><span class="punctuation">,</span> date<span class="punctuation">,</span> time<span class="punctuation">,</span> level<span class="punctuation">,</span> message<span class="punctuation">)</span> <span class="operator">==</span> <span class="number">4</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Date: %s, Time: %s, Level: %s\n"</span><span class="punctuation">,</span> date<span class="punctuation">,</span> time<span class="punctuation">,</span> level<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.14: String Searching and Substitution</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern search and replace functions</span>
+<span class="type">string</span> text = <span class="string">"The quick brown fox jumps over the lazy dog"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Find and replace with modern String.pmod</span>
+<span class="type">string</span> replaced = String.replace<span class="punctuation">(</span>text<span class="punctuation">,</span> <span class="string">"fox"</span><span class="punctuation">,</span> <span class="string">"cat"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Multiple replacements with mapping</span>
+<span class="type">mapping</span> replacements = <span class="punctuation">(</span>[
+    <span class="string">"quick"</span>: <span class="string">"fast"</span><span class="punctuation">,</span>
+    <span class="string">"brown"</span>: <span class="string">"red"</span><span class="punctuation">,</span>
+    <span class="string">"lazy"</span>: <span class="string">"sleeping"</span>
+<span class="punctuation">]);</span>
+
+<span type="string">string</span> multi_replaced = text<span class="punctuation">;</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>indices<span class="punctuation">(</span>replacements<span class="punctuation">),</span> <span class="type">string</span> key<span class="punctuation">)</span> <span class="punctuation">{</span>
+    multi_replaced = String.replace<span class="punctuation">(</span>multi_replaced<span class="punctuation">,</span> key<span class="punctuation">,</span> replacements<span class="punctuation">[</span>key<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pattern-based removal</span>
+<span type="string">string</span> cleaned = String.replace<span class="punctuation">(</span>text<span class="punctuation">,</span> Regexp<span class="punctuation">(</span><span class="string">"\\bthe\\b"</span><span class="punctuation">),</span> <span class="string">""</span><span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Original: %s\nReplaced: %s\nCleaned: %s\n"</span><span class="punctuation">,</span>
+           text<span class="punctuation">,</span> replaced<span class="punctuation">,</span> cleaned<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.15: String Splitting and Joining</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Advanced splitting with modern functions</span>
+<span class="type">string</span> csv_data = <span class="string">"name,age,city\nJohn,30,New York\nJane,25,London"</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> lines = csv_data/<span class="string">"\n"</span><span class="punctuation">;</span>
+
+<span type="string">array</span> rows = <span class="punctuation">({</span><span class="punctuation">});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>lines<span class="punctuation">,</span> <span class="type">string</span> line<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>line <span class="operator">!=</span> <span class="string">""</span><span class="punctuation">)</span>
+        rows += <span class="punctuation">({</span> String.split<span class="punctuation">(</span>line<span class="punctuation">,</span> <span class="string">","</span><span class="punctuation">)</span> <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Join with custom delimiters and formatting</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> data = <span class="punctuation">({</span> <span class="string">"Alice"</span><span class="punctuation">,</span> <span class="string">"Bob"</span><span class="punctuation">,</span> <span class="string">"Charlie"</span> <span class="punctuation">});</span>
+
+<span type="string">string</span> comma_separated = data*<span class="string">", "</span><span class="punctuation">;</span>
+<span type="string">string</span> html_list = <span class="string">"&lt;ul&gt;"</span> +
+                     <span class="punctuation">(</span>data/<span class="string">"&lt;/li&gt;\n&lt;li&gt;"</span>)*<span class="string">""</span> +
+                     <span class="string">"&lt;/li&gt;&lt;/ul&gt;"</span>;
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.16: Unicode and UTF-8 Processing</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Advanced Unicode handling with Pike 8</span>
+<span class="type">string</span> unicode_text = <span class="string">"Café, naïve, résumé, 北京, Москва"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Unicode normalization</span>
+<span type="string">string</span> nfc_normalized = String.normalize<span class="punctuation">(</span>unicode_text<span class="punctuation">,</span> <span class="string">"NFC"</span><span class="punctuation">);</span>
+<span type="string">string</span> nfd_normalized = String.normalize<span class="punctuation">(</span>unicode_text<span class="punctuation">,</span> <span class="string">"NFD"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Character properties and classification</span>
+<span type="int">string</span> char_count = String.length<span class="punctuation">(</span>unicode_text<span class="punctuation">);</span>
+<span type="int">string</span> byte_length = sizeof<span class="punctuation">(</span>unicode_text<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Extract Unicode scripts</span>
+<span type="array">string</span> scripts = String.get_scripts<span class="punctuation">(</span>unicode_text<span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Unicode text: %s\nCharacters: %d, Bytes: %d\n"</span><span class="punctuation">,</span>
+           unicode_text<span class="punctuation">,</span> char_count<span class="punctuation">,</span> byte_length<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.17: String Validation and Sanitization</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern string validation and security</span>
+<span class="type">string</span> input = <span class="string">"  Hello! <script>alert('xss')</script>  "</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Sanitize HTML content</span>
+<span type="string">string</span> sanitized = String.html_encode<span class="punctuation">(</span>input<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Validate email format</span>
+<span class="keyword">bool</span> is_valid_email = Regexp(<span class="string">"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"</span>)-&gt;match<span class="punctuation">(</span>input<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Clean and trim input</span>
+<span type="string">string</span> clean_input = normalize_space<span class="punctuation">(</span>input<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.18: String Interpolation and Formatting</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Advanced string formatting in Pike 8</span>
+<span class="type">mapping</span> context = <span class="punctuation">([</span>
+    <span class="string">"name"</span>: <span class="string">"Alice"</span><span class="punctuation">,</span>
+    <span class="string">"age"</span>: <span class="number">30</span><span class="punctuation">,</span>
+    <span class="string">"city"</span>: <span class="string">"New York"</span><span class="punctuation">,</span>
+    <span class="string">"active"</span>: <span class="keyword">true</span>
+<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Modern sprintf with Pike 8 features</span>
+<span type="string">string</span> formatted = sprintf<span class="punctuation">(</span><span class="string">"Name: %s, Age: %d, City: %s, Active: %s"</span><span class="punctuation">,</span>
+                          context-&gt;name<span class="punctuation">,</span>
+                          context-&gt;age<span class="punctuation">,</span>
+                          context-&gt;city<span class="punctuation">,</span>
+                          context-&gt;active ? <span class="string">"Yes"</span> : <span class="string">"No"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Template-based interpolation</span>
+<span type="string">string</span> template = <span class="string">"Welcome @name! You are @age years old in @city."</span><span class="punctuation">;</span>
+<span type="string">string</span> interpolated = String.template<span class="punctuation">(</span>template<span class="punctuation">,</span> context<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Recipe 1.19: Performance Optimization with Buffers</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Efficient string building with Buffer objects</span>
+Buffer output_buffer = Buffer<span class="punctuation">();</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Pre-allocate for better performance</span>
+output_buffer-&gt;set_preallocate<span class="punctuation">(</span><span class="number">1024</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Efficient string building</span>
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="type">int</span> i = <span class="number">0</span><span class="punctuation">;</span> i <span class="operator"><</span> <span class="number">1000</span><span class="punctuation">;</span> i++<span class="punctuation">)</span> <span class="punctuation">{</span>
+    output_buffer-&gt;add<span class="punctuation">(</span>sprintf<span class="punctuation">(</span><span class="string">"Line %d: %s\n"</span><span class="punctuation">,</span> i<span class="punctuation">,</span> String.random_string<span class="punctuation">(</span><span class="number">10</span><span class="punctuation">)));</span>
+<span class="punctuation">}</span>
+
+<span type="string">string</span> large_result = output_buffer-&gt;get<span class="punctuation">();</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern String Iteration with Pike 8</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Using String Iterator for advanced processing</span>
+<span class="type">string</span> text = <span class="string">"Advanced Pike 8 String Processing"</span><span class="punctuation">;</span>
+String.Iterator iterator = String.Iterator<span class="punctuation">(</span>text<span class="punctuation">);</span>
+
+<span type="array">string</span> chars = <span class="punctuation">({</span><span class="punctuation">});</span>
+<span class="keyword">while</span> <span class="punctuation">(</span>iterator-&gt;index<span class="punctuation">()</span> <span class="operator"><</span> sizeof<span class="punctuation">(</span>iterator-&gt;value<span class="punctuation">())</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    chars += <span class="punctuation">({</span> iterator-&gt;value<span class="punctuation">()</span>[iterator-&gt;index<span class="punctuation">()] <span class="punctuation">});</span>
+    iterator-&gt;next<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Split Iterator for tokenization</span>
+String.SplitIterator split_iter = String.SplitIterator<span class="punctuation">(</span>text<span class="punctuation">,</span> <span class="string">" "</span><span class="punctuation">);</span>
+<span type="array">string</span> tokens = <span class="punctuation">({</span><span class="punctuation">});</span>
+
+<span class="keyword">while</span> <span class="punctuation">(</span>split_iter-&gt;index<span class="punctuation">()</span> <span class="operator"><</span> sizeof<span class="punctuation">(</span>split_iter-&gt;value<span class="punctuation">())</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+    tokens += <span class="punctuation">({</span> split_iter-&gt;value<span class="punctuation">()</span>[split_iter-&gt;index<span class="punctuation">()] <span class="punctuation">});</span>
+    split_iter-&gt;next<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Memory Management and Performance</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> String memory optimization in Pike 8</span>
+<span class="type">string</span> large_string = String.repeat<span class="punctuation">(</span><span class="string">"x"</span><span class="punctuation">,</span> <span class="number">1000000</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Copy-on-write optimization</span>
+<span type="string">string</span> copy = large_string<span class="punctuation">;</span>
+copy[<span class="number">0</span>] = <span class="string">"y"</span><span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment"> Efficient copy-on-write kick in</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> String chunking for memory efficiency</span>
+<span type="array">string</span> chunks = chunk_string<span class="punctuation">(</span>large_string<span class="punctuation">,</span> <span class="number">4096</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Error Handling and Validation</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Safe string operations with Pike 8</span>
+<span class="keyword">mixed</span> safe_index<span class="punctuation">(</span><span class="keyword">mixed</span> str<span class="punctuation">,</span> <span class="type">int</span> index<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>objectp<span class="punctuation">(</span>str<span class="punctuation">)</span> <span class="operator">&&</span> str-&gt;is_string<span class="punctuation">()</span> <span class="operator">&&</span>
+        index <span class="operator">>=</span> <span class="number">0</span> <span class="operator">&&</span> index <span class="operator"><</span> sizeof<span class="punctuation">(</span>str<span class="punctuation">))</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> str[index]<span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+    <span class="keyword">return</span> <span class="keyword">null</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> String validation with type checking</span>
+<span class="keyword">bool</span> is_valid_string<span class="punctuation">(</span><span class="keyword">mixed</span> value<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="keyword">return</span> <span class="keyword">stringp</span><span class="punctuation">(</span>value<span class="punctuation">)</span> <span class="operator">&&</span> sizeof<span class="punctuation">(</span>value<span class="punctuation">)</span> <span class="operator">></span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Modern String Comparison and Sorting</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Advanced string comparison with Pike 8</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> strings = <span class="punctuation">({</span>
+    <span class="string">"apple"</span><span class="punctuation">,</span> <span class="string">"Banana"</span><span class="punctuation">,</span> <span class="string">"cherry"</span><span class="punctuation">,</span> <span class="string">"Date"</span><span class="punctuation">,</span> <span class="string">"elderberry"</span>
+<span class="punctuation">});</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Case-insensitive sorting</span>
+<span type="array">string</span> sorted_case_insensitive = sort<span class="punctuation">(</span>strings<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Unicode-aware sorting</span>
+<span type="array">string</span> sorted_unicode = String.sort_unicode<span class="punctuation">(</span>strings<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Custom comparison function</span>
+<span type="array">string</span> sorted_custom = sort<span class="punctuation">(</span>strings<span class="punctuation">,</span>
+    <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> a<span class="punctuation">,</span> <span class="type">string</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="keyword">return</span> sizeof<span class="punctuation">(</span>a<span class="punctuation">)</span> <span class="operator"><</span> sizeof<span class="punctuation">(</span>b<span class="punctuation">);</span>
+    <span class="punctuation">}</span><span class="punctuation">);</span>
+
+<span class="keyword">write</span><span class="punctuation">(</span><span class="string">"Original: %s\nSorted (case-insensitive): %s\n"</span><span class="punctuation">,</span>
+           strings*<span class="string">", "</span><span class="punctuation">,</span> sorted_case_insensitive*<span class="string">", "</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">String Utilities and Helper Functions</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Common string utility functions</span>
+<span class="keyword">string</span> utils_demo<span class="punctuation">(</span><span class="type">string</span> input<span class="punctuation">)</span> <span class="punctuation">{</span>
+    <span class="type">string</span> result = <span class="string">""</span><span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment"> Chaining modern functions</span>
+    result = String.trim<span class="punctuation">(</span>input<span class="punctuation">)</span>
+             -&gt;upper_case<span class="punctuation">()</span>
+             -&gt;replace<span class="punctuation">(</span><span class="string">" "</span><span class="punctuation">,</span> <span class="string">"_"</span><span class="punctuation">)</span>
+             -&gt;truncate<span class="punctuation">(</span><span class="number">50</span><span class="punctuation">);</span>
+
+    <span class="keyword">return</span> result<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment">Conclusion: Modern Pike 8 String Processing</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment"> Summary of modern string features in Pike 8:</span>
+<span class="comment-delimiter">//</span><span class="comment"> • String.pmod with comprehensive utilities</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Full Unicode and UTF-8 support</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Efficient Buffer operations</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Modern regex patterns</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Safe string operations with type checking</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Performance optimizations</span>
+<span class="comment-delimiter">//</span><span class="comment"> • Strict type compliance with #pragma strict_types</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span></PRE></TD></TR></TABLE></DIV><DIV CLASS="NAVFOOTER"><HR ALIGN="LEFT" WIDTH="100%"><TABLE SUMMARY="Footer navigation table" WIDTH="100%" BORDER="0" CELLPADDING="0" CELLSPACING="0"><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top">&nbsp;</TD><TD WIDTH="34%" ALIGN="center" VALIGN="top">&nbsp;</TD><TD WIDTH="33%" ALIGN="right" VALIGN="top"><A HREF="numbers.html">Next</A></TD></TR><TR><TD WIDTH="33%" ALIGN="left" VALIGN="top">&nbsp;</TD><TD WIDTH="34%" ALIGN="center" VALIGN="top">&nbsp;</TD><TD WIDTH="33%" ALIGN="right" VALIGN="top">Numbers</TD></TR></TABLE></DIV></BODY></HTML>

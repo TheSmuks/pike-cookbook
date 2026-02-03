@@ -1,0 +1,1528 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Packages, Libraries, and Modules</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="References and Records"
+HREF="referencesandrecords.html"><LINK
+REL="NEXT"
+TITLE="Classes, Objects, and Ties"
+HREF="classesetc.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="classesetc.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PACKAGESETC"
+>12. Packages, Libraries, and Modules</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN642"
+>Introduction</A
+></H2
+><P
+>Pike 8 provides a powerful module system for organizing code into reusable libraries. Modules are stored in files with the <TT
+CLASS="LITERAL"
+>.pmod</TT
+> extension and can contain functions, classes, constants, and other modules.</P
+><P
+>Key features of Pike 8 modules:</P
+><UL
+><LI
+><P
+>Namespace separation through module hierarchy</P
+></LI
+><LI
+><P
+>Dynamic module loading with <TT
+CLASS="LITERAL"
+>master()->resolv()</TT
+></P
+></LI
+><LI
+><P
+>AutoDoc documentation system with <TT
+CLASS="LITERAL"
+>//!</TT
+> comments</P
+></LI
+><LI
+><P
+>Strict type checking with <TT
+CLASS="LITERAL"
+>#pragma strict_types</TT
+></P
+></LI
+><LI
+><P
+>Rich standard library (ADT, Sql, Protocols, Parser, etc.)</P
+></LI
+></UL
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter">// </span><span class="comment">Importing standard modules
+</span>
+<span class="keyword">import</span> Array;<span class="comment-delimiter"> </span><span class="comment">// Import Array module
+</span>
+<span class="keyword">import</span> ADT;<span class="comment-delimiter"> </span><span class="comment">// Import ADT module (Abstract Data Types)
+</span>
+<span class="keyword">import</span> ADT.Struct;<span class="comment-delimiter"> </span><span class="comment">// Import specific submodule
+</span>
+<span class="keyword">import</span> Sql.<span class="function-name">sql</span>;<span class="comment-delimiter"> </span><span class="comment">// Import SQL interface
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Using imported functions
+</span>
+<span class="type">array</span> arr = <span class="function-name">Array.shuffle</span>(<span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span><span class="punctuation">}));</span>
+<span class="type">mapping</span> m = <span class="function-name">ADT.Struct.map</span>(<span class="punctuation">(...</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Qualified access without import
+</span>
+<span class="type">array</span> arr2 = <span class="function-name">Array.uniq</span>(<span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span><span class="punctuation">}));</span>
+<span class="keyword">object</span> table = <span class="function-name">ADT.Table.table</span>(<span class="punctuation">(...</span><span class="punctuation">););</span></font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN645"
+>Defining a Module's Interface</A
+></H2
+><P
+>Creating modules in Pike 8 involves defining <TT
+CLASS="LITERAL"
+>.pmod</TT
+> files with clear public interfaces. Use <TT
+CLASS="LITERAL"
+>//!</TT
+> AutoDoc comments to document your interface.</P
+><P
+><B
+>Simple Module Example:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: MathTools.pmod
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Mathematical utility functions.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">This module provides common mathematical operations
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">beyond the built-in arithmetic functions.
+</span>
+
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(<span class="function-name">Constants.VERSION</span>)
+
+<span class="comment-delimiter">// </span><span class="comment">Public constants
+</span>
+<span class="keyword">constant</span> <span class="constant">PI</span> = <span class="number">3.141592653589793</span>;
+<span class="keyword">constant</span> <span class="constant">E</span> = <span class="number">2.718281828459045</span>;
+<span class="keyword">constant</span> <span class="constant">VERSION</span> = <span class="string">"1.0.0"</span>;
+
+<span class="comment-delimiter">//! </span><span class="comment">Calculate the factorial of a number.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param n
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Non-negative integer to calculate factorial for
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Factorial of n (n!)
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@throws
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Error if n is negative or not an integer
+</span>
+<span class="type">int</span>(<span class="number">0</span>..) <span class="function-name">factorial</span>(<span class="type">int</span>(<span class="number">0</span>..) n) {
+    <span class="keyword">if</span> (n <= <span class="number">1</span>) <span class="keyword">return</span> <span class="number">1</span>;
+    <span class="keyword">return</span> n * <span class="function-name">factorial</span>(n - <span class="number">1</span>);
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Calculate greatest common divisor using Euclidean algorithm.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param a
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">First positive integer
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param b
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Second positive integer
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Greatest common divisor of a and b
+</span>
+<span class="type">int</span>(<span class="number">1</span>..) <span class="function-name">gcd</span>(<span class="type">int</span>(<span class="number">1</span>..) a, <span class="type">int</span>(<span class="number">1</span>..) b) {
+    <span class="keyword">while</span> (b != <span class="number">0</span>) {
+        <span class="type">int</span> temp = b;
+        b = a % b;
+        a = temp;
+    }
+    <span class="keyword">return</span> a;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Check if a number is prime.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param n
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Integer to check for primality
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">True if n is prime, false otherwise
+</span>
+<span class="type">bool</span> <span class="function-name">is_prime</span>(<span class="type">int</span> n) {
+    <span class="keyword">if</span> (n < <span class="number">2</span>) <span class="keyword">return</span> <span class="keyword">false</span>;
+    <span class="keyword">if</span> (n == <span class="number">2</span>) <span class="keyword">return</span> <span class="keyword">true</span>;
+    <span class="keyword">if</span> (n % <span class="number">2</span> == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;
+
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">3</span>; i * i <= n; i += <span class="number">2</span>) {
+        <span class="keyword">if</span> (n % i == <span class="number">0</span>) <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Using the Module:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: test_math.pike
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> MathTools;
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="function-name">write</span>(<span class="string">"5! = %d\n"</span>, <span class="function-name">factorial</span>(<span class="number">5</span>));        <span class="comment-delimiter"> //</span><span class="comment"> 120
+</span>
+    <span class="function-name">write</span>(<span class="string">"GCD(48, 18) = %d\n"</span>, <span class="function-name">gcd</span>(<span class="number">48</span>, <span class="number">18</span>)); <span class="comment-delimiter"> //</span><span class="comment"> 6
+</span>
+    <span class="function-name">write</span>(<span class="string">"is_prime(17) = %s\n"</span>, <span class="function-name">is_prime</span>(<span class="number">17</span>) ? <span class="string">"true"</span> : <span class="string">"false"</span>);
+    <span class="function-name">write</span>(<span class="string">"PI = %.10f\n"</span>, <span class="constant">PI</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN648"
+>Creating Hierarchical Modules</A
+></H2
+><P
+>Pike 8 supports nested module hierarchies using directories and submodules. Organize related functionality into logical groups.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">Directory structure:
+</span><span class="comment">// </span><span class="comment">MyApp/
+</span><span class="comment">// </span><span class="comment">  MyApp.pmod
+</span><span class="comment">// </span><span class="comment">  Utils.pmod/
+</span><span class="comment">// </span><span class="comment">    String.pmod
+</span><span class="comment">// </span><span class="comment">    Math.pmod
+</span><span class="comment">// </span><span class="comment">  Database/
+</span><span class="comment">// </span><span class="comment">    Connection.pmod
+</span><span class="comment">// </span><span class="comment">    Query.pmod
+</span>
+
+<span class="comment">// </span><span class="comment">File: MyApp.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">Main application module.
+</span>
+<span class="keyword">constant</span> <span class="constant">VERSION</span> = <span class="string">"2.0.0"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">This makes Utils and Database available as MyApp.Utils and MyApp.Database
+</span>
+<span class="keyword">import</span> .Utils;
+<span class="keyword">import</span> .Database;</font></PRE
+></TD
+></TR
+></TABLE
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: MyApp/Utils/String.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">String manipulation utilities.
+</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">Convert string to title case.
+</span>
+<span class="type">string</span> <span class="function-name">title_case</span>(<span class="type">string</span> s) {
+    <span class="keyword">return</span> <span class="function-name">String.capitalize</span>(<span class="function-name">lower_case</span>(s));
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Truncate string to maximum length with ellipsis.
+</span>
+<span class="type">string</span> <span class="function-name">truncate</span>(<span class="type">string</span> s, <span class="type">int</span> max_len) {
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(s) <= max_len) <span class="keyword">return</span> s;
+    <span class="keyword">return</span> s[<span class="number">0</span>..max_len-<span class="number">3</span>] + <span class="string">"..."</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">Using hierarchical modules
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> MyApp.Utils.String;
+<span class="keyword">import</span> MyApp.Database.Connection;
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="type">string</span> title = <span class="function-name">title_case</span>(<span class="string">"hello world"</span>);
+    <span class="function-name">write</span>(<span class="string">"%s\n"</span>, title);  <span class="comment-delimiter"> //</span><span class="comment"> "Hello World"
+</span>
+
+    <span class="comment-delimiter">// </span><span class="comment">Or use fully qualified names
+</span>
+    <span class="type">string</span> text = <span class="function-name">MyApp.Utils.String.truncate</span>(<span class="string">"This is a very long string"</span>, <span class="number">10</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN651"
+>Dynamic Module Loading with master()->resolv()</A
+></H2
+><P
+>Pike's master object provides dynamic module resolution through <TT
+CLASS="LITERAL"
+>master()->resolv()</TT
+>. This allows loading modules at runtime based on string names.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">Load a module dynamically by name.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param module_name
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Name of module to load (e.g., "ADT.Struct")
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">The loaded module or 0 if not found
+</span>
+<span class="keyword">mixed</span> <span class="function-name">load_module</span>(<span class="type">string</span> module_name) {
+    <span class="keyword">mixed</span> module = <span class="function-name">master</span>()<span class="punctuation">-></span><span class="function-name">resolv</span>(module_name);
+
+    <span class="keyword">if</span> (!module) {
+        <span class="function-name">werror</span>(<span class="string">"Warning: Module '%s' not found\n"</span>, module_name);
+    }
+
+    <span class="keyword">return</span> module;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Call a function from a dynamically loaded module.
+</span>
+<span class="keyword">mixed</span> <span class="function-name">call_module_func</span>(<span class="type">string</span> module_name, <span class="type">string</span> func_name, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    <span class="keyword">mixed</span> module = <span class="function-name">load_module</span>(module_name);
+
+    <span class="keyword">if</span> (!module) {
+        <span class="keyword">return</span> <span class="number">0</span>;
+    }
+
+    <span class="keyword">if</span> (!<span class="function-name">has_prefix</span>(func_name, <span class="string">"_"</span>) && <span class="function-name">has_value</span>(<span class="function-name">indices</span>(module), func_name)) {
+        <span class="keyword">return</span> module[func_name](<span class="variable-name">@args</span>);
+    }
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="comment-delimiter">// </span><span class="comment">Load Array module dynamically
+</span>
+    <span class="keyword">object</span> array_mod = <span class="function-name">load_module</span>(<span class="string">"Array"</span>);
+    <span class="keyword">if</span> (array_mod) {
+        <span class="type">array</span> result = <span class="function-name">Array.uniq</span>(<span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span><span class="punctuation">}));</span>
+        <span class="function-name">write</span>(<span class="string">"Uniq: %{%d, %}\n"</span>, result);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Call function dynamically
+</span>
+    <span class="keyword">mixed</span> result = <span class="function-name">call_module_func</span>(<span class="string">"Array"</span>, <span class="string">"shuffle"</span>, <span class="punctuation">({</span><span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span><span class="punctuation">}));</span>
+    <span class="keyword">if</span> (result) {
+        <span class="function-name">write</span>(<span class="string">"Shuffled: %{%d, %}\n"</span>, result);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Load from nested module
+</span>
+    <span class="keyword">object</span> struct_mod = <span class="function-name">load_module</span>(<span class="string">"ADT.Struct"</span>);
+    <span class="keyword">if</span> (struct_mod) {
+        <span class="function-name">write</span>(<span class="string">"ADT.Struct loaded successfully\n"</span>);
+    }
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN654"
+>Making Variables Private to a Module</A
+></H2
+><P
+>Pike 8 uses lexical scoping and naming conventions to control visibility. Variables starting with underscore (<TT
+CLASS="LITERAL"
+>_</TT
+>) are conventionally private.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: Auth.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Private constants (convention: underscore prefix)
+</span>
+<span class="keyword">protected</span> <span class="keyword">constant</span> <span class="constant">_MAX_ATTEMPTS</span> = <span class="number">3</span>;
+<span class="keyword">protected</span> <span class="keyword">constant</span> <span class="constant">_TOKEN_EXPIRY</span> = <span class="number">3600</span>;  <span class="comment-delimiter"> //</span><span class="comment"> seconds
+</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Private variables (use protected for module-level privacy)
+</span>
+<span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="type">int</span>) _login_attempts = ([]);
+
+<span class="comment-delimiter">//! </span><span class="comment">Public: Check authentication credentials.
+</span>
+<span class="type">bool</span> <span class="function-name">authenticate</span>(<span class="type">string</span> username, <span class="type">string</span> password) {
+    <span class="keyword">if</span> (_<span class="function-name">is_locked_out</span>(username)) {
+        <span class="function-name">werror</span>(<span class="string">"Account locked: %s\n"</span>, username);
+        <span class="keyword">return</span> <span class="keyword">false</span>;
+    }
+
+    <span class="type">bool</span> success = _<span class="function-name">verify_password</span>(username, password);
+
+    <span class="keyword">if</span> (success) {
+        _login_attempts[username] = <span class="number">0</span>;
+    } <span class="keyword">else</span> {
+        _login_attempts[username]++;
+    }
+
+    <span class="keyword">return</span> success;
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Private helper function
+</span>
+<span class="keyword">protected</span> <span class="type">bool</span> _<span class="function-name">is_locked_out</span>(<span class="type">string</span> username) {
+    <span class="keyword">return</span> _login_attempts[username] >= <span class="constant">_MAX_ATTEMPTS</span>;
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Private helper function
+</span>
+<span class="keyword">protected</span> <span class="type">bool</span> _<span class="function-name">verify_password</span>(<span class="type">string</span> username, <span class="type">string</span> password) {
+    <span class="comment-delimiter">// </span><span class="comment">In real implementation, check against database
+</span>
+    <span class="keyword">return</span> password != <span class="string">"password123"</span>;  <span class="comment-delimiter"> //</span><span class="comment"> Simplified
+</span>
+
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Using Private Module Members:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> Auth;
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="comment-delimiter">// </span><span class="comment">Public function - works fine
+</span>
+    <span class="type">bool</span> result = <span class="function-name">authenticate</span>(<span class="string">"alice"</span>, <span class="string">"secret"</span>);
+    <span class="function-name">write</span>(<span class="string">"Auth: %s\n"</span>, result ? <span class="string">"Success"</span> : <span class="string">"Failed"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Private members - not accessible
+</span>
+    <span class="comment-delimiter">// </span><span class="comment">int x = Auth._MAX_ATTEMPTS;     // Error: protected
+</span>
+    <span class="comment-delimiter">// </span><span class="comment">bool y = Auth._is_locked_out(); // Error: protected
+</span>
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN657"
+>Controlling Module Symbol Visibility</A
+></H2
+><P
+>Use <TT
+CLASS="LITERAL"
+>#require</TT
+> to enforce module dependencies and control which symbols are exported. This is Pike 8's modern approach to module interfaces.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: SecureConfig.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Exported symbols - these define the public interface
+</span>
+<span class="keyword">public</span> <span class="keyword">constant</span> <span class="constant">API_VERSION</span> = <span class="string">"3.0"</span>;
+<span class="keyword">public</span> <span class="keyword">constant</span> <span class="constant">MAX_CONNECTIONS</span> = <span class="number">100</span>;
+
+<span class="comment-delimiter">//! </span><span class="comment">Get configuration value.
+</span>
+<span class="keyword">public</span> <span class="keyword">mixed</span> <span class="function-name">get</span>(<span class="type">string</span> key) {
+    <span class="keyword">return</span> _config[key];
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Set configuration value.
+</span>
+<span class="keyword">public</span> <span class="type">void</span> <span class="function-name">set</span>(<span class="type">string</span> key, <span class="keyword">mixed</span> value) {
+    _config[key] = value;
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Internal storage - not exported
+</span>
+<span class="keyword">protected</span> <span class="type">mapping</span>(<span class="type">string</span>:<span class="keyword">mixed</span>) _config = ([]);
+
+<span class="comment-delimiter">// </span><span class="comment">Private helper - not exported
+</span>
+<span class="keyword">protected</span> <span class="type">void</span> _<span class="function-name">load_defaults</span>() {
+    _config = <span class="punctuation">([</span>
+        <span class="string">"host"</span>: <span class="string">"localhost"</span>,
+        <span class="string">"port"</span>: <span class="number">8080</span>,
+        <span class="string">"debug"</span>: <span class="keyword">false</span>,
+    <span class="punctuation">]);</span>
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Initialize defaults when module loads
+</span>
+_<span class="function-name">load_defaults</span>();</font></PRE
+></TD
+></TR
+></TABLE
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">Using #require to enforce module presence
+</span>
+<span class="comment">// </span><span class="comment">File: Database.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Compile error if Sql.sql is not available
+</span>
+<span class="keyword">#require constant</span>(<span class="function-name">Sql.sql</span>)
+
+<span class="comment-delimiter">// </span><span class="comment">Compile error if ADT.Struct.Table is not available
+</span>
+<span class="keyword">#inherit ADT.Struct.Table</span>:<span class="function-name">Table</span>;
+
+<span class="comment-delimiter">//! </span><span class="comment">Database connection wrapper.
+</span>
+<span class="keyword">class</span> <span class="type">Connection</span> {
+    <span class="keyword">inherit</span> <span class="function-name">Sql.sql</span>:<span class="type">sql</span>;
+
+    <span class="keyword">protected</span> <span class="type">string</span> _dsn;
+
+    <span class="keyword">void</span> <span class="function-name">create</span>(<span class="type">string</span> dsn) {
+        _dsn = dsn;
+        ::<span class="function-name">create</span>(dsn);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Additional wrapper methods here
+</span>
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN660"
+>AutoDoc Documentation System</A
+></H2
+><P
+>Pike 8 uses <TT
+CLASS="LITERAL"
+>//!</TT
+> comments for AutoDoc documentation. Generate HTML docs with <TT
+CLASS="LITERAL"
+>pike -x extract_autodoc</TT
+>.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: StringUtils.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">String processing utilities for data validation and formatting.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@seealso
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">   @url{https://pike.lysator.liu.se/docs/refdoc/predef_3A_3A/String.html@}
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@module
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">   This module provides high-level string operations for common tasks
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">   like email validation, slug generation, and text formatting.
+</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">Validate email address format.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param email
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Email address to validate
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">true if email appears valid, false otherwise
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@example
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">// Validate an email address
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">if (StringUtils.is_valid_email("user@example.com")) {
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">    write("Valid email\n");
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">}
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@note
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">This only checks format, not deliverability.
+</span>
+<span class="type">bool</span> <span class="function-name">is_valid_email</span>(<span class="type">string</span> email) {
+    <span class="keyword">return</span> <span class="function-name">Regexp.Psimple</span>(<span class="string">"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$"</span>)-<span class="punctuation">></span><span class="function-name">match</span>(email);
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Convert string to URL-friendly slug.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param text
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Text to convert
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@param maxlen
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Maximum length of slug (default: 50)
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@returns
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">URL-safe slug string
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@example
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">string slug = StringUtils.make_slug("Hello World!");
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">// Result: "hello-world"
+</span>
+<span class="type">string</span> <span class="function-name">make_slug</span>(<span class="type">string</span> text, <span class="type">int</span>(<span class="number">1</span>..) maxlen=<span class="number">50</span>) {
+    <span class="type">string</span> slug = <span class="function-name">lower_case</span>(text);
+
+    <span class="comment-delimiter">// </span><span class="comment">Replace non-alphanumeric with hyphens
+</span>
+    slug = <span class="function-name">Regexp.replace</span>(<span class="string">"[^a-z0-9]+"</span>, slug, <span class="string">"-"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Remove leading/trailing hyphens
+</span>
+    slug = <span class="function-name">String.trim_all_whites</span>(slug);
+    slug = <span class="function-name">trim</span>(slug, <span class="string">"-"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Truncate if too long
+</span>
+    <span class="keyword">if</span> (<span class="function-name">sizeof</span>(slug) > maxlen) {
+        slug = slug[<span class="number">0</span>..maxlen-<span class="number">1</span>];
+    }
+
+    <span class="keyword">return</span> slug;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN663"
+>Pike 8 Standard Library Modules</A
+></H2
+><P
+>Pike 8 includes a comprehensive standard library. Here are the most commonly used modules:</P
+><P
+><B
+>ADT (Abstract Data Types):</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> ADT;<span class="comment-delimiter"> </span><span class="comment">// Import all ADT submodules
+</span>
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="comment-delimiter">// </span><span class="comment">ADT.Struct - Define structured data types
+</span>
+    <span class="keyword">struct</span> <span class="type">Person</span> <span class="punctuation">{</span>
+        <span class="type">string</span> name;
+        <span class="type">int</span> age;
+        <span class="type">string</span> email;
+    <span class="punctuation">};</span>
+
+    <span class="type">Person</span> p = <span class="type">Person</span>(<span class="string">"Alice"</span>, <span class="number">30</span>, <span class="string">"alice@example.com"</span>);
+    <span class="function-name">write</span>(<span class="string">"Person: %s, age %d\n"</span>, p-&gt;name, p-&gt;age);
+
+    <span class="comment-delimiter">// </span><span class="comment">ADT.Table - Spreadsheet-like data structure
+</span>
+    <span class="keyword">object</span> table = <span class="function-name">ADT.Table.table</span>(<span class="punctuation">({</span>
+        <span class="punctuation">({</span><span class="string">"Name"</span>, <span class="string">"Age"</span>, <span class="string">"City"</span><span class="punctuation">}),</span>
+        <span class="punctuation">({</span><span class="string">"Alice"</span>, <span class="number">30</span>, <span class="string">"NYC"</span><span class="punctuation">}),</span>
+        <span class="punctuation">({</span><span class="string">"Bob"</span>, <span class="number">25</span>, <span class="string">"LA"</span><span class="punctuation">}),</span>
+    <span class="punctuation">}));</span>
+
+    <span class="function-name">write</span>(<span class="string">"Table rows: %d\n"</span>, table-&gt;<span class="function-name">num_rows</span>());
+
+    <span class="comment-delimiter">// </span><span class="comment">ADT.Heap - Priority queue
+</span>
+    <span class="keyword">object</span> heap = <span class="function-name">ADT.Heap.priorities</span>();
+    heap-&gt;<span class="function-name">push</span>(<span class="string">"low"</span>, <span class="number">1</span>);
+    heap-&gt;<span class="function-name">push</span>(<span class="string">"high"</span>, <span class="number">10</span>);
+    <span class="function-name">write</span>(<span class="string">"Heap pop: %s\n"</span>, heap-&gt;<span class="function-name">pop</span>());  <span class="comment-delimiter"> //</span><span class="comment"> "high"
+</span>
+
+    <span class="comment-delimiter">// </span><span class="comment">ADT.Set - Mathematical set operations
+</span>
+    <span class="keyword">object</span> set = <span class="function-name">ADT.Set</span>();
+    set-&gt;<span class="function-name">add</span>(<span class="string">"apple"</span>);
+    set-&gt;<span class="function-name">add</span>(<span class="string">"banana"</span>);
+    set-&gt;<span class="function-name">add</span>(<span class="string">"apple"</span>);  <span class="comment-delimiter"> //</span><span class="comment"> Duplicate ignored
+</span>
+    <span class="function-name">write</span>(<span class="string">"Set contains: %{%s, %}\n"</span>, set-&gt;<span class="function-name">cast</span>(<span class="string">"array"</span>));
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Sql Module - Database Connectivity:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> Sql.<span class="function-name">sql</span>;
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="comment-delimiter">// </span><span class="comment">SQLite connection (embedded database)
+</span>
+    <span class="keyword">object</span> db = <span class="function-name">Sql.sql</span>(<span class="string">"sqlite://test.db"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Create table
+</span>
+    db-&gt;<span class="function-name">query</span>(<span class="string">"CREATE TABLE IF NOT EXISTS users (
+</span>
+<span class="string">        id INTEGER PRIMARY KEY,
+</span>
+<span class="string">        name TEXT NOT NULL,
+</span>
+<span class="string">        email TEXT UNIQUE
+</span>
+<span class="string">    )"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Insert data (using parameter binding for security)
+</span>
+    db-&gt;<span class="function-name">query</span>(<span class="string">"INSERT INTO users (name, email) VALUES (%s, %s)"</span>,
+              <span class="string">"Alice"</span>, <span class="string">"alice@example.com"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Query data
+</span>
+    <span class="keyword">object</span> result = db-&gt;<span class="function-name">query</span>(<span class="string">"SELECT * FROM users"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Iterate through results
+</span>
+    <span class="keyword">foreach</span> (result; <span class="type">int</span> i; <span class="type">mapping</span> row) {
+        <span class="function-name">write</span>(<span class="string">"User %d: %s (%s)\n"</span>,
+               row-&gt;id, row-&gt;name, row-&gt;email);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Transaction handling
+</span>
+    <span class="keyword">mixed</span> <span class="function-name">error</span> = <span class="function-name">catch</span> {
+        db-&gt;<span class="function-name">query</span>(<span class="string">"BEGIN"</span>);
+        db-&gt;<span class="function-name">query</span>(<span class="string">"INSERT INTO users (name, email) VALUES (%s, %s)"</span>,
+                  <span class="string">"Bob"</span>, <span class="string">"bob@example.com"</span>);
+        db-&gt;<span class="function-name">query</span>(<span class="string">"COMMIT"</span>);
+    };
+
+    <span class="keyword">if</span> (<span class="function-name">error</span>) {
+        db-&gt;<span class="function-name">query</span>(<span class="string">"ROLLBACK"</span>);
+        <span class="function-name">werror</span>(<span class="string">"Transaction failed: %s\n"</span>, <span class="function-name">describe_error</span>(<span class="function-name">error</span>));
+    }
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Protocols Module - Network Protocols:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> Protocols.HTTP;
+<span class="keyword">import</span> Protocols.DNS;
+
+<span class="type">int</span> <span class="function-name">main</span>() {
+    <span class="comment-delimiter">// </span><span class="comment">HTTP GET request
+</span>
+    <span class="keyword">object</span> req = <span class="function-name">get_url</span>(<span class="string">"https://pike.lysator.liu.se/"</span>);
+    <span class="keyword">if</span> (req) {
+        <span class="function-name">write</span>(<span class="string">"Status: %d\n"</span>, req-&gt;status_code);
+        <span class="function-name">write</span>(<span class="string">"Body length: %d\n"</span>, <span class="function-name">sizeof</span>(req-&gt;body));
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">DNS query
+</span>
+    <span class="keyword">object</span> dns = <span class="function-name">Protocols.DNS.client</span>();
+    <span class="type">mapping</span> result = dns-&gt;<span class="function-name">gethostbyname</span>(<span class="string">"example.com"</span>);
+    <span class="function-name">write</span>(<span class="string">"IP addresses: %{%s, %}\n"</span>, result-&gt;ip || ({}));
+
+    <span class="comment-delimiter">// </span><span class="comment">HTTP POST with JSON
+</span>
+    <span class="keyword">mapping</span> data = <span class="punctuation">([</span>
+        <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+        <span class="string">"age"</span>: <span class="number">30</span>,
+    <span class="punctuation">]);</span>
+    <span class="type">string</span> json = <span class="function-name">Standards.JSON.encode</span>(data);
+
+    <span class="keyword">object</span> post_req = <span class="function-name">post_url</span>(
+        <span class="string">"https://api.example.com/users"</span>,
+        <span class="punctuation">([</span>
+            <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span>,
+        <span class="punctuation">]),</span>
+        json
+    );
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN666"
+>Module Dependencies and Versioning</A
+></H2
+><P
+>Pike 8 provides mechanisms to manage module dependencies and ensure compatibility. Use constants for versioning and <TT
+CLASS="LITERAL"
+">#require</TT
+> for dependency checking.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: AppConfig.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Version information
+</span>
+<span class="keyword">constant</span> <span class="constant">VERSION</span> = <span class="string">"1.2.0"</span>;
+<span class="keyword">constant</span> <span class="constant">PIKE_MIN_VERSION</span> = <span class="string">"8.0"</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Required modules - compile error if not available
+</span>
+<span class="keyword">#require constant</span>(<span class="function-name">__VERSION__</span>) >= <span class="number">8.0</span>
+
+<span class="comment-delimiter">//! </span><span class="comment">Check if module version meets requirements.
+</span>
+<span class="type">bool</span> <span class="function-name">version_at_least</span>(<span class="type">string</span> required_version) {
+    <span class="type">array</span> current = <span class="function-name">map</span>(<span class="constant">VERSION</span> / <span class="string">"."</span>, <span class="function-name">String.trim_all_whites</span>);
+    <span class="type">array</span> required = <span class="function-name">map</span>(required_version / <span class="string">"."</span>, <span class="function-name">String.trim_all_whites</span>);
+
+    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="function-name">sizeof</span>(required); i++) {
+        <span class="keyword">if</span> ((<span class="type">int</span>)current[i] &lt; (<span class="type">int</span>)required[i])
+            <span class="keyword">return</span> <span class="keyword">false</span>;
+        <span class="keyword">if</span> ((<span class="type">int</span>)current[i] &gt; (<span class="type">int</span>)required[i])
+            <span class="keyword">return</span> <span class="keyword">true</span>;
+    }
+    <span class="keyword">return</span> <span class="keyword">true</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Module with Dependency Resolution:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: DataProcessor.pmod
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Optional dependencies with graceful fallback
+</span>
+<span class="keyword">object</span> crypto_module;
+
+<span class="keyword">mixed</span> <span class="function-name">error</span> = <span class="function-name">catch</span> {
+    crypto_module = <span class="function-name">master</span>()<span class="punctuation">-></span><span class="function-name">resolv</span>(<span class="string">"Crypto.Hash.MD5"</span>);
+};
+
+<span class="keyword">constant</span> <span class="constant">HAS_CRYPTO</span> = !<span class="function-name">zero_type</span>(crypto_module);
+
+<span class="comment-delimiter">//! </span><span class="comment">Process data with optional encryption.
+</span>
+<span class="type">string</span> <span class="function-name">process</span>(<span class="type">string</span> data, <span class="type">bool</span>|<span class="keyword">void</span> encrypt) {
+    <span class="type">string</span> result = <span class="function-name">String.trim_all_whites</span>(data);
+
+    <span class="keyword">if</span> (encrypt && <span class="constant">HAS_CRYPTO</span>) {
+        <span class="comment-delimiter">// </span><span class="comment">Use Crypto module if available
+</span>
+        result = crypto_module-&gt;<span class="function-name">hash</span>(result);
+    } <span class="keyword">else if</span> (encrypt) {
+        <span class="function-name">werror</span>(<span class="string">"Warning: Crypto module not available, skipping encryption\n"</span>);
+    }
+
+    <span class="keyword">return</span> result;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN669"
+>Best Practices for Module Organization</A
+></H2
+><P
+>Follow these conventions for clean, maintainable Pike 8 modules:</P
+><UL
+><LI
+><P
+><B
+>Use <TT
+CLASS="LITERAL"
+>#pragma strict_types</TT
+></B
+> - Always enable strict typing for better error detection</P
+></LI
+><LI
+><P
+><B
+>Document with AutoDoc</TT
+></B
+> - Use <TT
+CLASS="LITERAL"
+>//!</TT
+> comments for all public interfaces</P
+></LI
+><LI
+><P
+><B
+>Name private members with underscore</TT
+></B
+> - Prefix internal functions and variables with <TT
+CLASS="LITERAL"
+>_</TT
+></P
+></LI
+><LI
+><P
+><B
+>Use <TT
+CLASS="LITERAL"
+>protected</TT
+> for module-level privacy</TT
+></B
+> - Controls symbol visibility</P
+></LI
+><LI
+><P
+><B
+>Organize by feature, not type</TT
+></B
+> - Group related functionality together</P
+></LI
+><LI
+><P
+><B
+>Keep modules focused</TT
+></B
+> - Each module should have a single, clear responsibility</P
+></LI
+></UL
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">Recommended module structure:
+</span><span class="comment">// </span><span class="comment">MyApp/
+</span><span class="comment">// </span><span class="comment">  MyApp.pmod              # Main module (constants, version)
+</span><span class="comment">// </span><span class="comment">  Core.pmod/              # Core functionality
+</span><span class="comment">// </span><span class="comment">    Database.pmod         # Database layer
+</span><span class="comment">// </span><span class="comment">    Cache.pmod            # Caching layer
+</span><span class="comment">// </span><span class="comment">  Utils.pmod/             # Utilities (can be used independently)
+</span><span class="comment">// </span><span class="comment">    String.pmod
+</span><span class="comment">// </span><span class="comment">    Time.pmod
+</span><span class="comment">// </span><span class="comment">  Services.pmod/          # Business logic
+</span><span class="comment">// </span><span class="comment">    Auth.pmod             # Authentication
+</span><span class="comment">// </span><span class="comment">    Email.pmod            # Email handling
+</span>
+<span class="comment">// </span><span class="comment">File: MyApp.pmod
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">MyApp - Application framework.
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">constant</span> <span class="constant">VERSION</span> = <span class="string">"1.0.0"</span>;
+<span class="keyword">constant</span> <span class="constant">API_LEVEL</span> = <span class="number">3</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Export commonly used functionality
+</span>
+<span class="keyword">import</span> .Core.Database;
+<span class="keyword">import</span> .Services.Auth;</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN672"
+>Complete Module Example: Logger</A
+></H2
+><P
+>Here's a complete, production-ready logger module demonstrating Pike 8 best practices:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: Logger.pmod
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Flexible logging module with multiple output handlers.
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">@example
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">// Basic usage
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">import Logger;
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Logger.info("Application started");
+</span>
+<span class="comment-delimiter">//! </span><span class="comment">Logger.error("Database connection failed");
+</span>
+
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Log levels
+</span>
+<span class="keyword">constant</span> <span class="constant">DEBUG</span> = <span class="number">0</span>;
+<span class="keyword">constant</span> <span class="constant">INFO</span> = <span class="number">1</span>;
+<span class="keyword">constant</span> <span class="constant">WARNING</span> = <span class="number">2</span>;
+<span class="keyword">constant</span> <span class="constant">ERROR</span> = <span class="number">3</span>;
+
+<span class="comment-delimiter">// </span><span class="comment">Configuration
+</span>
+<span class="keyword">protected</span> <span class="type">int</span> _min_level = <span class="constant">INFO</span>;
+<span class="keyword">protected</span> <span class="type">string</span> _log_file = <span class="string">""</span>;
+<span class="keyword">protected</span> <span class="type">bool</span> _use_stderr = <span class="keyword">true</span>;
+<span class="keyword">protected</span> <span class="type">bool</span> _use_timestamp = <span class="keyword">true</span>;
+<span class="keyword">protected</span> <span class="type">bool</span> _use_colors = <span class="keyword">true</span>;
+
+<span class="comment-delimiter">//! </span><span class="comment">Set minimum log level.
+</span>
+<span class="type">void</span> <span class="function-name">set_level</span>(<span class="type">int</span> level) {
+    _min_level = level;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Enable file logging.
+</span>
+<span class="type">void</span> <span class="function-name">set_log_file</span>(<span class="type">string</span> path) {
+    _log_file = path;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Enable/disable stderr output.
+</span>
+<span class="type">void</span> <span class="function-name">set_use_stderr</span>(<span class="type">bool</span> enabled) {
+    _use_stderr = enabled;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Enable/disable timestamps in logs.
+</span>
+<span class="type">void</span> <span class="function-name">set_use_timestamp</span>(<span class="type">bool</span> enabled) {
+    _use_timestamp = enabled;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Enable/disable terminal colors.
+</span>
+<span class="type">void</span> <span class="function-name">set_use_colors</span>(<span class="type">bool</span> enabled) {
+    _use_colors = enabled;
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Log a debug message.
+</span>
+<span class="type">void</span> <span class="function-name">debug</span>(<span class="type">string</span> msg, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    _<span class="function-name">log</span>(<span class="constant">DEBUG</span>, <span class="string">"DEBUG"</span>, msg, <span class="variable-name">@args</span>);
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Log an info message.
+</span>
+<span class="type">void</span> <span class="function-name">info</span>(<span class="type">string</span> msg, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    _<span class="function-name">log</span>(<span class="constant">INFO</span>, <span class="string">"INFO"</span>, msg, <span class="variable-name">@args</span>);
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Log a warning message.
+</span>
+<span class="type">void</span> <span class="function-name">warning</span>(<span class="type">string</span> msg, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    _<span class="function-name">log</span>(<span class="constant">WARNING</span>, <span class="string">"WARNING"</span>, msg, <span class="variable-name">@args</span>);
+}
+
+<span class="comment-delimiter">//! </span><span class="comment">Log an error message.
+</span>
+<span class="type">void</span> <span class="function-name">error</span>(<span class="type">string</span> msg, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    _<span class="function-name">log</span>(<span class="constant">ERROR</span>, <span class="string">"ERROR"</span>, msg, <span class="variable-name">@args</span>);
+}
+
+<span class="comment-delimiter">// </span><span class="comment">Internal logging implementation
+</span>
+<span class="keyword">protected</span> <span class="type">void</span> _<span class="function-name">log</span>(<span class="type">int</span> level, <span class="type">string</span> level_name, <span class="type">string</span> msg, <span class="keyword">mixed</span>... <span class="variable-name">args</span>) {
+    <span class="keyword">if</span> (level &lt; _min_level) <span class="keyword">return</span>;
+
+    <span class="comment-delimiter">// </span><span class="comment">Format message
+</span>
+    <span class="type">string</span> formatted = <span class="function-name">sprintf</span>(msg, <span class="variable-name">@args</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Add timestamp
+</span>
+    <span class="keyword">if</span> (_use_timestamp) {
+        <span class="type">string</span> ts = <span class="function-name">Calendar.ISO.now</span>()<span class="punctuation">-></span><span class="function-name">format_time</span>();
+        formatted = <span class="function-name">sprintf</span>(<span class="string">"[%s] [%s] %s"</span>, ts, level_name, formatted);
+    } <span class="keyword">else</span> {
+        formatted = <span class="function-name">sprintf</span>(<span class="string">"[%s] %s"</span>, level_name, formatted);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Add colors for terminal
+</span>
+    <span class="keyword">if</span> (_use_colors) {
+        formatted = _<span class="function-name">colorize</span>(level, formatted);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Output to stderr
+</span>
+    <span class="keyword">if</span> (_use_stderr) {
+        <span class="function-name">werror</span>(<span class="string">"%s\n"</span>, formatted);
+    }
+
+    <span class="comment-delimiter">// </span><span class="comment">Output to file
+</span>
+    <span class="keyword">if</span> (_log_file != <span class="string">""</span>) {
+        <span class="keyword">object</span> f = <span class="function-name">Stdio.append_file</span>(_log_file);
+        <span class="keyword">if</span> (f) {
+            <span class="comment-delimiter">// </span><span class="comment">Strip ANSI colors for file output
+</span>
+            <span class="type">string</span> clean = _<span class="function-name">strip_colors</span>(formatted);
+            f-&gt;<span class="function-name">write</span>(<span class="string">"%s\n"</span>, clean);
+            f-&gt;<span class="function-name">close</span>();
+        }
+    }
+}
+
+<span class="keyword">protected</span> <span class="type">string</span> _<span class="function-name">colorize</span>(<span class="type">int</span> level, <span class="type">string</span> msg) {
+    <span class="keyword">switch</span>(level) {
+        <span class="keyword">case</span> <span class="constant">DEBUG</span>:
+            <span class="keyword">return</span> <span class="function-name">sprintf</span>(<span class="string">"\033[0;36m%s\033[0m"</span>, msg);  <span class="comment-delimiter"> //</span><span class="comment"> Cyan
+</span>
+        <span class="keyword">case</span> <span class="constant">INFO</span>:
+            <span class="keyword">return</span> <span class="function-name">sprintf</span>(<span class="string">"\033[0;32m%s\033[0m"</span>, msg);   <span class="comment-delimiter"> //</span><span class="comment"> Green
+</span>
+        <span class="keyword">case</span> <span class="constant">WARNING</span>:
+            <span class="keyword">return</span> <span class="function-name">sprintf</span>(<span class="string">"\033[0;33m%s\033[0m"</span>, msg);  <span class="comment-delimiter"> //</span><span class="comment"> Yellow
+</span>
+
+        <span class="keyword">case</span> <span class="constant">ERROR</span>:
+            <span class="keyword">return</span> <span class="function-name">sprintf</span>(<span class="string">"\033[0;31m%s\033[0m"</span>, msg);   <span class="comment-delimiter"> //</span><span class="comment"> Red
+</span>
+
+        <span class="keyword">default</span>:
+            <span class="keyword">return</span> msg;
+    }
+}
+
+<span class="keyword">protected</span> <span class="type">string</span> _<span class="function-name">strip_colors</span>(<span class="type">string</span> msg) {
+    <span class="comment-delimiter">// </span><span class="comment">Remove ANSI escape sequences
+</span>
+    <span class="keyword">return</span> <span class="function-name">Regexp.replace</span>(<span class="string">"\033\\[[0-9;]*m"</span>, msg, <span class="string">""</span>);
+}</font></PRE
+></TD
+></TR
+></TABLE
+><P
+><B
+>Using the Logger Module:</B
+></P
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment">// </span><span class="comment">File: app.pike
+</span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="keyword">import</span> Logger;
+
+<span class="type">int</span> <span class="function-name">main</span>(<span class="type">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv) {
+    <span class="comment-delimiter">// </span><span class="comment">Configure logger
+</span>
+    <span class="keyword">if</span> (argc &gt; <span class="number">1</span> && argv[<span class="number">1</span>] == <span class="string">"--verbose"</span>) {
+        <span class="function-name">set_level</span>(<span class="constant">DEBUG</span>);
+    }
+
+    <span class="function-name">set_log_file</span>(<span class="string">"app.log"</span>);
+
+    <span class="comment-delimiter">// </span><span class="comment">Use logger
+</span>
+    <span class="function-name">info</span>(<span class="string">"Application starting"</span>);
+
+    <span class="function-name">debug</span>(<span class="string">"Processing %d items"</span>, <span class="number">42</span>);
+
+    <span class="function-name">warning</span>(<span class="string">"Configuration file not found, using defaults"</span>);
+
+    <span class="function-name">error</span>(<span class="string">"Failed to connect to database: %s"</span>, <span class="string">"connection timeout"</span>);
+
+    <span class="function-name">info</span>(<span class="string">"Application shutting down"</span>);
+
+    <span class="keyword">return</span> <span class="number">0</span>;
+}</font></PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="referencesandrecords.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="classesetc.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>References and Records</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Classes, Objects, and Ties</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>

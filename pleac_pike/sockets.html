@@ -1,0 +1,1479 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Sockets</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Process Management and Communication"
+HREF="processmanagementetc.html"><LINK
+REL="NEXT"
+TITLE="Internet Services"
+HREF="internetservices.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="processmanagementetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="internetservices.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SOCKETS"
+>17. Sockets</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN919"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Pike doesn't normally use packed IP addresses. Strings such as "204.148.40.9" are used literally.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">DNS lookups can be done with gethostbyname() and gethostbyaddr()</span>
+<span class="punctuation">[</span><span class="type">string</span> host,<span class="type">array</span> ip,<span class="type">array</span> alias<span class="punctuation">]</span> = gethostbyname<span class="punctuation">(</span><span class="string">"www.example.com"</span><span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">ip[0] is a string "192.0.32.10"</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN922"
+>Writing a TCP Client</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="constant">Stdio</span>.File sock=<span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>remote_host,remote_port<span class="punctuation">))</span> <span class="comment-delimiter">//</span><span class="comment">Connection failed. Error code is in sock-&gt;errno() .</span>
+<span class="punctuation">{</span>
+    werror<span class="punctuation">(</span><span class="string">"Couldn't connect to %s:%d: %s\n"</span>,remote_host,remote_port,strerror<span class="punctuation">(</span>sock-&gt;errno<span class="punctuation">()));</span>
+    <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+sock-&gt;write<span class="punctuation">(</span><span class="string">"Hello, world!"</span><span class="punctuation">);</span> <span class="comment-delimiter">//</span><span class="comment">Send something to the socket</span>
+<span class="type">string</span> answer=sock-&gt;read<span class="punctuation">();</span> <span class="comment-delimiter">//</span><span class="comment">Read until the remote side disconnects. Use sock-&gt;read(1024,1) to read only some (up to 1KB here).</span>
+sock-&gt;close<span class="punctuation">();</span> <span class="comment-delimiter">//</span><span class="comment">Not necessary if the sock object goes out of scope here.</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN925"
+>Writing a TCP Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="constant">Stdio</span>.Port mainsock=<span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>!mainsock-&gt;bind<span class="punctuation">(</span>server_port<span class="punctuation">))</span>
+<span class="punctuation">{</span>
+    werror<span class="punctuation">(</span><span class="string">"Couldn't be a tcp server on port %d: %s\n"</span>,server_port,strerror<span class="punctuation">(</span>mainsock-&gt;errno<span class="punctuation">()));</span>
+    <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="constant">Stdio</span>.File sock=mainsock-&gt;accept<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!sock<span class="punctuation">)</span> <span class="keyword">break</span><span class="punctuation">;</span>
+    <span class="comment-delimiter">// </span><span class="comment">sock is the new connection</span>
+    <span class="comment-delimiter">// </span><span class="comment">if you don't do anything and just let sock expire, the client connection will be closed</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN928"
+>Communicating over TCP</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+sock-&gt;write<span class="punctuation">(</span><span class="string">"What is your name?\n"</span><span class="punctuation">);</span>
+<span class="type">string</span> response=sock-&gt;read<span class="punctuation">(</span><span class="number">1024</span>,<span class="number">1</span><span class="punctuation">);</span> <span class="comment-delimiter">//</span><span class="comment">Reads up to 1KB or whatever is available (minimum 1 byte).</span>
+<span class="comment-delimiter">//</span><span class="comment">Buffered reads:</span>
+<span class="constant">Stdio</span>.FILE sock2=<span class="constant">Stdio</span>.FILE<span class="punctuation">();</span> sock2-&gt;assign<span class="punctuation">(</span>sock<span class="punctuation">);</span>
+<span class="type">string</span> response=sock2-&gt;gets<span class="punctuation">();</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN931"
+>Setting Up a UDP Client</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> UDP Client (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.UDP)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>argc &lt; <span class="number">3</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Usage: %s host port [message]\n"</span>, argv[<span class="number">0</span>]<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="type">string</span> host = argv[<span class="number">1</span>]<span class="punctuation">;</span>
+    <span class="keyword">int</span> port = (<span class="keyword">int</span>)argv[<span class="number">2</span>]<span class="punctuation">;</span>
+    <span class="type">string</span> msg = argc &gt; <span class="number">3</span> ? argv[<span class="number">3</span>] : <span class="string">"Hello, UDP!"</span><span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create UDP socket<br
+/></span>
+    <span class="constant">Stdio</span>.UDP udp = <span class="constant">Stdio</span>.UDP<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!udp<span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Failed to create UDP socket: %s\n"</span>, strerror<span class="punctuation">(</span>errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Send datagram<br
+/></span>
+    udp-&gt;send<span class="punctuation">(</span>host, port, msg<span class="punctuation">);</span>
+    write<span class="punctuation">(</span><span class="string">"Sent '%s' to %s:%d\n"</span>, msg, host, port<span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Wait for response (with timeout)<br
+/></span>
+    <span class="keyword">mixed</span> response = udp-&gt;read<span class="punctuation">(</span><span class="number">1024</span>, <span class="string">"."</span>, <span class="number">5.0</span><span class="punctuation">);</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>response<span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="type">string</span> data = response[<span class="number">0</span>]<span class="punctuation">;</span>
+        <span class="type">string</span> from = response[<span class="number">1</span>]<span class="punctuation">;</span>
+        write<span class="punctuation">(</span><span class="string">"Received '%s' from %s\n"</span>, data, from<span class="punctuation">);</span>
+    <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+        write<span class="punctuation">(</span><span class="string">"No response (timeout)\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    udp-&gt;close<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN934"
+>Setting Up a UDP Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> UDP Server (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.UDP)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">int</span> port = argc &gt; <span class="number">1</span> ? (<span class="keyword">int</span>)argv[<span class="number">1</span>] : <span class="number">8080</span><span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create and bind UDP socket<br
+/></span>
+    <span class="constant">Stdio</span>.UDP udp = <span class="constant">Stdio</span>.UDP<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!udp-&gt;bind<span class="punctuation">(</span>port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Failed to bind to port %d: %s\n"</span>, port, strerror<span class="punctuation">(</span>udp-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    write<span class="punctuation">(</span><span class="string">"UDP server listening on port %d\n"</span>, port<span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Enable broadcast<br
+/></span>
+    udp-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.PORT_BROADCAST, <span class="number">1</span><span class="punctuation">);</span>
+
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="comment-delimiter">//</span><span class="comment">Read datagram<br
+/></span>
+        <span class="keyword">mixed</span> data = udp-&gt;read<span class="punctuation">();</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!data<span class="punctuation">)</span> <span class="punctuation">{</span>
+            werror<span class="punctuation">(</span><span class="string">"Read error: %s\n"</span>, strerror<span class="punctuation">(</span>udp-&gt;errno<span class="punctuation">()));</span>
+            <span class="keyword">continue</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+
+        <span class="type">string</span> msg = data[<span class="number">0</span>]<span class="punctuation">;</span>
+        <span class="type">string</span> from = data[<span class="number">1</span>]<span class="punctuation">;</span>
+        write<span class="punctuation">(</span><span class="string">"Received '%s' from %s\n"</span>, msg, from<span class="punctuation">);</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Send echo response<br
+/></span>
+        <span class="type">array</span> addr = from / <span class="string">" "</span><span class="punctuation">;</span>
+        udp-&gt;send<span class="punctuation">(</span>addr[<span class="number">0</span>], (<span class="keyword">int</span>)addr[<span class="number">1</span>], <span class="string">"Echo: "</span> + msg<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    udp-&gt;close<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN937"
+>Using UNIX Domain Sockets</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> UNIX Domain Socket Client (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.File)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="type">string</span> socket_path = argc &gt; <span class="number">1</span> ? argv[<span class="number">1</span>] : <span class="string">"/tmp/mysocket"</span><span class="punctuation">;</span>
+
+    <span class="constant">Stdio</span>.File sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>socket_path<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Couldn't connect to %s: %s\n"</span>,
+              socket_path, strerror<span class="punctuation">(</span>sock-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    sock-&gt;write<span class="punctuation">(</span><span class="string">"Hello via UNIX socket!\n"</span><span class="punctuation">);</span>
+    <span class="type">string</span> response = sock-&gt;read<span class="punctuation">();</span>
+    write<span class="punctuation">(</span><span class="string">"Server response: %s\n"</span>, response<span class="punctuation">);</span>
+
+    sock-&gt;close<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN937b"
+>UNIX Domain Socket Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> UNIX Domain Socket Server (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.Port)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="type">string</span> socket_path = argc &gt; <span class="number">1</span> ? argv[<span class="number">1</span>] : <span class="string">"/tmp/mysocket"</span><span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Remove old socket file if exists<br
+/></span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>file_stat<span class="punctuation">(</span>socket_path<span class="punctuation">))</span> <span class="punctuation">{</span>
+        rm<span class="punctuation">(</span>socket_path<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="constant">Stdio</span>.Port port = <span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!port-&gt;bind<span class="punctuation">(</span>socket_path<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Couldn't bind to %s: %s\n"</span>,
+              socket_path, strerror<span class="punctuation">(</span>port-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    write<span class="punctuation">(</span><span class="string">"UNIX domain socket server listening on %s\n"</span>, socket_path<span class="punctuation">);</span>
+
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="constant">Stdio</span>.File sock = port-&gt;accept<span class="punctuation">();</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!sock<span class="punctuation">)</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+
+        <span class="type">string</span> data = sock-&gt;read<span class="punctuation">(</span><span class="number">1024</span>, <span class="number">1</span><span class="punctuation">);</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>data<span class="punctuation">)</span> <span class="punctuation">{</span>
+            write<span class="punctuation">(</span><span class="string">"Received: %s\n"</span>, data<span class="punctuation">);</span>
+            sock-&gt;write<span class="punctuation">(</span><span class="string">"Acknowledged\n"</span><span class="punctuation">);</span>
+        <span class="punctuation">}</span>
+        sock-&gt;close<span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Cleanup<br
+/></span>
+    port-&gt;close<span class="punctuation">();</span>
+    rm<span class="punctuation">(</span>socket_path<span class="punctuation">);</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN940"
+>Identifying the Other End of a Socket</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="type">string</span> other_end=sock-&gt;query_address<span class="punctuation">();</span> <span class="comment-delimiter">//</span><span class="comment">eg "10.1.1.1 123"</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN943"
+>Finding Your Own Name and Address</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Finding Your Own Address (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Get local address of a socket<br
+/></span>
+<span class="type">string</span> local_addr = sock-&gt;query_address(<span class="number">1</span><span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"Local address: %s\n"</span>, local_addr<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Get hostname and local IP addresses<br
+/></span>
+<span class="type">string</span> hostname = gethostname<span class="punctuation">();</span>
+write<span class="punctuation">(</span><span class="string">"Hostname: %s\n"</span>, hostname<span class="punctuation">);</span>
+
+<span class="punctuation">[</span><span class="type">string</span> host, <span class="type">array</span> ips, <span class="type">array</span> aliases<span class="punctuation">]</span> = gethostbyname<span class="punctuation">(</span>hostname<span class="punctuation">);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>ips, <span class="type">string</span> ip<span class="punctuation">)</span> <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"Local IP: %s\n"</span>, ip<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN943b"
+>SSL/TLS Sockets</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> SSL/TLS Client (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(SSL.File)
+<span class="keyword">#require constant</span>(SSL.Context)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>argc &lt; <span class="number">3</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Usage: %s host port\n"</span>, argv[<span class="number">0</span>]<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="type">string</span> host = argv[<span class="number">1</span>]<span class="punctuation">;</span>
+    <span class="keyword">int</span> port = (<span class="keyword">int</span>)argv[<span class="number">2</span>]<span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create SSL context<br
+/></span>
+    <span class="constant">SSL</span>.Context ctx = <span class="constant">SSL</span>.Context<span class="punctuation">();</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Connect to server<br
+/></span>
+    <span class="constant">Stdio</span>.File sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>host, port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Connection failed: %s\n"</span>, strerror<span class="punctuation">(</span>sock-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create SSL connection<br
+/></span>
+    <span class="constant">SSL</span>.File ssl = <span class="constant">SSL</span>.File<span class="punctuation">(</span>sock, ctx<span class="punctuation">);</span>
+    <span class="keyword">int</span> result = ssl-&gt;connect<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>result &lt; <span class="number">0</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"SSL handshake failed\n"</span><span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Send HTTPS request<br
+/></span>
+    ssl-&gt;write<span class="punctuation">(</span><span class="string">"GET / HTTP/1.0\r\nHost: "</span> + host + <span class="string">"\r\n\r\n"</span><span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Read response<br
+/></span>
+    <span class="type">string</span> response = ssl-&gt;read<span class="punctuation">();</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, response<span class="punctuation">);</span>
+
+    ssl-&gt;close<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN943c"
+>SSL/TLS Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> SSL/TLS Server (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(SSL.Port)
+<span class="keyword">#require constant</span>(SSL.Context)
+
+<span class="keyword">void</span> handle_ssl_client<span class="punctuation">(</span><span class="constant">SSL</span>.File ssl<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="type">string</span> data = ssl-&gt;read<span class="punctuation">(</span><span class="number">4096</span>, <span class="number">1</span><span class="punctuation">);</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>data<span class="punctuation">)</span> <span class="punctuation">{</span>
+        write<span class="punctuation">(</span><span class="string">"Received: %s\n"</span>, data<span class="punctuation">);</span>
+        ssl-&gt;write<span class="punctuation">(</span><span class="string">"HTTP/1.0 200 OK\r\n\r\nSSL Connection Successful!\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+    ssl-&gt;close<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">int</span> port = argc &gt; <span class="number">1</span> ? (<span class="keyword">int</span>)argv[<span class="number">1</span>] : <span class="number">8443</span><span class="punctuation">;</span>
+    <span class="type">string</span> cert_file = <span class="string">"server.pem"</span><span class="punctuation">;</span>
+    <span class="type">string</span> key_file = <span class="string">"server.key"</span><span class="punctuation">;</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create SSL context with certificates<br
+/></span>
+    <span class="constant">SSL</span>.Context ctx = <span class="constant">SSL</span>.Context<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>file_stat<span class="punctuation">(</span>cert_file<span class="punctuation">))</span> <span class="punctuation">{</span>
+        ctx-&gt;certificates = (<span class="punctuation">[{</span>
+            <span class="string">"cert_file"</span>: cert_file,
+            <span class="string">"key_file"</span>: key_file
+        <span class="punctuation">}]);</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create SSL port<br
+/></span>
+    <span class="constant">SSL</span>.Port ssl_port = <span class="constant">SSL</span>.Port<span class="punctuation">(</span>ctx<span class="punctuation">);</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!ssl_port-&gt;bind<span class="punctuation">(</span>port, handle_ssl_client<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Failed to bind SSL port: %s\n"</span>, strerror<span class="punctuation">(</span>ssl_port-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    write<span class="punctuation">(</span><span class="string">"SSL server listening on port %d\n"</span>, port<span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Keep server running<br
+/></span>
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        sleep<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN946"
+>Closing a Socket After Forking</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+sock-&gt;close<span class="punctuation">(</span><span class="string">"r"</span><span class="punctuation">);</span>   <span class="comment-delimiter">//</span><span class="comment">Close the read direction</span>
+sock-&gt;close<span class="punctuation">(</span><span class="string">"w"</span><span class="punctuation">);</span>   <span class="comment-delimiter">//</span><span class="comment">Close the write direction</span>
+sock-&gt;close<span class="punctuation">(</span><span class="string">"rw"</span><span class="punctuation">);</span>  <span class="comment-delimiter">//</span><span class="comment">Shut down both directions</span>
+sock-&gt;close<span class="punctuation">();</span>      <span class="comment-delimiter">//</span><span class="comment">Close completely</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN949"
+>Writing Bidirectional Clients</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Bidirectional Client (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.File)
+
+<span class="keyword">void</span> read_from_server<span class="punctuation">(</span><span class="constant">Stdio</span>.File sock<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="type">string</span> data = sock-&gt;read<span class="punctuation">(</span><span class="number">1024</span>, <span class="number">1</span><span class="punctuation">);</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!data || !sizeof<span class="punctuation">(</span>data<span class="punctuation">))</span> <span class="keyword">break</span><span class="punctuation">;</span>
+        write<span class="punctuation">(</span><span class="string">"Server: %s\n"</span>, data<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+    sock-&gt;close<span class="punctuation">(</span><span class="string">"r"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>argc &lt; <span class="number">3</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Usage: %s host port\n"</span>, argv[<span class="number">0</span>]<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="constant">Stdio</span>.File sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>argv[<span class="number">1</span>], (<span class="keyword">int</span>)argv[<span class="number">2</span>]<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Connection failed\n"</span><span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Start thread to read from server<br
+/></span>
+    Thread.Thread create_thread = Thread.Thread<span class="punctuation">(</span>read_from_server, sock<span class="punctuation">);</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Read from stdin and send to server<br
+/></span>
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="type">string</span> line = Stdio.stdin-&gt;gets<span class="punctuation">())</span> <span class="punctuation">{</span>
+        sock-&gt;write<span class="punctuation">(</span>line + <span class="string">"\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    sock-&gt;close<span class="punctuation">(</span><span class="string">"w"</span><span class="punctuation">);</span>
+    create_thread-&gt;wait<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN949b"
+>Non-Blocking I/O with select()</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Non-blocking I/O with select() (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.File)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">int</span> port = argc &gt; <span class="number">1</span> ? (<span class="keyword">int</span>)argv[<span class="number">1</span>] : <span class="number">8080</span><span class="punctuation">;</span>
+
+    <span class="constant">Stdio</span>.Port listen_sock = <span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!listen_sock-&gt;bind<span class="punctuation">(</span>port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Bind failed: %s\n"</span>, strerror<span class="punctuation">(</span>listen_sock-&gt;errno<span class="punctuation">()));</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="type">array</span>(<span class="constant">Stdio</span>.File) clients = (<span class="punctuation">{</span><span class="punctuation">}</span><span class="punctuation">);</span>
+    write<span class="punctuation">(</span><span class="string">"Multiplexed server on port %d\n"</span>, port<span class="punctuation">);</span>
+
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="comment-delimiter">//</span><span class="comment">Build read set<br
+/></span>
+        <span class="type">array</span> read_fds = clients + (<span class="punctuation">[{</span>listen_sock<span class="punctuation">]});</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Wait for activity<br
+/></span>
+        <span class="keyword">mixed</span> ready = <span class="constant">Stdio</span>.select<span class="punctuation">(</span>read_fds<span class="punctuation">);</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!ready || !sizeof<span class="punctuation">(</span>ready[<span class="number">0</span>]<span class="punctuation">))</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Check for new connections<br
+/></span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>has_value<span class="punctuation">(</span>ready[<span class="number">0</span>], listen_sock<span class="punctuation">))</span> <span class="punctuation">{</span>
+            <span class="constant">Stdio</span>.File new_client = listen_sock-&gt;accept<span class="punctuation">();</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span>new_client<span class="punctuation">)</span> <span class="punctuation">{</span>
+                clients += (<span class="punctuation">({</span>new_client<span class="punctuation">})});</span>
+                write<span class="punctuation">(</span><span class="string">"New client: %s\n"</span>, new_client-&gt;query_address<span class="punctuation">());</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Check clients for data<br
+/></span>
+        <span class="keyword">foreach</span><span class="punctuation">(</span>clients, <span class="keyword">int</span> i, <span class="constant">Stdio</span>.File client<span class="punctuation">)</span> <span class="punctuation">{</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span>has_value<span class="punctuation">(</span>ready[<span class="number">0</span>], client<span class="punctuation">))</span> <span class="punctuation">{</span>
+                <span class="type">string</span> data = client-&gt;read<span class="punctuation">(</span><span class="number">1024</span>, <span class="number">1</span><span class="punctuation">);</span>
+                <span class="keyword">if</span> <span class="punctuation">(</span>!data || !sizeof<span class="punctuation">(</span>data<span class="punctuation">))</span> <span class="punctuation">{</span>
+                    <span class="comment-delimiter">//</span><span class="comment">Client disconnected<br
+/></span>
+                    write<span class="punctuation">(</span><span class="string">"Client disconnected\n"</span><span class="punctuation">);</span>
+                    client-&gt;close<span class="punctuation">();</span>
+                    clients = clients[..i-<span class="number">1</span>] + clients[i+<span class="number">1</span>..];
+                <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+                    write<span class="punctuation">(</span><span class="string">"Received: %s\n"</span>, data<span class="punctuation">);</span>
+                    client-&gt;write<span class="punctuation">(</span><span class="string">"Echo: "</span> + data<span class="punctuation">);</span>
+                <span class="punctuation">}</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN952"
+>Forking Servers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Forking is generally unnecessary in Pike, as the driver works more efficiently with other models.</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN949c"
+>Socket Options and Configuration</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Socket Options and Configuration (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Creating a socket with options<br
+/></span>
+<span class="constant">Stdio</span>.Port port = <span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Set SO_REUSEADDR to allow quick restart<br
+/></span>
+port-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.PORT_REUSE_ADDRESS, <span class="number">1</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Set SO_KEEPALIVE for connection monitoring<br
+/></span>
+<span class="constant">Stdio</span>.File sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+sock-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.KEEPALIVE, <span class="number">1</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Set TCP_NODELAY to disable Nagle's algorithm (for real-time apps)<br
+/></span>
+sock-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.NO_DELAY, <span class="number">1</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Set socket buffer sizes<br
+/></span>
+sock-&gt;set_buffer<span class="punctuation">(</span><span class="number">65536</span>, <span class="number">65536</span><span class="punctuation">);</span> <span class="comment-delimiter">//</span><span class="comment">read_buf, write_buf<br
+/></span>
+
+<span class="comment-delimiter">//</span><span class="comment">Set socket timeout<br
+/></span>
+sock-&gt;set_nonblocking<span class="punctuation">(</span><span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span><span class="punctuation">);</span> <span class="comment-delimiter">//</span><span class="comment">nonblocking mode<br
+/></span>
+
+<span class="comment-delimiter">//</span><span class="comment">Enable broadcast for UDP<br
+/></span>
+<span class="constant">Stdio</span>.UDP udp = <span class="constant">Stdio</span>.UDP<span class="punctuation">();</span>
+udp-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.PORT_BROADCAST, <span class="number">1</span><span class="punctuation">);</span>
+udp-&gt;set_option<span class="punctuation">(</span><span class="constant">Stdio</span>.MULTICAST, <span class="number">1</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Bind to specific interface<br
+/></span>
+port-&gt;bind<span class="punctuation">(</span><span class="number">8080</span>, <span class="number">0</span>, <span class="string">"127.0.0.1"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN949d"
+>Modern Async with Concurrent.Future</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Modern async socket I/O with Concurrent.Future (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Concurrent.Future)
+<span class="keyword">#require constant</span>(Stdio.File)
+
+<span class="comment-delimiter">//</span><span class="comment">Async HTTP GET using Future<br
+/></span>
+<span class="constant">Concurrent</span>.Future async_http_get<span class="punctuation">(</span><span class="type">string</span> host, <span class="keyword">int</span> port<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="constant">Concurrent</span>.Promise result = <span class="constant">Concurrent</span>.Promise<span class="punctuation">();</span>
+
+    <span class="keyword">thread_create</span><span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">()</span> <span class="punctuation">{</span>
+        <span class="constant">Stdio</span>.File sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>host, port<span class="punctuation">))</span> <span class="punctuation">{</span>
+            result-&gt;failure<span class="punctuation">(</span>(<span class="punctuation">[{</span><span class="string">"error"</span>: <span class="string">"Connection failed"</span><span class="punctuation">}]));</span>
+            <span class="keyword">return</span><span class="punctuation">;</span>
+        <span class="punctuation">}</span>
+
+        sock-&gt;write<span class="punctuation">(</span><span class="string">"GET / HTTP/1.0\r\nHost: "</span> + host + <span class="string">"\r\n\r\n"</span><span class="punctuation">);</span>
+        <span class="type">string</span> response = sock-&gt;read<span class="punctuation">();</span>
+        sock-&gt;close<span class="punctuation">();</span>
+
+        result-&gt;success<span class="punctuation">(</span>response<span class="punctuation">);</span>
+    <span class="punctuation">});</span>
+
+    <span class="keyword">return</span> result-&gt;future<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> main<span class="punctuation"></span>()
+<span class="punctuation">{</span>
+    <span class="comment-delimiter">//</span><span class="comment">Use the future<br
+/></span>
+    <span class="constant">Concurrent</span>.Future f = async_http_get<span class="punctuation">(</span><span class="string">"example.com"</span>, <span class="number">80</span><span class="punctuation">);</span>
+
+    f-&gt;on_success<span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> response<span class="punctuation">)</span> <span class="punctuation">{</span>
+        write<span class="punctuation">(</span><span class="string">"Got response of %d bytes\n"</span>, sizeof<span class="punctuation">(</span>response<span class="punctuation">));</span>
+    <span class="punctuation">});</span>
+
+    f-&gt;on_failure<span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mapping</span> err<span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Request failed: %s\n"</span>, err-&gt;error<span class="punctuation">);</span>
+    <span class="punctuation">});</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Wait for completion<br
+/></span>
+    <span class="keyword">mixed</span> result = f-&gt;wait<span class="punctuation">();</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN955"
+>Pre-Forking Servers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> Connection Pool (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.File)
+<span class="keyword">#require constant</span>(Thread.Mutex)
+
+<span class="keyword">class</span> ConnectionPool <span class="punctuation">{</span>
+    <span class="keyword">private</span> <span class="type">string</span> host;
+    <span class="keyword">private</span> <span class="keyword">int</span> port;
+    <span class="keyword">private</span> <span class="type">array</span>(<span class="constant">Stdio</span>.File) connections = (<span class="punctuation">{</span><span class="punctuation">}</span><span class="punctuation">);</span>
+    <span class="keyword">private</span> <span class="keyword">int</span> max_size;
+    <span class="keyword">private</span> <span class="constant">Thread</span>.Mutex lock = <span class="constant">Thread</span>.Mutex<span class="punctuation">();</span>
+
+    <span class="keyword">void</span> create<span class="punctuation">(</span><span class="type">string</span> _host, <span class="keyword">int</span> _port, <span class="keyword">int</span> _max_size<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+        host = _host;
+        port = _port;
+        max_size = _max_size;
+    <span class="punctuation">}</span>
+
+    <span class="constant">Stdio</span>.File acquire<span class="punctuation">()</span>
+    <span class="punctuation">{</span>
+        <span class="keyword">mixed</span> key = lock-&gt;lock<span class="punctuation">();</span>
+        <span class="constant">Stdio</span>.File sock;
+
+        <span class="keyword">if</span> <span class="punctuation">(</span>sizeof<span class="punctuation">(</span>connections<span class="punctuation">))</span> <span class="punctuation">{</span>
+            sock = connections[<span class="number">0</span>]<span class="punctuation">;</span>
+            connections = connections[<span class="number">1</span>..];
+        <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+            sock = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+            <span class="keyword">if</span> <span class="punctuation">(</span>!sock-&gt;connect<span class="punctuation">(</span>host, port<span class="punctuation">))</span> <span class="punctuation">{</span>
+                lock-&gt;unlock<span class="punctuation">();</span>
+                <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+            <span class="punctuation">}</span>
+        <span class="punctuation">}</span>
+
+        lock-&gt;unlock<span class="punctuation">();</span>
+        <span class="keyword">return</span> sock;
+    <span class="punctuation">}</span>
+
+    <span class="keyword">void</span> release<span class="punctuation">(</span><span class="constant">Stdio</span>.File sock<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+        <span class="keyword">mixed</span> key = lock-&gt;lock<span class="punctuation">();</span>
+
+        <span class="keyword">if</span> <span class="punctuation">(</span>sizeof<span class="punctuation">(</span>connections<span class="punctuation">)</span> &lt; max_size<span class="punctuation">)</span> <span class="punctuation">{</span>
+            connections += (<span class="punctuation">({</span>sock<span class="punctuation">})});</span>
+        <span class="punctuation">}</span> <span class="keyword">else</span> <span class="punctuation">{</span>
+            sock-&gt;close<span class="punctuation">();</span>
+        <span class="punctuation">}</span>
+
+        lock-&gt;unlock<span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN958"
+>Non-Forking Servers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+<span class="comment-delimiter">//</span><span class="comment">Incomplete. There's multiple ways to do this, including:</span>
+<span class="comment-delimiter">//</span><span class="comment">1) Threaded server (works like forking but clients can share global state if desired)</span>
+<span class="comment-delimiter">//</span><span class="comment">2) Multiplexing using select()</span>
+<span class="comment-delimiter">//</span><span class="comment">3) Callback mode (puts the sockets under the control of a Backend which uses select())</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN961"
+>Writing a Multi-Homed Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="constant">Stdio</span>.Port mainsock=<span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>!mainsock-&gt;bind<span class="punctuation">(</span>server_port<span class="punctuation">))</span>
+<span class="punctuation">{</span>
+    werror<span class="punctuation">(</span><span class="string">"Couldn't be a tcp server on port %d: %s\n"</span>,server_port,strerror<span class="punctuation">(</span>mainsock-&gt;errno<span class="punctuation">()));</span>
+    <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="constant">Stdio</span>.File sock=mainsock-&gt;accept<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!sock<span class="punctuation">)</span> <span class="keyword">break</span><span class="punctuation">;</span>
+    <span class="type">string</span> localaddr=sock-&gt;query_address<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span> <span class="comment-delimiter">//</span><span class="comment">Is the IP address and port connected to.</span>
+    <span class="comment-delimiter">//</span><span class="comment">The IP will be that of one of your interfaces, and the port should be equal to server_port</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN964"
+>Making a Daemon Server</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="keyword">if</span> <span class="punctuation">(</span>!<span class="constant">System</span>.chroot<span class="punctuation">(</span><span class="string">"/var/daemon"</span><span class="punctuation">))</span> werror<span class="punctuation">(</span><span class="string">"Unable to chroot to /var/daemon: %s\n"</span>,strerror<span class="punctuation">(</span>errno<span class="punctuation">()));</span>
+<span class="comment-delimiter">//</span><span class="comment">Incomplete (I don't fork in Pike). See predef::fork() and Process.create_process() for details.</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN967"
+>Restarting a Server on Demand</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+<span class="comment-delimiter">//</span><span class="comment">The best way to restart the server is to adopt a microkernel concept and restart only the parts of</span>
+<span class="comment-delimiter">//</span><span class="comment">the server that need updating. However, if you must reload, see Process.exec()</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------</span>
+
+</pre>
+  </body>
+</html></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN970"
+>Program: backsniff</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> backsniff - Simple port scanner detector (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.Port)
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">int</span> port = argc &gt; <span class="number">1</span> ? (<span class="keyword">int</span>)argv[<span class="number">1</span>] : <span class="number">8080</span><span class="punctuation">;</span>
+
+    <span class="constant">Stdio</span>.Port listen = <span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!listen-&gt;bind<span class="punctuation">(</span>port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Bind failed\n"</span><span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    write<span class="punctuation">(</span><span class="string">"backsniff listening on port %d\n"</span>, port<span class="punctuation">);</span>
+
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="constant">Stdio</span>.File sock = listen-&gt;accept<span class="punctuation">();</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!sock<span class="punctuation">)</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+
+        <span class="type">string</span> remote = sock-&gt;query_address<span class="punctuation">();</span>
+        write<span class="punctuation">(</span><span class="string">"Connection from: %s at %s\n"</span>, remote, ctime<span class="punctuation">(</span>time<span class="punctuation">()));</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Log and close<br
+/></span>
+        sock-&gt;close<span class="punctuation">();</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN973"
+>Program: fwdport</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment"> fwdport - TCP port forwarder (Pike 8)<br
+/></span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span>
+<span class="keyword">#pragma strict_types</span>
+<span class="keyword">#require constant</span>(Stdio.Port)
+<span class="keyword">#require constant</span>(Stdio.File)
+
+<span class="keyword">void</span> forward_data<span class="punctuation">(</span><span class="constant">Stdio</span>.File client, <span class="constant">Stdio</span>.File target<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="type">string</span> data = client-&gt;read<span class="punctuation">(</span><span class="number">8192</span>, <span class="number">1</span><span class="punctuation">);</span>
+    <span class="keyword">while</span> <span class="punctuation">(</span>data &amp;&amp; sizeof<span class="punctuation">(</span>data<span class="punctuation">))</span> <span class="punctuation">{</span>
+        target-&gt;write<span class="punctuation">(</span>data<span class="punctuation">);</span>
+        data = client-&gt;read<span class="punctuation">(</span><span class="number">8192</span>, <span class="number">1</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+    target-&gt;close<span class="punctuation">(</span><span class="string">"w"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">void</span> handle_client<span class="punctuation">(</span><span class="constant">Stdio</span>.File client, <span class="type">string</span> target_host, <span class="keyword">int</span> target_port<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="constant">Stdio</span>.File target = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!target-&gt;connect<span class="punctuation">(</span>target_host, target_port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Failed to connect to target\n"</span><span class="punctuation">);</span>
+        client-&gt;close<span class="punctuation">();</span>
+        <span class="keyword">return</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="comment-delimiter">//</span><span class="comment">Create threads for bidirectional forwarding<br
+/></span>
+    <span class="constant">Thread</span>.Thread t1 = Thread.Thread<span class="punctuation">(</span>forward_data, client, target<span class="punctuation">);</span>;
+    <span class="constant">Thread</span>.Thread t2 = Thread.Thread<span class="punctuation">(</span>forward_data, target, client<span class="punctuation">);</span>;
+
+    t1-&gt;wait<span class="punctuation">();</span>
+    t2-&gt;wait<span class="punctuation">();</span>;
+
+    client-&gt;close<span class="punctuation">();</span>
+    target-&gt;close<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">int</span> main<span class="punctuation">(</span><span class="keyword">int</span> argc, <span class="type">array</span>(<span class="type">string</span>) argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>argc &lt; <span class="number">4</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Usage: %s listen_port target_host target_port\n"</span>, argv[<span class="number">0</span>]<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">int</span> listen_port = (<span class="keyword">int</span>)argv[<span class="number">1</span>]<span class="punctuation">;</span>
+    <span class="type">string</span> target_host = argv[<span class="number">2</span>]<span class="punctuation">;</span>
+    <span class="keyword">int</span> target_port = (<span class="keyword">int</span>)argv[<span class="number">3</span>]<span class="punctuation">;</span>
+
+    <span class="constant">Stdio</span>.Port listen = <span class="constant">Stdio</span>.Port<span class="punctuation">();</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span>!listen-&gt;bind<span class="punctuation">(</span>listen_port<span class="punctuation">))</span> <span class="punctuation">{</span>
+        werror<span class="punctuation">(</span><span class="string">"Bind failed on port %d\n"</span>, listen_port<span class="punctuation">);</span>
+        <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+    <span class="punctuation">}</span>
+
+    write<span class="punctuation">(</span><span class="string">"Forwarding %d -> %s:%d\n"</span>, listen_port, target_host, target_port<span class="punctuation">);</span>
+
+    <span class="keyword">while</span> <span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span> <span class="punctuation">{</span>
+        <span class="constant">Stdio</span>.File client = listen-&gt;accept<span class="punctuation">();</span>
+        <span class="keyword">if</span> <span class="punctuation">(</span>!client<span class="punctuation">)</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+
+        <span class="comment-delimiter">//</span><span class="comment">Handle client in thread<br
+/></span>
+        Thread.Thread<span class="punctuation">(</span>handle_client, client, target_host, target_port<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------<br
+/></span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="processmanagementetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="internetservices.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Process Management and Communication</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Internet Services</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

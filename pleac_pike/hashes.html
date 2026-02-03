@@ -1,0 +1,1601 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Hashes</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Arrays"
+HREF="arrays.html"><LINK
+REL="NEXT"
+TITLE="Pattern Matching"
+HREF="patternmatching.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="arrays.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="patternmatching.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="HASHES"
+>5. Hashes</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN232"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">creating a mapping from arrays</span>
+<span class="type">mapping</span> age = mkmapping<span class="punctuation">(</span> <span class="punctuation">({</span> <span class="string">"Nat"</span>, <span class="string">"Jules"</span>, <span class="string">"Josh"</span>, <span class="punctuation">})</span>, <span class="punctuation">({</span> <span class="number">24</span>, <span class="number">25</span>, <span class="number">17</span> <span class="punctuation">})</span> <span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">initialize one index at a time</span>
+<span class="type">mapping</span> age = <span class="punctuation">([]);</span>
+age<span class="punctuation">[</span><span class="string">"Nat"</span><span class="punctuation">]</span> = <span class="number">24</span><span class="punctuation">;</span>
+age<span class="punctuation">[</span><span class="string">"Jules"</span><span class="punctuation">]</span> = <span class="number">25</span><span class="punctuation">;</span>
+age<span class="punctuation">[</span><span class="string">"Josh"</span><span class="punctuation">]</span> = <span class="number">17</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if your index names are valid identifiers:</span>
+age-&gt;Nat = <span class="number">24</span><span class="punctuation">;</span>
+age-&gt;Jules = <span class="number">25</span><span class="punctuation">;</span>
+age-&gt;Josh = <span class="number">17</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">the traditional way to initialize mappings</span>
+<span class="type">mapping</span> age = <span class="punctuation">([</span> <span class="string">"Nat"</span>:<span class="number">24</span>, <span class="string">"Jules"</span>:<span class="number">25</span>, <span class="string">"Josh"</span>:<span class="number">17</span> <span class="punctuation">]);</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> food_color = <span class="punctuation">([</span> 
+                                      <span class="string">"Apple"</span>:<span class="string">"red"</span>,
+                                      <span class="string">"Banana"</span>:<span class="string">"yellow"</span>,
+                                      <span class="string">"Lemon"</span>:<span class="string">"yellow"</span>,
+                                      <span class="string">"Carrot"</span>:<span class="string">"orange"</span>
+                                     <span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">a index may be of any type</span>
+<span class="type">mapping</span> any = <span class="punctuation">([</span> <span class="string">"1"</span>:<span class="string">"a string"</span>, <span class="number">1</span>:<span class="string">"an int"</span>, <span class="number">1.0</span>:<span class="string">"a float"</span> <span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">you may use other types too, but be aware that they are matched by</span>
+<span class="comment-delimiter">// </span><span class="comment">reference, and not by value.</span></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN235"
+>Adding an Element to a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>
+<span class="type">mapping</span><span class="punctuation">[</span><span class="type">mixed</span><span class="punctuation">]</span> = <span class="type">mixed</span><span class="punctuation">;</span>
+<span class="type">mapping</span>-&gt;<span class="type">string</span> = <span class="type">mixed</span><span class="punctuation">;</span>  <span class="comment-delimiter">//</span><span class="comment">any string that is a valid identifier</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per section 5.0</span>
+food_color-&gt;Raspberry = <span class="string">"pink"</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"Known foods:\n"</span><span class="punctuation">);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span>food+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot</span>
+<span class="comment-delimiter">// </span><span class="comment">Raspberry</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN238"
+>Testing for the Presence of a Key in a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">an undefined value in a mapping gets turned to 0.</span>
+<span class="comment-delimiter">// </span><span class="comment">assigning 0 as a value is allowed and will not remove the index.</span>
+<span class="comment-delimiter">// </span><span class="comment">checking for the index will of course return 0 and be interpreted as false.</span>
+<span class="comment-delimiter">// </span><span class="comment">to check if the index is really there, use zero_type()</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span><span class="type">mapping</span>-&gt;index<span class="punctuation">))</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">it exists</span>
+<span class="punctuation">}</span>
+<span class="keyword">else</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">it doesn't</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per section 5.0</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span> <span class="punctuation">({</span> <span class="string">"Banana"</span>, <span class="string">"Milk"</span> <span class="punctuation">})</span> <span class="punctuation">;;</span> <span class="type">string</span> name<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span>food_color<span class="punctuation">[</span>name<span class="punctuation">]))</span>
+    write<span class="punctuation">(</span><span class="string">"%s is a food.\n"</span>, name<span class="punctuation">);</span>
+  <span class="keyword">else</span>
+    write<span class="punctuation">(</span><span class="string">"%s is a drink.\n"</span>, name<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana is a food.</span>
+<span class="comment-delimiter">// </span><span class="comment">Milk is a drink.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">---------------------------------------------------------</span>
+<span class="type">mapping</span> age = <span class="punctuation">([</span> <span class="string">"Toddler"</span>:<span class="number">3</span>, 
+                 <span class="string">"Unborn"</span>:<span class="number">0</span>, 
+                 <span class="string">"Newborn"</span>:<span class="number">0.0</span>, 
+                 <span class="string">"Phantasm"</span>:UNDEFINED <span class="punctuation">]);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span> <span class="punctuation">({</span> <span class="string">"Toddler"</span>, <span class="string">"Unborn"</span>, <span class="string">"Newborn"</span>, <span class="string">"Phantasm"</span>, <span class="string">"Relic"</span> <span class="punctuation">});;</span> <span class="type">string</span> thing<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+    write<span class="punctuation">(</span>thing+<span class="string">":"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span>age<span class="punctuation">[</span>thing<span class="punctuation">]))</span>
+      write<span class="punctuation">(</span><span class="string">" Exists"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>age<span class="punctuation">[</span>thing<span class="punctuation">])</span>
+      write<span class="punctuation">(</span><span class="string">" True"</span><span class="punctuation">);</span>
+    write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Toddler: Exists True</span>
+<span class="comment-delimiter">// </span><span class="comment">Unborn: Exists</span>
+<span class="comment-delimiter">// </span><span class="comment">Newborn: Exists True</span>
+<span class="comment-delimiter">// </span><span class="comment">Phantasm: Exists</span>
+<span class="comment-delimiter">// </span><span class="comment">Relic:</span>
+
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Toddler exists, because zero_type() is only true if the index is not in</span>
+<span class="comment-delimiter">// </span><span class="comment">the mapping. it is true because the value is not 0.</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Unborn exists, but is false because 0 is false</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Newborn exists and is true, because 0.0 is not false</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Phantasm exists and is false, like Unborn</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Relic does not exist</span>
+
+<span class="comment-delimiter">// </span><span class="comment">we can not test for defined. UNDEFINED is a special value used internally by</span>
+<span class="comment-delimiter">// </span><span class="comment">the compiler. it gets converted to 0 as soon as it is assigned in a mapping</span>
+
+<span class="comment-delimiter">// </span><span class="comment">however we can create something equivalent that can be treated like any</span>
+<span class="comment-delimiter">// </span><span class="comment">other value, except that it is false:</span>
+
+<span class="keyword">class</span> <span class="function-name">Nil</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">this is a minimal example. </span>
+  <span class="comment-delimiter">// </span><span class="comment">a more complete one would also handle casting</span>
+
+  <span class="type">int</span> `!<span class="punctuation">()</span> <span class="punctuation">{</span><span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;}</span>
+  <span class="type">string</span> _sprintf<span class="punctuation">()</span> <span class="punctuation">{</span><span class="keyword">return</span> <span class="string">"Nil"</span><span class="punctuation">;}</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">we could have this function externally, but this is more convenient</span>
+  <span class="type">int</span> defined<span class="punctuation">(</span><span class="type">mixed</span> var<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">return</span> !zero_type<span class="punctuation">(</span>var<span class="punctuation">)</span> &amp;&amp; var!=<span class="keyword">this</span><span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+Nil NIL = Nil<span class="punctuation">();</span>                    <span class="comment-delimiter">// </span><span class="comment">create an instance so we can use it</span>
+<span class="type">function</span> defined = NIL-&gt;defined<span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">just for symetry</span>
+ 
+<span class="type">mapping</span> age = <span class="punctuation">([</span> <span class="string">"Toddler"</span>:<span class="number">3</span>, 
+                 <span class="string">"Unborn"</span>:<span class="number">0</span>, 
+                 <span class="string">"Phantasm"</span>:NIL <span class="punctuation">]);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span> <span class="punctuation">({</span> <span class="string">"Toddler"</span>, <span class="string">"Unborn"</span>, <span class="string">"Phantasm"</span>, <span class="string">"Relic"</span> <span class="punctuation">});;</span> <span class="type">string</span> thing<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+    write<span class="punctuation">(</span>thing+<span class="string">":"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span>age<span class="punctuation">[</span>thing<span class="punctuation">]))</span>
+      write<span class="punctuation">(</span><span class="string">" Exists"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>defined<span class="punctuation">(</span>age<span class="punctuation">[</span>thing<span class="punctuation">]))</span>
+      write<span class="punctuation">(</span><span class="string">" Defined"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>age<span class="punctuation">[</span>thing<span class="punctuation">])</span>
+      write<span class="punctuation">(</span><span class="string">" True"</span><span class="punctuation">);</span>
+    write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Toddler: Exists Defined True</span>
+<span class="comment-delimiter">// </span><span class="comment">Unborn: Exists Defined</span>
+<span class="comment-delimiter">// </span><span class="comment">Phantasm: Exists</span>
+<span class="comment-delimiter">// </span><span class="comment">Relic:</span>
+ 
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Toddler exists, because zero_type() is only true if the index is not in</span>
+<span class="comment-delimiter">// </span><span class="comment">the mapping. it is defined because it exists an is not NIL. </span>
+<span class="comment-delimiter">// </span><span class="comment">it is true because the value is not 0.</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Unborn exists, and is defined, but is false because 0 is false</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Phantasm exists, is not defined because it is NIL, </span>
+<span class="comment-delimiter">// </span><span class="comment">it is not true because NIL is false.</span>
+<span class="comment-delimiter">// </span><span class="comment">age-&gt;Relic does not exist, it is not defined even though it is not NIL</span>
+<span class="comment-delimiter">// </span><span class="comment">because it doesn't exist. it is also not true, because it does not exist.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------------------------------</span>
+<span class="type">mapping</span> size = <span class="punctuation">([]);</span>
+<span class="type">string</span> filename<span class="punctuation">;</span>
+<span class="keyword">while</span><span class="punctuation">(</span>filename = <span class="constant">Stdio</span>.stdin-&gt;gets<span class="punctuation">())</span>
+<span class="punctuation">{</span>
+  filename -= <span class="string">"\n"</span><span class="punctuation">;</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>size<span class="punctuation">[</span>filename<span class="punctuation">])</span>                <span class="comment-delimiter">// </span><span class="comment">wrong</span>
+    <span class="keyword">continue</span><span class="punctuation">;</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span>size<span class="punctuation">[</span>filename<span class="punctuation">]))</span>    <span class="comment-delimiter">// </span><span class="comment">right</span>
+    <span class="keyword">continue</span>
+  <span class="type">object</span> stat = file_stat<span class="punctuation">(</span>filename<span class="punctuation">)</span>  
+  <span class="keyword">if</span><span class="punctuation">(</span>stat<span class="punctuation">)</span>
+    size<span class="punctuation">[</span>filename<span class="punctuation">]</span> = stat-&gt;size<span class="punctuation">;</span>
+  <span class="keyword">else</span>
+    size<span class="punctuation">[</span>filename<span class="punctuation">]</span> = <span class="number">-1</span><span class="punctuation">;</span> <span class="comment-delimiter">// </span><span class="comment">since sizes can't be negative, this will do.</span>
+                         <span class="comment-delimiter">// </span><span class="comment">if -1 is a valid value, use NIL</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN241"
+>Deleting from a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">users occasionally may get the idea that mapping[index]=0; may remove index</span>
+<span class="comment-delimiter">// </span><span class="comment">from mapping. the normal way to remove a index from a mapping is to</span>
+<span class="comment-delimiter">// </span><span class="comment">subtract: mapping -= ([ index:0 ]); the following shall demonstrate the</span>
+<span class="comment-delimiter">// </span><span class="comment">difference between subtracting a index and assigning 0 to it.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per section 5.0</span>
+<span class="type">void</span> print_foods<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"Foods:%{ %s%}\n"</span>, indices<span class="punctuation">(</span>food_color<span class="punctuation">));</span>
+  write<span class="punctuation">(</span><span class="string">"Values: "</span><span class="punctuation">);</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="type">string</span> color<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>color<span class="punctuation">)</span>
+      write<span class="punctuation">(</span>color+<span class="string">" "</span><span class="punctuation">);</span>
+    <span class="keyword">else</span>
+      write<span class="punctuation">(</span><span class="string">"(no value) "</span><span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+  write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+write<span class="punctuation">(</span><span class="string">"Initially:\n"</span><span class="punctuation">);</span>
+print_foods<span class="punctuation">();</span>
+
+write<span class="punctuation">(</span><span class="string">"\nWith Banana set to 0\n"</span><span class="punctuation">);</span>
+food_color-&gt;Banana = <span class="number">0</span><span class="punctuation">;</span>
+print_foods<span class="punctuation">();</span>
+
+write<span class="punctuation">(</span><span class="string">"\nWith Banana deleted\n"</span><span class="punctuation">);</span>
+food_color -= <span class="punctuation">([</span> <span class="string">"Banana"</span>:<span class="string">"the value is irrelevant"</span> <span class="punctuation">]);</span>
+print_foods<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Initially:</span>
+<span class="comment-delimiter">// </span><span class="comment">Foods: Lemon Banana Apple Carrot</span>
+<span class="comment-delimiter">// </span><span class="comment">Values: yellow yellow red orange</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">With Banana set to 0</span>
+<span class="comment-delimiter">// </span><span class="comment">Foods: Banana Lemon Apple Carrot</span>
+<span class="comment-delimiter">// </span><span class="comment">Values: (no value) yellow red orange </span>
+<span class="comment-delimiter">//  </span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">With Banana deleted</span>
+<span class="comment-delimiter">// </span><span class="comment">Foods: Lemon Carrot Apple</span>
+<span class="comment-delimiter">// </span><span class="comment">Values: yellow orange red</span>
+
+<span class="comment-delimiter">// </span><span class="comment">you can also subtract multiple indices:</span>
+food_color -= <span class="punctuation">([</span> <span class="string">"Banana"</span>:<span class="number">0</span>, <span class="string">"Apple"</span>:<span class="number">0</span>, <span class="string">"Cabbage"</span>:<span class="number">0</span> <span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">note that subtracting a mapping from another creates a new mapping.</span>
+<span class="comment-delimiter">// </span><span class="comment">thus any references you have to a mapping will be broken.</span>
+<span class="comment-delimiter">// </span><span class="comment">in most cases this is what you want anyways. if it is not, you can also</span>
+<span class="comment-delimiter">// </span><span class="comment">remove indices using m_delete();</span>
+
+m_delete<span class="punctuation">(</span>food_color, <span class="string">"Banana"</span><span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN244"
+>Traversing a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>
+<span class="keyword">foreach</span><span class="punctuation">(</span> <span class="type">mapping</span><span class="punctuation">;</span> type index<span class="punctuation">;</span> type value<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">//</span><span class="comment">do something with index and value</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per 5.0</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="type">string</span> color<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s.\n"</span>, food, color<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Banana is yellow.</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon is yellow.</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot is orange.</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple is red.</span>
+
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>food_color<span class="punctuation">));;</span> <span class="type">string</span> food<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s.\n"</span>, food, food_color<span class="punctuation">[</span>food<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Apple is red.</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana is yellow.</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot is orange.</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon is yellow.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">since pike does not have any equivalent to each() its problems do not apply</span>
+
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="../include/pike/ch05/countfrom.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">countfrom - count number of messages from each sender
+</span>
+<span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">object</span> file<span class="punctuation">;</span>
+  <span class="type">mapping</span> from = <span class="punctuation">([]);</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>argv<span class="punctuation">)</span>&gt;<span class="number">1</span><span class="punctuation">)</span>
+    file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>, <span class="string">"r"</span><span class="punctuation">);</span>
+  <span class="keyword">else</span>
+    file = <span class="constant">Stdio</span>.stdin<span class="punctuation">;</span>
+
+  
+  <span class="keyword">foreach</span><span class="punctuation">(</span>file<span class="punctuation">;</span> <span class="type">int</span> count<span class="punctuation">;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">array</span> email = array_sscanf<span class="punctuation">(</span>line, <span class="string">"From: %s"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>email<span class="punctuation">))</span>
+      from<span class="punctuation">[</span>email<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]]</span>++<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+  write<span class="punctuation">(</span><span class="string">"end\n"</span><span class="punctuation">);</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>from<span class="punctuation">));;</span> <span class="type">string</span> person<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"%s: %d\n"</span>, person, from<span class="punctuation">[</span>person<span class="punctuation">]);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN247"
+>Printing a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">perls problems and solutions do not apply to pike</span>
+<span class="comment-delimiter">// </span><span class="comment">here are a few ways to print a mapping:</span>
+<span class="comment-delimiter">// </span><span class="comment">food_color as per 5.0</span>
+
+<span class="comment-delimiter">// </span><span class="comment">debugging style</span>
+write<span class="punctuation">(</span><span class="string">"%O\n"</span>, food_color<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">([ /* 4 elements */</span>
+<span class="comment-delimiter">//   </span><span class="comment">"Apple": "red",</span>
+<span class="comment-delimiter">//   </span><span class="comment">"Banana": "yellow",</span>
+<span class="comment-delimiter">//   </span><span class="comment">"Carrot": "orange",</span>
+<span class="comment-delimiter">//   </span><span class="comment">"Lemon": "yellow"</span>
+<span class="comment-delimiter">// </span><span class="comment">])</span>
+
+<span class="comment-delimiter">// </span><span class="comment">one element at a time:</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="type">string</span> color<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s\n"</span>, food, color<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon is yellow</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot is orange</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana is yellow</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple is red</span>
+
+<span class="comment-delimiter">// </span><span class="comment">with the help of an array</span>
+write<span class="punctuation">(</span><span class="string">"%{%s is %s\n%}"</span>, sort<span class="punctuation">((</span><span class="type">array</span><span class="punctuation">)</span>food_color<span class="punctuation">));</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple is red</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana is yellow</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot is orange</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon is yellow</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN250"
+>Retrieving from a Hash in Insertion Order</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike 8 preserves insertion order in mappings since Pike 7.8</span>
+<span class="comment-delimiter">// </span><span class="comment">We can simply iterate through the mapping to maintain order</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per section 5.0 - insertion order is preserved</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="type">string</span> color<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s (insertion order)\n"</span>, food, color<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple is red (insertion order)</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana is yellow (insertion order)</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon is yellow (insertion order)</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot is orange (insertion order)</span>
+
+<span class="comment-delimiter">// </span><span class="comment">For more complex ordering needs, we can use indices() or values()</span>
+<span class="comment-delimiter">// </span><span class="comment">with custom sorting while maintaining insertion order for equal keys</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Sort by length while preserving insertion order for ties</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> ordered_foods = food_color<span class="punctuation">;</span>
+<span class="type">array</span> foods = indices<span class="punctuation">(</span>ordered_foods<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Sort by length, but maintain original order for same length</span>
+foods = sort<span class="punctuation">(</span><span class="punctuation">(</span><span class="type">string</span> a, <span class="type">string</span> b<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="type">int</span> len_a = sizeof<span class="punctuation">(</span>a<span class="punctuation">);</span>
+  <span class="type">int</span> len_b = sizeof<span class="punctuation">(</span>b<span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>len_a != len_b<span class="punctuation">)</span> <span class="keyword">return</span> len_a - len_b<span class="punctuation">;</span>
+  <span class="keyword">return</span> search<span class="punctuation">(</span>indices<span class="punctuation">(</span>ordered_foods<span class="punctuation">),</span> a<span class="punctuation">)</span> - search<span class="punctuation">(</span>indices<span class="punctuation">(</span>ordered_foods<span class="punctuation">),</span> b<span class="punctuation">);</span>
+<span class="punctuation">},</span> foods<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>foods<span class="punctuation">;;</span> <span class="type">string</span> food<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s (length %d) is %s\n"</span>, food, sizeof<span class="punctuation">(</span>food<span class="punctuation">),</span> ordered_foods<span class="punctuation">[</span>food<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Apple (length 5) is red</span>
+<span class="comment-delimiter">// </span><span class="comment">Carrot (length 6) is orange</span>
+<span class="comment-delimiter">// </span><span class="comment">Banana (length 6) is yellow</span>
+<span class="comment-delimiter">// </span><span class="comment">Lemon (length 5) is yellow</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN253"
+>Hashes with Multiple Values Per Key</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">))</span> ttys = <span class="punctuation">([]);</span>
+
+<span class="type">object</span> pipe = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+<span class="constant">Process</span>.create_process<span class="punctuation">(({</span> <span class="string">"who"</span> <span class="punctuation">})</span>, <span class="punctuation">([</span> <span class="string">"stdout"</span>:pipe-&gt;pipe<span class="punctuation">()</span> <span class="punctuation">]));</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>pipe-&gt;line_iterator<span class="punctuation">();;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span> tty=<span class="punctuation">(</span>line/<span class="string">" "</span><span class="punctuation">)</span>-<span class="punctuation">({</span> <span class="string">""</span> <span class="punctuation">});</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!ttys<span class="punctuation">[</span>tty<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]])</span>
+    ttys<span class="punctuation">[</span>tty<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]]</span> = <span class="punctuation">({</span> tty<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="punctuation">});</span>
+  <span class="keyword">else</span>
+    ttys<span class="punctuation">[</span>tty<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]]</span> += <span class="punctuation">({</span> tty<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>ttys<span class="punctuation">));;</span> <span class="type">string</span> user<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s: %{%s %}\n"</span>, user, ttys<span class="punctuation">[</span>user<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>ttys<span class="punctuation">));;</span> <span class="type">string</span> user<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s: %d ttys.\n"</span>, user, sizeof<span class="punctuation">(</span>ttys<span class="punctuation">[</span>user<span class="punctuation">]));</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>ttys<span class="punctuation">[</span>user<span class="punctuation">];;</span> <span class="type">string</span> tty<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">object</span> stat = file_stat<span class="punctuation">(</span><span class="string">"/dev/"</span>+tty<span class="punctuation">);</span>
+    <span class="type">string</span> user<span class="punctuation">;</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>stat<span class="punctuation">)</span>
+      user = getpwuid<span class="punctuation">(</span>stat-&gt;uid<span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">];</span>
+    <span class="keyword">else</span>
+      user = <span class="string">"(not available)"</span><span class="punctuation">;</span>
+    write<span class="punctuation">(</span><span class="string">"\t%s (owned by %s)\n"</span>, tty, user<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">mapping</span> multihash_delete<span class="punctuation">(</span><span class="type">mapping</span> hash, <span class="type">mixed</span> key, <span class="type">mixed</span> value<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>arrayp<span class="punctuation">(</span>hash<span class="punctuation">[</span>key<span class="punctuation">]))</span>
+    hash<span class="punctuation">[</span>key<span class="punctuation">]</span>-=<span class="punctuation">({</span> value <span class="punctuation">});</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!sizeof<span class="punctuation">(</span>hash<span class="punctuation">[</span>key<span class="punctuation">]))</span>
+    m_delete<span class="punctuation">(</span>hash, key<span class="punctuation">);</span>
+  <span class="keyword">return</span> hash<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN256"
+>Inverting a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">search for a value in a mapping</span>
+<span class="type">mapping</span> lookup<span class="punctuation">;</span>
+<span class="type">mixed</span> value<span class="punctuation">;</span>
+<span class="type">mixed</span> key = search<span class="punctuation">(</span>lookup, value<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">transposing: (this will break if there are multiple occurances of a value)</span>
+<span class="type">mapping</span> lookup<span class="punctuation">;</span>
+<span class="type">mapping</span> reverse = mkmapping<span class="punctuation">(</span>values<span class="punctuation">(</span>lookup<span class="punctuation">)</span>, indices<span class="punctuation">(</span>lookup<span class="punctuation">));</span>
+<span class="comment-delimiter">//</span><span class="comment">----------------------------------------------------------</span>
+<span class="type">mapping</span> surname = <span class="punctuation">([</span> <span class="string">"Mickey"</span>:<span class="string">"Mantle"</span>, <span class="string">"Babe"</span>:<span class="string">"Ruth"</span> <span class="punctuation">]);</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, search<span class="punctuation">(</span>surname, <span class="string">"Mantle"</span><span class="punctuation">));</span>
+<span class="comment-delimiter">// </span><span class="comment">Mikey</span>
+
+<span class="comment-delimiter">// </span><span class="comment">with a transposed mapping (only worth doing if you'd have to search a lot)</span>
+<span class="type">mapping</span> first_name = mkmapping<span class="punctuation">(</span>values<span class="punctuation">(</span>surname<span class="punctuation">)</span>, indices<span class="punctuation">(</span>surname<span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, first_name-&gt;Mantle<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Mikey</span>
+<span class="comment-delimiter">//</span><span class="comment">----------------------------------------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="../include/pike/ch05/foodfind.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+
+<span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>argc &lt; <span class="number">2</span><span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"usage: foodfind food_or_color\n"</span><span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+
+  <span class="type">string</span> given = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+  <span class="type">mapping</span> color = <span class="punctuation">([</span> <span class="string">"Apple"</span>:<span class="string">"red"</span>,
+                     <span class="string">"Banana"</span>:<span class="string">"yellow"</span>,
+                     <span class="string">"Lemon"</span>:<span class="string">"yellow"</span>,
+                     <span class="string">"Carrot"</span>:<span class="string">"orange"</span>
+                  <span class="punctuation">]);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>color<span class="punctuation">[</span>given<span class="punctuation">])</span>
+    write<span class="punctuation">(</span><span class="string">"%s is a food with color %s\n"</span>, given, color<span class="punctuation">[</span>given<span class="punctuation">]);</span>
+    
+  <span class="type">string</span> food = search<span class="punctuation">(</span>color, given<span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>food<span class="punctuation">)</span>
+    write<span class="punctuation">(</span><span class="string">"%s is a food with color %s\n"</span>, food, given<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">search will only find one value, 
+</span><span class="comment-delimiter">// </span><span class="comment">but it can be given a place where it should start searching
+</span>
+  <span class="type">array</span> foods = <span class="punctuation">({</span> search<span class="punctuation">(</span>color, given<span class="punctuation">)</span> <span class="punctuation">});</span>
+  food = <span class="number">0</span><span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>food = search<span class="punctuation">(</span>color, given, foods<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]))</span>
+  <span class="punctuation">{</span> 
+    foods += <span class="punctuation">({</span> food <span class="punctuation">});</span>
+  <span class="punctuation">}</span>
+  write<span class="punctuation">(</span><span class="string">"%{%s %}were %s foods.\n"</span>, foods, given<span class="punctuation">);</span>
+
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">----------------------------------------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">food_color as per 5.0</span>
+<span class="type">mapping</span> foods_with_color = <span class="punctuation">([]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>food_color<span class="punctuation">;</span> <span class="type">string</span> food<span class="punctuation">;</span> <span class="type">string</span> color<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!foods_with_color<span class="punctuation">[</span>color<span class="punctuation">])</span>
+    foods_with_color<span class="punctuation">[</span>color<span class="punctuation">]</span> = <span class="punctuation">({</span> food <span class="punctuation">});</span>
+  <span class="keyword">else</span>
+    foods_with_color<span class="punctuation">[</span>color<span class="punctuation">]</span> += <span class="punctuation">({</span> food <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+write<span class="punctuation">(</span><span class="string">"%{%s %}were yellow foods.\n"</span>, foods_with_color-&gt;yellow<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN259"
+>Sorting a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span> hash<span class="punctuation">;</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>hash<span class="punctuation">));;</span> <span class="type">mixed</span> key<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mixed</span> value = hash<span class="punctuation">[</span>key<span class="punctuation">];</span>
+  <span class="comment-delimiter">// </span><span class="comment">do something with key, value</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>food_color<span class="punctuation">));;</span> <span class="type">string</span> food<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s.\n"</span>, food, food_color<span class="punctuation">[</span>food<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> foods = indices<span class="punctuation">(</span>food_color<span class="punctuation">);</span>
+sort<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>values<span class="punctuation">(</span>food_color<span class="punctuation">)[</span>*<span class="punctuation">])</span>, foods<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>foods<span class="punctuation">;;</span> <span class="type">string</span> food<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s is %s.\n"</span>, food, food_color<span class="punctuation">[</span>food<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN262"
+>Merging Hashes</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">the natural way to merge two mappings is to use + or |</span>
+<span class="comment-delimiter">// </span><span class="comment">for mappings both operations are equivalent.</span>
+<span class="type">mapping</span> A, B<span class="punctuation">;</span>
+<span class="type">mapping</span> merged = A + B<span class="punctuation">;</span>
+<span class="type">mapping</span> merged = A | B<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if an index is in both mappings, the value will be taken from the second</span>
+<span class="comment-delimiter">// </span><span class="comment">one. </span>
+
+<span class="type">mapping</span> drink_color = <span class="punctuation">([</span> <span class="string">"Milk"</span>:<span class="string">"white"</span>,
+                         <span class="string">"Tomato juice"</span>:<span class="string">"red"</span> <span class="punctuation">]);</span>
+
+<span class="type">mapping</span> ingested_color = drink_color + food_color<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//  </span><span class="comment">Result: ([ /* 6 elements */</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Apple": "red",</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Banana": "yellow",</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Carrot": "orange",</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Lemon": "yellow",</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Milk": "white",</span>
+<span class="comment-delimiter">//             </span><span class="comment">"Tomato juice": "red"</span>
+<span class="comment-delimiter">//           </span><span class="comment">])</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN265"
+>Finding Common or Different Keys in Two Hashes</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">create a mapping where indices are in both A and B</span>
+<span class="type">mapping</span> both = A &amp; B<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">in A or B, but not in both</span>
+<span class="type">mapping</span> one = A ^ B<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">in A, but not in B</span>
+<span class="type">mapping</span> exA = A - B<span class="punctuation">;</span>
+
+<span class="type">mapping</span> citrus_color = <span class="punctuation">([</span> <span class="string">"Lemon"</span>:<span class="string">"yellow"</span>,
+                          <span class="string">"Orange"</span>:<span class="string">"orange"</span>,
+                          <span class="string">"Lime"</span>:<span class="string">"green"</span> 
+                       <span class="punctuation">]);</span>
+
+<span class="type">array</span> non_citrus = indices<span class="punctuation">(</span>food_color - citrus_color<span class="punctuation">);</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN268"
+>Hashing References</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">this problem does not apply to pike</span>
+<span class="comment-delimiter">// </span><span class="comment">any value may be used as an index, if you get an object reference from</span>
+<span class="comment-delimiter">// </span><span class="comment">anywhere, if will work, if the index in the mapping is actually the same</span>
+<span class="comment-delimiter">// </span><span class="comment">object.</span>
+<span class="comment-delimiter">// </span><span class="comment">however note that the same value is not the same reference:</span>
+<span class="type">array</span> a = <span class="punctuation">({</span> <span class="number">1</span>,<span class="number">2</span> <span class="punctuation">});</span>
+<span class="type">array</span> b = <span class="punctuation">({</span> <span class="number">1</span>,<span class="number">2</span> <span class="punctuation">});</span>
+<span class="type">mapping</span> m = <span class="punctuation">([</span> a:<span class="string">"a"</span> <span class="punctuation">]);</span>
+m<span class="punctuation">[</span>b<span class="punctuation">];</span>  
+<span class="comment-delimiter">// </span><span class="comment">Result: 0 (b will not be found.)</span>
+m<span class="punctuation">[</span>b<span class="punctuation">]</span>=<span class="string">"b"</span><span class="punctuation">;</span>
+m<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: ([ ({ 1, 2 }): "a",</span>
+<span class="comment-delimiter">//            </span><span class="comment">({ 1, 2 }): "b"</span>
+<span class="comment-delimiter">//           </span><span class="comment">])</span>
+<span class="comment-delimiter">// </span><span class="comment">this looks as if the mapping has the same index twice</span>
+<span class="comment-delimiter">// </span><span class="comment">but since they are references this is not the case.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN271"
+>Presizing a Hash</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">this problem does not apply to pike</span>
+<span class="comment-delimiter">// </span><span class="comment">pike uses a smart preallocation algorythm that will avoid the need to</span>
+<span class="comment-delimiter">// </span><span class="comment">allocate memory everytime an element is added</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN274"
+>Finding the Most Common Anything</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span> count = <span class="punctuation">([]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>ARRAY<span class="punctuation">;;</span> <span class="type">mixed</span> element<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    count<span class="punctuation">[</span>element<span class="punctuation">]</span>++<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN277"
+>Representing Relationships Between Data</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span> father = <span class="punctuation">([</span> <span class="string">"Cain"</span>:<span class="string">"Adam"</span>,
+                    <span class="string">"Abel"</span>:<span class="string">"Adam"</span>,
+                    <span class="string">"Seth"</span>:<span class="string">"Adam"</span>,
+                    <span class="string">"Enoch"</span>:<span class="string">"Cain"</span>,
+                    <span class="string">"Irad"</span>:<span class="string">"Enoch"</span>,
+                    <span class="string">"Mehujael"</span>:<span class="string">"Irad"</span>,
+                    <span class="string">"Methusael"</span>:<span class="string">"Mehujael"</span>,
+                    <span class="string">"Lamech"</span>:<span class="string">"Methusael"</span>,
+                    <span class="string">"Jabal"</span>:<span class="string">"Lamech"</span>,
+                    <span class="string">"Jubal"</span>:<span class="string">"Lamech"</span>,
+                    <span class="string">"Tubalcain"</span>:<span class="string">"Lamech"</span>,
+                    <span class="string">"Enos"</span>:<span class="string">"Seth"</span> 
+                 <span class="punctuation">]);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Stdio</span>.stdin<span class="punctuation">;;</span> <span class="type">string</span> name<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">do</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"%s "</span>, name<span class="punctuation">);</span>
+  <span class="punctuation">}</span> <span class="keyword">while</span><span class="punctuation">(</span>name = father<span class="punctuation">[</span>name<span class="punctuation">]);</span>
+  write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">mapping</span> children = <span class="punctuation">([]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>father<span class="punctuation">;</span> <span class="type">string</span> k<span class="punctuation">;</span> <span class="type">string</span> v<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!children<span class="punctuation">[</span>v<span class="punctuation">])</span>
+    children<span class="punctuation">[</span>v<span class="punctuation">]</span> = <span class="punctuation">({</span> k <span class="punctuation">});</span>
+  <span class="keyword">else</span>
+    children<span class="punctuation">[</span>v<span class="punctuation">]</span> += <span class="punctuation">({</span> k <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Stdio</span>.stdin<span class="punctuation">;;</span> <span class="type">string</span> name<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s begat %s.\n"</span>, name, <span class="punctuation">(</span>children<span class="punctuation">[</span>name<span class="punctuation">]</span>||<span class="punctuation">({</span> <span class="string">"nobody"</span> <span class="punctuation">}))</span>*<span class="string">", "</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------------------------------</span>
+
+<span class="type">mapping</span> includes = <span class="punctuation">([]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>files, <span class="type">string</span> file<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> F = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>file<span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!F<span class="punctuation">)</span>
+    werror<span class="punctuation">(</span><span class="string">"Couldn't read %s; skipping.\n"</span>, file<span class="punctuation">);</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(</span>F/<span class="string">"\n"</span><span class="punctuation">;;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">array</span> included = array_sscanf<span class="punctuation">(</span>line, <span class="string">"%*[ \t]#include%*[ \t]%*[&lt;\"]%s%*[&gt;\"]%*[ \t]"</span><span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>included<span class="punctuation">))</span>
+    <span class="punctuation">{</span>
+      <span class="keyword">if</span><span class="punctuation">(</span>!includes<span class="punctuation">[</span>included<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]])</span>
+        includes<span class="punctuation">[</span>included<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]]</span> = <span class="punctuation">({</span> file <span class="punctuation">});</span>
+      <span class="keyword">else</span>
+        includes<span class="punctuation">[</span>included<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]]</span> += <span class="punctuation">({</span> file <span class="punctuation">});</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------------------------------</span>
+
+<span class="type">array</span> uniq = `|<span class="punctuation">(</span> @values<span class="punctuation">(</span>includes<span class="punctuation">)</span> <span class="punctuation">);</span>
+<span class="type">array</span> include_free = sort<span class="punctuation">(</span> uniq - indices<span class="punctuation">(</span>includes<span class="punctuation">)</span> <span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">values(includes) is an array of arrays.</span>
+<span class="comment-delimiter">// </span><span class="comment">@ splices values(includes) as arguments into `|()</span>
+<span class="comment-delimiter">// </span><span class="comment">`|() is a function that represents the | operator: a|b|c is `|(a,b,c)</span>
+<span class="comment-delimiter">// </span><span class="comment">| on arrays creates a new array with elements in a or b</span>
+<span class="comment-delimiter">// </span><span class="comment">the resulting array is unique as long as each array only has unique elements</span>
+<span class="comment-delimiter">// </span><span class="comment">from the uniq array we remove all those that are used as indices in the</span>
+<span class="comment-delimiter">// </span><span class="comment">includes mapping.</span>
+<span class="comment-delimiter">// </span><span class="comment">at last we sort the remaining list.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN280"
+>Program: dutree</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="../include/pike/ch05/dutree">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">dutree - print sorted indented rendition of du output
+</span><span class="comment-delimiter">// </span><span class="comment">as a slight deviation from the perl version, the sizes are still in one
+</span><span class="comment-delimiter">// </span><span class="comment">column, to make it more readable.
+</span>
+<span class="type">array</span> input<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> args<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mapping</span> Dirsize=<span class="punctuation">([]);</span>
+  <span class="type">mapping</span> Kids=<span class="punctuation">([]);</span>
+
+  <span class="type">object</span> pipe = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+  <span class="constant">Process</span>.create_process<span class="punctuation">(({</span> <span class="string">"du"</span> <span class="punctuation">})</span>+args, <span class="punctuation">([</span> <span class="string">"stdout"</span>:pipe-&gt;pipe<span class="punctuation">()</span> <span class="punctuation">]));</span>
+
+  <span class="type">string</span> name<span class="punctuation">;</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>pipe-&gt;line_iterator<span class="punctuation">();;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">int</span> size<span class="punctuation">;</span>
+    <span class="punctuation">[</span>size, name<span class="punctuation">]</span> = array_sscanf<span class="punctuation">(</span>line, <span class="string">"%d%*[ \t]%s"</span><span class="punctuation">);</span>
+    Dirsize<span class="punctuation">[</span>name<span class="punctuation">]</span> = size<span class="punctuation">;</span>
+    <span class="type">array</span> path = name/<span class="string">"/"</span><span class="punctuation">;</span>
+    <span class="type">string</span> parent = path<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>path<span class="punctuation">)</span><span class="number">-2</span><span class="punctuation">]</span>*<span class="string">"/"</span><span class="punctuation">;</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>!Kids<span class="punctuation">[</span>parent<span class="punctuation">])</span>
+      Kids<span class="punctuation">[</span>parent<span class="punctuation">]</span> = <span class="punctuation">({</span> name <span class="punctuation">});</span>
+    <span class="keyword">else</span>
+      Kids<span class="punctuation">[</span>parent<span class="punctuation">]</span> += <span class="punctuation">({</span> name <span class="punctuation">});</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> <span class="punctuation">({</span> name, Dirsize, Kids <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> getdots<span class="punctuation">(</span><span class="type">string</span> root, <span class="type">mapping</span> Dirsize, <span class="type">mapping</span> Kids<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> size, cursize<span class="punctuation">;</span>
+  size = cursize = Dirsize<span class="punctuation">[</span>root<span class="punctuation">];</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>Kids<span class="punctuation">[</span>root<span class="punctuation">])</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>Kids<span class="punctuation">[</span>root<span class="punctuation">];;</span> <span class="type">string</span> kid<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      cursize -= Dirsize<span class="punctuation">[</span>kid<span class="punctuation">];</span> 
+      getdots<span class="punctuation">(</span>kid, Dirsize, Kids<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">else</span>
+    Kids<span class="punctuation">[</span>root<span class="punctuation">]</span> = <span class="punctuation">({});</span>
+
+  <span class="keyword">if</span><span class="punctuation">(</span>size != cursize<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">string</span> dot = root+<span class="string">"/."</span><span class="punctuation">;</span>    
+    Dirsize<span class="punctuation">[</span>dot<span class="punctuation">]</span> = cursize<span class="punctuation">;</span>
+    Kids<span class="punctuation">[</span>root<span class="punctuation">]</span> += <span class="punctuation">({</span> dot <span class="punctuation">});</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> output<span class="punctuation">(</span><span class="type">string</span> root, <span class="type">mapping</span> Dirsize, <span class="type">mapping</span> Kids, 
+            <span class="type">int</span> width, <span class="type">void</span>|<span class="type">string</span> prefix<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!prefix<span class="punctuation">)</span>
+    prefix=<span class="string">""</span><span class="punctuation">;</span>
+  <span class="type">string</span> path = <span class="punctuation">(</span>root/<span class="string">"/"</span><span class="punctuation">)[</span><span class="number">-1</span><span class="punctuation">];</span>
+  <span class="type">int</span> size = Dirsize<span class="punctuation">[</span>root<span class="punctuation">];</span>
+  write<span class="punctuation">(</span><span class="string">"%*d %s%s\n"</span>, width, size, prefix, path<span class="punctuation">);</span>
+  prefix += <span class="string">"|"</span> + <span class="string">" "</span>*<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>path<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>Kids<span class="punctuation">[</span>root<span class="punctuation">])</span>
+  <span class="punctuation">{</span>
+    <span class="type">array</span> kids = Kids<span class="punctuation">[</span>root<span class="punctuation">];</span>
+    <span class="comment-delimiter">// </span><span class="comment">get the dirsize for each kid and sort by that
+</span>    sort<span class="punctuation">(</span>Dirsize<span class="punctuation">[</span>kids<span class="punctuation">[</span>*<span class="punctuation">]]</span>, kids<span class="punctuation">);</span> 
+    
+    <span class="comment-delimiter">// </span><span class="comment">make the output for each kid
+</span>    output<span class="punctuation">(</span>kids<span class="punctuation">[</span>*<span class="punctuation">]</span>, Dirsize, Kids, width, prefix<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> argc, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> argv<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mapping</span> Dirsize<span class="punctuation">;</span>
+  <span class="type">mapping</span> Kids<span class="punctuation">;</span>
+  <span class="type">string</span> topdir<span class="punctuation">;</span>
+
+  <span class="punctuation">[</span> topdir, Dirsize, Kids <span class="punctuation">]</span> = input<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span>..<span class="punctuation">]);</span>
+  getdots<span class="punctuation">(</span>topdir, Dirsize, Kids<span class="punctuation">);</span>
+  output<span class="punctuation">(</span>topdir, Dirsize, Kids, sizeof<span class="punctuation">((</span><span class="type">string</span><span class="punctuation">)</span>sort<span class="punctuation">(</span>values<span class="punctuation">(</span>Dirsize<span class="punctuation">))[</span><span class="number">-1</span><span class="punctuation">]));</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN281"
+>Modern Mapping Operations in Pike 8</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike 8 provides enhanced mapping operations and utilities</span>
+<span class="comment-delimiter">// </span><span class="comment">for modern programming patterns</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping creation and manipulation with modern syntax</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> scores = <span class="punctuation">([</span>
+  <span class="string">"Alice"</span>: <span class="number">95</span>,
+  <span class="string">"Bob"</span>: <span class="number">87</span>,
+  <span class="string">"Charlie"</span>: <span class="number">92</span>
+<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Functional operations on mappings</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> bonus_scores = map<span class="punctuation">(</span>scores, <span class="punctuation">(</span><span class="type">int</span> score<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="keyword">return</span> score + <span class="number">5</span><span class="punctuation">;</span>
+<span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Filter mappings based on conditions</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> high_scores = filter<span class="punctuation">(</span>scores, <span class="punctuation">(</span><span class="type">int</span> score<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="keyword">return</span> score >= <span class="number">90</span><span class="punctuation">;</span>
+<span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Reduce operations on mappings</span>
+<span class="type">int</span> total = fold<span class="punctuation">(</span>scores, <span class="punctuation">(</span><span class="type">int</span> sum, <span class="type">string</span> name, <span class="type">int</span> score<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="keyword">return</span> sum + score<span class="punctuation">;</span>
+<span class="punctuation">},</span> <span class="number">0</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping spread operator (Pike 8+)</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> extra_scores = <span class="punctuation">([</span> <span class="string">"David"</span>: <span class="number">78</span> <span class="punctuation">]);</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> all_scores = scores | extra_scores<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Deep copy of mappings</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> copied_scores = copy_value<span class="punctuation">(</span>scores<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping keys and values as arrays with modern operations</span>
+<span class="type">array</span> names = indices<span class="punctuation">(</span>scores<span class="punctuation">);</span>
+<span class="type">array</span> points = values<span class="punctuation">(</span>scores<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Convert array of pairs to mapping (modern approach)</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">))</span> pairs = <span class="punctuation">((</span><span class="punctuation">{</span>
+  <span class="punctuation">({</span> <span class="string">"Alice"</span>, <span class="number">95</span> <span class="punctuation">}),</span>
+  <span class="punctuation">({</span> <span class="string">"Bob"</span>, <span class="number">87</span> <span class="punctuation">}),</span>
+  <span class="punctuation">({</span> <span class="string">"Charlie"</span>, <span class="number">92</span> <span class="punctuation">})</span>
+<span class="punctuation">}));</span>
+
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> from_pairs = mkmapping<span class="punctuation">(</span>map<span class="punctuation">(</span>pairs, <span class="punctuation">(`</span>), <span class="number">0</span><span class="punctuation">),</span> map<span class="punctuation">(</span>pairs, <span class="punctuation">(`</span>), <span class="number">1</span><span class="punctuation">));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN282"
+>Mapping.pmod Utilities</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike's Mapping.pmod provides utilities for advanced mapping operations</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Access Mapping module utilities</span>
+<span class="comment-delimiter">// </span><span class="comment">Note: In Pike 8, many mapping functions are built-in</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Advanced mapping operations using built-in functions</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping comparison and equality</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> map1 = <span class="punctuation">([</span> <span class="string">"a"</span>: <span class="string">"1"</span> <span class="punctuation">]);</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> map2 = <span class="punctuation">([</span> <span class="string">"a"</span>: <span class="string">"1"</span> <span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Deep equality check for mappings</span>
+<span class="type">int</span> is_equal = map_equal<span class="punctuation">(</span>map1, map2<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping subset operations</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> subset = <span class="punctuation">([</span> <span class="string">"b"</span>: <span class="string">"2"</span> <span class="punctuation">]);</span>
+<span class="type">int</span> is_subset = mapping_subset<span class="punctuation">(</span>subset, map1 + map2<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Create mapping from array of keys and values</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> keys = <span class="punctuation">((</span><span class="punctuation">{</span> <span class="string">"name"</span>, <span class="string">"age"</span>, <span class="string">"city"</span> <span class="punctuation">}));</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> values = <span class="punctuation">((</span><span class="punctuation">{</span> <span class="string">"Alice"</span>, <span class="string">"30"</span>, <span class="string">"New York"</span> <span class="punctuation">}));</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> person = mkmapping<span class="punctuation">(</span>keys, values<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Reverse mapping (swap keys and values)</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> reversed = mkmapping<span class="punctuation">(</span>values<span class="punctuation">(</span>person<span class="punctuation">),</span> indices<span class="punctuation">(</span>person<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Mapping with default values using functional approach</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> config = <span class="punctuation">([</span>
+  <span class="string">"host"</span>: <span class="string">"localhost"</span>,
+  <span class="string">"port"</span>: <span class="string">"8080"</span>
+<span class="punctuation">]);</span>
+
+<span class="type">string</span> get_with_default<span class="punctuation">(</span><span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> m, <span class="type">string</span> key, <span class="type">string</span> default<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> m<span class="punctuation">[</span>key<span class="punctuation">]</span> || default<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">string</span> host = get_with_default<span class="punctuation">(</span>config, <span class="string">"host"</span>, <span class="string">"127.0.0.1"</span><span class="punctuation">);</span>
+<span class="type">string</span> timeout = get_with_default<span class="punctuation">(</span>config, <span class="string">"timeout"</span>, <span class="string">"30"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Apply function to all values in a mapping</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">int</span><span class="punctuation">)</span> string_lengths = map<span class="punctuation">(</span>person, <span class="punctuation">(</span><span class="type">string</span> val<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="keyword">return</span> sizeof<span class="punctuation">(</span>val<span class="punctuation">);</span>
+<span class="punctuation">});</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN283"
+>Safe Indexing with ->?</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike 8 provides safe indexing operators to avoid key errors</span>
+<span class="comment-delimiter">// </span><span class="comment">and handle missing keys gracefully</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Standard mapping access can throw errors for missing keys</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> user = <span class="punctuation">([</span>
+  <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+  <span class="string">"email"</span>: <span class="string">"alice@example.com"</span>
+<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Traditional way with error handling</span>
+<span class="type">string</span> get_email<span class="punctuation">(</span><span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> u, <span class="type">string</span> key<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>member<span class="punctuation">(</span>u, key<span class="punctuation">))</span>
+    <span class="keyword">return</span> u<span class="punctuation">[</span>key<span class="punctuation">];</span>
+  <span class="keyword">return</span> <span class="string">"Not found"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Using zero_type() for safe checking (Pike traditional)</span>
+<span class="type">string</span> safe_get<span class="punctuation">(</span><span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> u, <span class="type">string</span> key<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!zero_type<span class="punctuation">(</span>u<span class="punctuation">[</span>key<span class="punctuation">]))</span>
+    <span class="keyword">return</span> u<span class="punctuation">[</span>key<span class="punctuation">];</span>
+  <span class="keyword">return</span> <span class="string">"Not found"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Using || operator for default values (modern Pike)</span>
+<span class="type">string</span> phone = user<span class="punctuation">[</span><span class="string">"phone"</span><span class="punctuation">]</span> || <span class="string">"Unknown"</span><span class="punctuation">;</span>
+<span class="type">string</span> name = user<span class="punctuation">[</span><span class="string">"name"</span><span class="punctuation">]</span> || <span class="string">"Guest"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Using defined() function for more precise checking</span>
+<span class="keyword">class</span> <span class="function-name">Nil</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> `!<span class="punctuation">()</span> <span class="punctuation">{</span><span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;}</span>
+  <span class="type">string</span> _sprintf<span class="punctuation">()</span> <span class="punctuation">{</span><span class="keyword">return</span> <span class="string">"Nil"</span><span class="punctuation">;}</span>
+<span class="punctuation">}</span>
+
+Nil NIL = Nil<span class="punctuation">();</span>
+
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> data = <span class="punctuation">([</span>
+  <span class="string">"active"</span>: <span class="keyword">true</span>,
+  <span class="string">"score"</span>: <span class="number">0</span>,
+  <span class="string">"meta"</span>: NIL
+<span class="punctuation">]);</span>
+
+<span class="type">int</span> defined<span class="punctuation">(</span><span class="type">mixed</span> var<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> !zero_type<span class="punctuation">(</span>var<span class="punctuation">)</span> &amp;&amp; var != NIL<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Safe dictionary access patterns</span>
+<span class="type">string</span> get_nested_value<span class="punctuation">(</span><span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> data, <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> path<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mixed</span> current = data<span class="punctuation">;</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>path<span class="punctuation">;</span> <span class="type">string</span> key<span class="punctuation">;</span> <span class="type">int</span> i<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>mappingp<span class="punctuation">(</span>current<span class="punctuation">)</span> &amp;&amp; defined<span class="punctuation">(</span>current<span class="punctuation">[</span>key<span class="punctuation">]))</span>
+      current = current<span class="punctuation">[</span>key<span class="punctuation">];</span>
+    <span class="keyword">else</span>
+      <span class="keyword">return</span> <span class="string">"Not found"</span><span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> <span class="type">string</span><span class="punctuation">(</span>current<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Example usage: accessing nested data safely</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> user_profile = <span class="punctuation">([</span>
+  <span class="string">"name"</span>: <span class="string">"Alice"</span>,
+  <span class="string">"address"</span>: <span class="punctuation">([</span>
+    <span class="string">"street"</span>: <span class="string">"123 Main St"</span>,
+    <span class="string">"city"</span>: <span class="string">"New York"</span>
+  <span class="punctuation">])</span>
+<span class="punctuation">]);</span>
+
+<span class="type">string</span> city = get_nested_value<span class="punctuation">(</span>user_profile, <span class="punctuation">((</span><span class="punctuation">{</span> <span class="string">"address"</span>, <span class="string">"city"</span> <span class="punctuation">}));</span>
+<span class="type">string</span> country = get_nested_value<span class="punctuation">(</span>user_profile, <span class="punctuation">((</span><span class="punctuation">{</span> <span class="string">"address"</span>, <span class="string">"country"</span> <span class="punctuation">}));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN284"
+>Advanced Hash Patterns</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Advanced mapping patterns and data structures in Pike 8</span>
+
+<span class="comment-delimiter">// </span><span class="comment">1. Multi-level nested mappings (JSON-like structures)</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> config = <span class="punctuation">([</span>
+  <span class="string">"database"</span>: <span class="punctuation">([</span>
+    <span class="string">"host"</span>: <span class="string">"localhost"</span>,
+    <span class="string">"port"</span>: <span class="number">5432</span>,
+    <span class="string">"credentials"</span>: <span class="punctuation">([</span>
+      <span class="string">"username"</span>: <span class="string">"admin"</span>,
+      <span class="string">"password"</span>: <span class="string">"secret"</span>
+    <span class="punctuation">])</span>
+  <span class="punctuation">]),</span>
+  <span class="string">"api"</span>: <span class="punctuation">([</span>
+    <span class="string">"version"</span>: <span class="string">"v2"</span>,
+    <span class="string">"rate_limit"</span>: <span class="number">1000</span>
+  <span class="punctuation">])</span>
+<span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">2. Function-based mappings (computed properties)</span>
+<span class="keyword">class</span> <span class="function-name">ComputedMapping</span>
+<span class="punctuation">{</span>
+  <span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">function</span><span class="punctuation">(</span>:<span class="type">mixed</span><span class="punctuation">))</span> getters<span class="punctuation">;</span>
+  <span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> data<span class="punctuation">;</span>
+
+  <span class="keyword">void</span> create<span class="punctuation">(</span><span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">function</span><span class="punctuation">(</span>:<span class="type">mixed</span><span class="punctuation">))</span> g<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    getters = g<span class="punctuation">;</span>
+    data = <span class="punctuation">([]);</span>
+  <span class="punctuation">}</span>
+
+  <span class="type">mixed</span> `[]<span class="punctuation">(</span><span class="type">string</span> key<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>member<span class="punctuation">(</span>getters, key<span class="punctuation">))</span>
+      <span class="keyword">return</span> getters<span class="punctuation">[</span>key<span class="punctuation">]();</span>
+    <span class="keyword">return</span> data<span class="punctuation">[</span>key<span class="punctuation">];</span>
+  <span class="punctuation">}</span>
+
+  <span class="type">void</span> `[]=<span class="punctuation">(</span><span class="type">string</span> key, <span class="type">mixed</span> value<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    data<span class="punctuation">[</span>key<span class="punctuation">]</span> = value<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Example usage of computed mapping</span>
+<span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">function</span><span class="punctuation">(</span>:<span class="type">mixed</span><span class="punctuation">))</span> getters = <span class="punctuation">([</span>
+  <span class="string">"now"</span>: <span class="keyword">lambda</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> localtime<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span>*<span class="string">" "</span>*<span class="string">"\n"</span>; <span class="punctuation">},</span>
+  <span class="string">"random"</span>: <span class="keyword">lambda</span><span class="punctuation">(</span><span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> random<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">);</span> <span class="punctuation">}</span>
+<span class="punctuation">]);</span>
+
+<span type="object">ComputedMapping</span> dynamic_data = ComputedMapping<span class="punctuation">(</span>getters<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"Time: %s, Random: %d\n"</span>, dynamic_data<span class="punctuation">[</span><span class="string">"now"</span><span class="punctuation">],</span> dynamic_data<span class="punctuation">[</span><span class="string">"random"</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">3. Cache pattern using mappings</span>
+<span class="keyword">class</span> <span class="function-name">Cache</span>
+<span class="punctuation">{</span>
+  <span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">mixed</span><span class="punctuation">)</span> cache<span class="punctuation">;</span>
+  <span type="array">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> keys<span class="punctuation">;</span>
+  <span class="type">int</span> max_size<span class="punctuation">;</span>
+
+  <span class="keyword">void</span> create<span class="punctuation">(</span><span class="type">int</span> size<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    max_size = size<span class="punctuation">;</span>
+    cache = <span class="punctuation">([]);</span>
+    keys = <span class="punctuation">((</span><span class="punctuation">));</span>
+  <span class="punctuation">}</span>
+
+  <span class="type">mixed</span> get<span class="punctuation">(</span><span class="type">string</span> key<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">return</span> cache<span class="punctuation">[</span>key<span class="punctuation">];</span>
+  <span class="punctuation">}</span>
+
+  <span class="keyword">void</span> set<span class="punctuation">(</span><span class="type">string</span> key, <span class="type">mixed</span> value<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>keys<span class="punctuation">)</span> >= max_size<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="comment-delimiter">// </span><span class="comment">Remove oldest entry (FIFO)</span>
+      <span class="type">string</span> oldest = keys<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+      keys = keys<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">..];</span>
+      m_delete<span class="punctuation">(</span>cache, oldest<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+
+    <span class="keyword">if</span><span class="punctuation">(</span>!member<span class="punctuation">(</span>cache, key<span class="punctuation">))</span>
+      keys += <span class="punctuation">((</span> key <span class="punctuation">));</span>
+
+    cache<span class="punctuation">[</span>key<span class="punctuation">]</span> = value<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span type="object">Cache</span> page_cache = Cache<span class="punctuation">(</span><span class="number">100</span><span class="punctuation">);</span>
+page_cache.<span class="keyword">set</span><span class="punctuation">(</span><span class="string">"home"</span>, <span class="string">"Welcome page content"</span><span class="punctuation">);</span>
+<span class="type">string</span> content = page_cache.<span class="keyword">get</span><span class="punctuation">(</span><span class="string">"home"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">4. Memoization pattern using mappings</span>
+<span class="keyword">class</span> <span class="function-name">Memoizer</span>
+<span class="punctuation">{</span>
+  <span type="mapping">mapping</span><span class="punctuation">(</span><span class="type">array</span>:<span class="type">mixed</span><span class="punctuation">)</span> memo<span class="punctuation">;</span>
+  <span type="function">function</span> func<span class="punctuation">;</span>
+
+  <span class="keyword">void</span> create<span class="punctuation">(</span><span type="function">function</span> f<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    func = f<span class="punctuation">;</span>
+    memo = <span class="punctuation">([]);</span>
+  <span class="punctuation">}</span>
+
+  <span class="type">mixed</span> `()(</span>
+<span class="punctuation">{</span>
+    <span class="type">array</span> args = <span class="keyword">this</span>->args<span class="punctuation">;</span>
+    <span class="type">string</span> key = sprintf<span class="punctuation">(</span><span class="string">"%*s"</span>, args<span class="punctuation">);</span>
+
+    <span class="keyword">if</span><span class="punctuation">(</span>member<span class="punctuation">(</span>memo, key<span class="punctuation">))</span>
+      <span class="keyword">return</span> memo<span class="punctuation">[</span>key<span class="punctuation">];</span>
+
+    <span class="type">mixed</span> result = func<span class="punctuation">(</span>@args<span class="punctuation">);</span>
+    memo<span class="punctuation">[</span>key<span class="punctuation">]</span> = result<span class="punctuation">;</span>
+    <span class="keyword">return</span> result<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Example: Fibonacci with memoization</span>
+<span type="function">function</span> fib = Memoizer<span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">int</span> n<span class="punctuation">)</span> <span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>n <= <span class="number">1</span><span class="punctuation">)</span> <span class="keyword">return</span> n<span class="punctuation">;</span>
+  <span class="keyword">return</span> fib<span class="punctuation">(</span>n-<span class="number">1</span><span class="punctuation">)</span> + fib<span class="punctuation">(</span>n-<span class="number">2</span><span class="punctuation">);</span>
+<span class="punctuation">});</span>
+
+write<span class="punctuation">(</span><span class="string">"fib(10) = %d\n"</span>, fib<span class="punctuation">(</span><span class="number">10</span><span class="punctuation">));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="arrays.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="patternmatching.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Arrays</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Pattern Matching</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

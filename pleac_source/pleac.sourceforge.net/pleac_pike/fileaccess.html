@@ -1,0 +1,853 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>File Access</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Pattern Matching"
+HREF="patternmatching.html"><LINK
+REL="NEXT"
+TITLE="File Contents"
+HREF="filecontents.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="patternmatching.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="filecontents.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FILEACCESS"
+>7. File Access</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN359"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">if you are going to read the whole file, the most common way is to use </span>
+<span class="comment-delimiter">// </span><span class="comment">Stdio.read_file()</span>
+
+<span class="type">string</span> INPUT = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span><span class="string">"/usr/local/widgets/data"</span><span class="punctuation">);</span>
+<span class="keyword">if</span><span class="punctuation">(</span>!INPUT<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  werror<span class="punctuation">(</span><span class="string">"Couldn't open /usr/local/widgets/data for reading\n"</span><span class="punctuation">);</span>
+  exit<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>INPUT/<span class="string">"\n"</span><span class="punctuation">;;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>search<span class="punctuation">(</span>line, <span class="string">"blue"</span><span class="punctuation">)</span>!=<span class="number">-1</span><span class="punctuation">)</span>
+    write<span class="punctuation">(</span>line+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if you need more control over the process you can get a filehandle with</span>
+<span class="comment-delimiter">// </span><span class="comment">Stdio.File()</span>
+
+<span class="constant">Stdio</span>.File INPUT = <span class="constant">Stdio</span>.File<span class="punctuation">(</span><span class="string">"/usr/local/widgets/data"</span>, <span class="string">"r"</span><span class="punctuation">);</span>
+<span class="keyword">if</span><span class="punctuation">(</span>!INPUT<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  werror<span class="punctuation">(</span><span class="string">"Couldn't open /usr/local/widgets/data for reading\n"</span><span class="punctuation">);</span>
+  exit<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>INPUT-&gt;line_iterator<span class="punctuation">();;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>search<span class="punctuation">(</span>line, <span class="string">"blue"</span><span class="punctuation">)</span>!=<span class="number">-1</span><span class="punctuation">)</span>
+    write<span class="punctuation">(</span>line+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+INPUT-&gt;close<span class="punctuation">();</span>
+
+<span class="comment-delimiter">//</span><span class="comment">---------------------------------------------------------</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Stdio</span>.stdin<span class="punctuation">;;</span> <span class="type">string</span> line<span class="punctuation">)</span>            <span class="comment-delimiter">// </span><span class="comment">reads from STDIN</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!sizeof<span class="punctuation">(</span>array_sscanf<span class="punctuation">(</span>line, <span class="string">"%*s%d"</span><span class="punctuation">)))</span>
+    werror<span class="punctuation">(</span><span class="string">"No digit found.\n"</span><span class="punctuation">);</span>              <span class="comment-delimiter">// </span><span class="comment">writes to STDERR</span>
+  write<span class="punctuation">(</span><span class="string">"Read: %s\n"</span>, line<span class="punctuation">);</span>                  <span class="comment-delimiter">// </span><span class="comment">writes ot STDOUT</span>
+<span class="punctuation">}</span>
+<span class="constant">Stdio</span>.stdout-&gt;close<span class="punctuation">()</span> || werror<span class="punctuation">(</span><span class="string">"couldn't close STDOUT\n"</span><span class="punctuation">)</span> &amp;&amp; exit<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">just as with Stdio.read_file(), there are convenience functions for writing:</span>
+<span class="comment-delimiter">// </span><span class="comment">Stdio.write_file() and Stdio.append_file()</span>
+
+<span class="constant">Stdio</span>.File logfile = <span class="constant">Stdio</span>.File<span class="punctuation">(</span><span class="string">"/tmp/log"</span>, <span class="string">"w"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">access modes are "r" for reading, "w" for writing and "a" for append</span>
+<span class="comment-delimiter">// </span><span class="comment">default mode is "rw"</span>
+
+<span class="comment-delimiter">// </span><span class="comment">to read a line you may use Stdio.File()-&gt;gets() or get a line_iterator() and</span>
+<span class="comment-delimiter">// </span><span class="comment">read lines from it.</span>
+
+<span class="type">object</span> LOGFILE = logfile-&gt;line_iterator<span class="punctuation">();</span>
+<span class="keyword">do</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> line=LOGFILE-&gt;value<span class="punctuation">();</span>
+<span class="punctuation">}</span>
+<span class="keyword">while</span><span class="punctuation">(</span>LOGFILE-&gt;next<span class="punctuation">())</span>
+logfile-&gt;close<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">or use foreach as shown above.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">write() is actually a shortcut for Stdio.stdout-&gt;write()</span>
+<span class="comment-delimiter">// </span><span class="comment">you could get yourself a different shortcut by assigning that to a variable:</span>
+
+<span class="type">function</span> write = logfile-&gt;write<span class="punctuation">;</span>     <span class="comment-delimiter">//  </span><span class="comment">switch to LOGFILE for write();</span>
+write<span class="punctuation">(</span><span class="string">"Countdown initiated ...\n"</span><span class="punctuation">);</span>
+write = <span class="constant">Stdio</span>.stdout-&gt;write<span class="punctuation">;</span>         <span class="comment-delimiter">//  </span><span class="comment">return to stdout</span>
+write<span class="punctuation">(</span><span class="string">"You have 30 seconds to reach minimum safety distance.\n"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Stdio.File is unbuffered. a buffered version is provided by Stdio.FILE</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN362"
+>Opening a File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">use Stdio.read_file(), Stdio.write_file() and Stdio.append_file() for</span>
+<span class="comment-delimiter">// </span><span class="comment">convenience, or Stdio.File for precision and to get a filehandle.</span>
+
+<span class="type">string</span> path<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for reading</span>
+<span class="type">string</span> file = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>path<span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"r"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for writing, create new file if needed, or else truncate old file</span>
+<span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>path, <span class="string">"content"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wc"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">same with setting access permissions</span>
+<span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>path, <span class="string">"content"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wc"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for writing, create new file, file must not exist</span>
+<span class="keyword">if</span><span class="punctuation">(</span>!file_stat<span class="punctuation">(</span>path<span class="punctuation">))</span>
+  <span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>path, <span class="string">"content"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wcx"</span><span class="punctuation">);</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>!file_stat<span class="punctuation">(</span>path<span class="punctuation">))</span>
+  <span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>path, <span class="string">"content"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wcx"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for appending, create if necessary</span>
+<span class="constant">Stdio</span>.append_file<span class="punctuation">(</span>path, <span class="string">"content"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wac"</span><span class="punctuation">);</span>
+
+<span class="constant">Stdio</span>.append_file<span class="punctuation">(</span>path, <span class="string">"content"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wac"</span>, <span class="number">0600</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for appending, file must exist</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"wacx"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for update, file must exist</span>
+<span class="type">string</span> file = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>path<span class="punctuation">);</span>
+<span class="type">string</span> updated = file+<span class="string">"foo"</span>  <span class="comment-delimiter">// </span><span class="comment">update contents of file</span>
+<span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>path, updated<span class="punctuation">);</span>
+
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path<span class="punctuation">);</span>          <span class="comment-delimiter">// </span><span class="comment">this is the default operation</span>
+
+<span class="comment-delimiter">// </span><span class="comment">open file for update, file must not exist</span>
+<span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"rwcx"</span><span class="punctuation">);</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN365"
+>Opening Files with Unusual Filenames</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">since the filename is contained in a string, this problem does not apply</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN368"
+>Expanding Tildes in Filenames</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> filename<span class="punctuation">;</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>filename<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> == <span class="string">"~"</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> user, path, home<span class="punctuation">;</span>
+  <span class="punctuation">[</span> user, path <span class="punctuation">]</span> = array_sscanf<span class="punctuation">(</span>filename, <span class="string">"~%[^/]%s"</span><span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>user == <span class="string">""</span><span class="punctuation">)</span>
+    home = getenv<span class="punctuation">(</span><span class="string">"HOME"</span><span class="punctuation">)</span> || getenv<span class="punctuation">(</span><span class="string">"LOGDIR"</span><span class="punctuation">)</span> || getpwuid<span class="punctuation">(</span>geteuid<span class="punctuation">())[</span><span class="number">5</span><span class="punctuation">];</span>
+  <span class="keyword">else</span>
+    home = getpwnam<span class="punctuation">(</span>user<span class="punctuation">)[</span><span class="number">5</span><span class="punctuation">];</span>
+  filename = home+path<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN371"
+>Making Perl Report Filenames in Errors</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> path = <span class="string">"/tmp/fooo"</span><span class="punctuation">;</span>
+<span class="type">mixed</span> error = <span class="keyword">catch</span>
+<span class="punctuation">{</span>
+  <span class="constant">Stdio</span>.File file = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>path, <span class="string">"r"</span><span class="punctuation">);</span>
+<span class="punctuation">};</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>error<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  werror<span class="punctuation">(</span><span class="string">"Couldn't open %s for reading:\n"</span>, path<span class="punctuation">);</span>
+  werror<span class="punctuation">(</span>error<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+<span class="comment-delimiter">// </span><span class="comment">Couldn't open /tmp/fooo for reading: </span>
+<span class="comment-delimiter">// </span><span class="comment">Failed to open "/tmp/fooo" mode "r" : No such file or directory</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN374"
+>Creating Temporary Files</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>
+<span class="constant">Stdio</span>.File fh<span class="punctuation">;</span>
+<span class="type">string</span> name<span class="punctuation">;</span>
+<span class="keyword">do</span>
+<span class="punctuation">{</span>
+  name = <span class="string">"/tmp/"</span>+<span class="constant">MIME</span>.encode_base64<span class="punctuation">(</span>random_string<span class="punctuation">(</span><span class="number">10</span><span class="punctuation">));</span>
+  fh = <span class="constant">Stdio</span>.File<span class="punctuation">(</span>name, <span class="string">"rwcx"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+<span class="keyword">while</span><span class="punctuation">(</span>!fh<span class="punctuation">)</span>
+
+atexit<span class="punctuation">(</span><span class="keyword">lambda</span><span class="punctuation">(){</span> fh-&gt;close<span class="punctuation">();</span> rm<span class="punctuation">(</span>name<span class="punctuation">);</span> <span class="punctuation">});</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">if you don't really need the file to be on disk (or if /tmp is a ramdisk)</span>
+<span class="comment-delimiter">// </span><span class="comment">but you need an object that behaves like a file, then use Stdio.FakeFile</span>
+
+fh = <span class="constant">Stdio</span>.FakeFile<span class="punctuation">();</span>
+
+<span class="comment-delimiter">// </span><span class="comment">and use fh like any other filehandle.</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN377"
+>Storing Files Inside Your Program Text</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">since the usual way to handle files is to read them into a string, then just</span>
+<span class="comment-delimiter">// </span><span class="comment">assign your data to a string and work from there:</span>
+
+<span class="type">string</span> data = <span class="string">"your data goes here"</span><span class="punctuation">;</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">or for convenient multiline data:</span>
+
+<span class="type">string</span> data = #<span class="string">"your data goes here
+and here
+and ends here"</span><span class="punctuation">;</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">or use Stdio.FakeFile for a Stdio.File compatible interface</span>
+<span class="comment-delimiter">// </span><span class="comment">see 7.5</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-----------------------------------------------------------------</span>
+
+<span class="type">object</span> stat = file_stat<span class="punctuation">(</span>__FILE__<span class="punctuation">);</span>
+<span class="type">int</span> raw_time = stat-&gt;ctime<span class="punctuation">;</span>
+<span class="type">int</span> size     = stat-&gt;size<span class="punctuation">;</span>
+<span class="type">int</span> kilosize = size/<span class="number">1024</span><span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"&lt;P&gt;Script size is %dk\n"</span>, kilosize<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"&lt;P&gt;Last script update: %s\n"</span>, <span class="constant">Calendar</span>.Second<span class="punctuation">(</span>raw_time<span class="punctuation">)</span>-&gt;format_nicez<span class="punctuation">());</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN380"
+>Writing a Filter</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN383"
+>Modifying a File in Place with Temporary File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN386"
+>Modifying a File in Place with -i Switch</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN389"
+>Modifying a File in Place Without a Temporary File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN392"
+>Locking a File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN395"
+>Flushing Output</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN398"
+>Reading from Many Filehandles Without Blocking</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN401"
+>Doing Non-Blocking I/O</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN404"
+>Determining the Number of Bytes to Read</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN407"
+>Storing Filehandles in Variables</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN410"
+>Caching Open Output Filehandles</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN413"
+>Printing to Many Filehandles Simultaneously</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN416"
+>Opening and Closing File Descriptors by Number</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN419"
+>Copying Filehandles</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN422"
+>Program: netlock</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN425"
+>Program: lockarea</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+></PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="patternmatching.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="filecontents.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Pattern Matching</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>File Contents</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

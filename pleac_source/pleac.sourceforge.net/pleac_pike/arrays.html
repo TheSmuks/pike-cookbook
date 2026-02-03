@@ -1,0 +1,1370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Arrays</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Dates and Times"
+HREF="datesandtimes.html"><LINK
+REL="NEXT"
+TITLE="Hashes"
+HREF="hashes.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="datesandtimes.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="hashes.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ARRAYS"
+>4. Arrays</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN170"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">nested arrays are supported</span>
+<span class="type">array</span> flat = <span class="punctuation">({</span> <span class="string">"this"</span>, <span class="string">"that"</span>, <span class="string">"the"</span>, <span class="string">"other"</span> <span class="punctuation">});</span>
+<span class="type">array</span> nested = <span class="punctuation">({</span> <span class="string">"this"</span>, <span class="string">"that"</span>, <span class="punctuation">({</span> <span class="string">"the"</span>, <span class="string">"other"</span> <span class="punctuation">})</span> <span class="punctuation">});</span>
+
+
+<span class="type">array</span> tune = <span class="punctuation">({</span> <span class="string">"The"</span>, <span class="string">"Star-Spangled"</span>, <span class="string">"Banner"</span> <span class="punctuation">});</span>
+tune<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "The"</span>
+tune<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: "Star-Spangled"</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">the typing may be more specific</span>
+<span class="comment-delimiter">// </span><span class="comment">only strings allowed in the array (thus no nesting!)</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> flat = <span class="punctuation">({</span> <span class="string">"this"</span>, <span class="string">"that"</span>, <span class="string">"the"</span>, <span class="string">"other"</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">allow one level of nesting</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">))</span> admit1 = <span class="punctuation">({</span> <span class="string">"this"</span>, <span class="string">"that"</span>, <span class="punctuation">({</span> <span class="string">"the"</span>, <span class="string">"other"</span> <span class="punctuation">})</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">the first level may only contain arrays, other levels may contain anything</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span> require1 <span class="punctuation">({</span> <span class="punctuation">({</span> <span class="string">"this"</span>, <span class="string">"that"</span> <span class="punctuation">})</span>, <span class="punctuation">({</span> <span class="string">"the"</span>, <span class="string">"other"</span> <span class="punctuation">})</span> <span class="punctuation">});</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN173"
+>Specifying a List In Your Program</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">list</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> a = <span class="punctuation">({</span> <span class="string">"quick"</span>, <span class="string">"brown"</span>, <span class="string">"fox"</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">words</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> a = <span class="string">"Why are you teasing me?"</span>/<span class="string">" "</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">lines</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> lines = #<span class="string">"The boy stood on the burning deck,
+It was as hot as glass."</span>/<span class="string">"\n"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">file</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> bigarray = <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span><span class="string">"mydatafile"</span><span class="punctuation">)</span>/<span class="string">"\n"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">the quoting issues do not apply.</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> ships = <span class="string">"Ni&#241;a Pinta Santa Mar&#237;a"</span>/<span class="string">" "</span><span class="punctuation">;</span>         <span class="comment-delimiter">// </span><span class="comment">wrong</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> ships = <span class="punctuation">({</span> <span class="string">"Ni&#241;a"</span>, <span class="string">"Pinta"</span>, <span class="string">"Santa Mar&#237;a"</span> <span class="punctuation">});</span> <span class="comment-delimiter">// </span><span class="comment">right</span>
+
+ </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN176"
+>Printing a List with Commas</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch04/commify_series.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">chapter 4.2
+</span><span class="comment-delimiter">// </span><span class="comment">commify_series - show proper comma insertion in list output
+</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">))</span> lists =
+  <span class="punctuation">({</span>
+    <span class="punctuation">({</span> <span class="string">"just one thing"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"Mutt"</span>, <span class="string">"Jeff"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"Peter"</span>, <span class="string">"Paul"</span>, <span class="string">"Mary"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"To our parents"</span>, <span class="string">"Mother Theresa"</span>, <span class="string">"God"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"pastrami"</span>, <span class="string">"ham and cheese"</span>, <span class="string">"peanut butter and jelly"</span>, <span class="string">"tuna"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"recycle tired, old phrases"</span>, <span class="string">"ponder big, happy thoughts"</span> <span class="punctuation">})</span>,
+    <span class="punctuation">({</span> <span class="string">"recycle tired, old phrases"</span>,
+       <span class="string">"ponder big, happy thoughts"</span>,
+       <span class="string">"sleep and dream peacefully"</span> <span class="punctuation">})</span>,
+  <span class="punctuation">});</span>
+
+<span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"The list is: %s.\n"</span>, commify_list<span class="punctuation">(</span>lists<span class="punctuation">[</span>*<span class="punctuation">])[</span>*<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="type">string</span> commify_list<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">switch</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>list<span class="punctuation">))</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">return</span> list<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+    <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"%s and %s"</span>, @list<span class="punctuation">);</span>
+    <span class="keyword">default</span>: 
+      <span class="type">string</span> seperator=<span class="string">","</span><span class="punctuation">;</span>
+      <span class="type">int</span> count<span class="punctuation">;</span>
+      <span class="keyword">while</span><span class="punctuation">(</span>count&lt;sizeof<span class="punctuation">(</span>list<span class="punctuation">)</span> &amp;&amp; search<span class="punctuation">(</span>list<span class="punctuation">[</span>count<span class="punctuation">]</span>, seperator<span class="punctuation">)</span>==<span class="number">-1</span><span class="punctuation">)</span>
+        count++<span class="punctuation">;</span>
+      <span class="keyword">if</span><span class="punctuation">(</span>count&lt;sizeof<span class="punctuation">(</span>list<span class="punctuation">))</span>
+        seperator=<span class="string">";"</span><span class="punctuation">;</span>
+      <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"%{%s"</span>+seperator+<span class="string">" %}and %s"</span>, 
+                     list<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>list<span class="punctuation">)</span><span class="number">-2</span><span class="punctuation">]</span>, list<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN179"
+>Changing Array Size</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">void</span> what_about_that_array<span class="punctuation">(</span><span class="type">array</span> list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+    write<span class="punctuation">(</span><span class="string">"The array now has %d elements.\n"</span>, sizeof<span class="punctuation">(</span>list<span class="punctuation">));</span>
+    write<span class="punctuation">(</span><span class="string">"The index of the last element is %d.\n"</span>, sizeof<span class="punctuation">(</span>list<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">);</span>
+    write<span class="punctuation">(</span><span class="string">"Element #3 is %O.\n"</span>, list<span class="punctuation">[</span><span class="number">3</span><span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> people = <span class="punctuation">({</span> <span class="string">"Crosby"</span>, <span class="string">"Stills"</span>, <span class="string">"Nash"</span>, <span class="string">"Young"</span> <span class="punctuation">});</span>
+what_about_that_array<span class="punctuation">(</span>people<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">The array now has 4 elements.</span>
+<span class="comment-delimiter">// </span><span class="comment">The index of the last element is 3.</span>
+<span class="comment-delimiter">// </span><span class="comment">Element #3 is "Young".</span>
+
+people=people<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>people<span class="punctuation">)</span><span class="number">-2</span><span class="punctuation">];</span>
+what_about_that_array<span class="punctuation">(</span>people<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">The array now has 3 elements.</span>
+<span class="comment-delimiter">// </span><span class="comment">The index of the last element is 2.</span>
+<span class="comment-delimiter">// </span><span class="comment">Index 3 is out of array range -3..2.</span>
+
+people+=allocate<span class="punctuation">(</span><span class="number">10001</span>-sizeof<span class="punctuation">(</span>people<span class="punctuation">));</span>
+what_about_that_array<span class="punctuation">(</span>people<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">The array now has 10001 elements.</span>
+<span class="comment-delimiter">// </span><span class="comment">The index of the last element is 10000.</span>
+<span class="comment-delimiter">// </span><span class="comment">Element #3 is 0.</span>
+
+<span class="type">array</span> people = <span class="punctuation">({</span> <span class="string">"Crosby"</span>, <span class="string">"Stills"</span>, <span class="string">"Nash"</span>, <span class="string">"Young"</span> <span class="punctuation">});</span> <span class="comment-delimiter">// </span><span class="comment">resetting the array</span>
+people<span class="punctuation">[</span><span class="number">10000</span><span class="punctuation">]</span>=<span class="number">0</span><span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Index 10000 is out of array range -4..3.</span>
+<span class="comment-delimiter">// </span><span class="comment">accessing a nonexisting index is always an error.</span>
+<span class="comment-delimiter">// </span><span class="comment">arrays can not be enlarged this way.</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN182"
+>Doing Something with Every Element in a List</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;</span> <span class="type">int</span> index<span class="punctuation">;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">do something with item (and possibly index)</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>bad_users<span class="punctuation">;;</span> <span class="type">object</span> user<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  complain<span class="punctuation">(</span>user<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">for such simple cases pike provides a convenient automap feature:</span>
+complain<span class="punctuation">(</span>bad_users<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+<span class="comment-delimiter">// </span><span class="comment">will do the same as the foreach above.</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>getenv<span class="punctuation">()));;</span> <span class="type">string</span> var<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s=%s\n"</span>, var, getenv<span class="punctuation">(</span>var<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if you don't need an assurance that the indices are sorted (they most likely</span>
+<span class="comment-delimiter">// </span><span class="comment">are sorted anyways) you may use:</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>getenv<span class="punctuation">();</span> <span class="type">string</span> var<span class="punctuation">;</span> <span class="type">string</span> value<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s=%s\n"</span>, var, value<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>all_users<span class="punctuation">;;</span> <span class="type">string</span> user<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> disk_space = get_usage<span class="punctuation">(</span>user<span class="punctuation">);</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>disk_space &gt; MAX_QUOTA<span class="punctuation">)</span>
+    complain<span class="punctuation">(</span>user<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">continue; to jump to the next</span>
+<span class="comment-delimiter">// </span><span class="comment">break; to stop the loop</span>
+<span class="comment-delimiter">// </span><span class="comment">redo can be done by doing a loop with the proper checks in the block</span>
+
+<span class="type">object</span> pipe=<span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+<span class="constant">Process</span>.create_process<span class="punctuation">(({</span> <span class="string">"who"</span> <span class="punctuation">})</span>, <span class="punctuation">([</span> <span class="string">"stdout"</span>:pipe-&gt;pipe<span class="punctuation">()</span> <span class="punctuation">]));</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>pipe-&gt;line_iterator<span class="punctuation">();;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>search<span class="punctuation">(</span>line, <span class="string">"tchrist"</span><span class="punctuation">)</span>&gt;<span class="number">-1</span><span class="punctuation">)</span>
+    write<span class="punctuation">(</span>line+<span class="string">"\n"</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">object</span> fh=<span class="constant">Stdio</span>.File<span class="punctuation">(</span><span class="string">"somefile"</span><span class="punctuation">);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>fh-&gt;line_iterator<span class="punctuation">();</span> <span class="type">int</span> linenr<span class="punctuation">;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Process</span>.split_quoted_string<span class="punctuation">(</span>line<span class="punctuation">);;</span> <span class="type">string</span> word<span class="punctuation">)</span><span class="comment-delimiter">//</span><span class="comment">split on whitespace</span>
+  <span class="punctuation">{</span>
+    write<span class="punctuation">(</span>reverse<span class="punctuation">(</span>word<span class="punctuation">));</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> list = <span class="punctuation">({</span> <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> <span class="punctuation">});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">int</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  item--<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+write<span class="punctuation">(</span><span class="string">"%{%d %}\n"</span>, list<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 1 2 3 </span>
+
+<span class="comment-delimiter">// </span><span class="comment">we can still use foreach instead of for, </span>
+<span class="comment-delimiter">// </span><span class="comment">because foreach gives us the index as well:</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;</span> <span class="type">int</span> index<span class="punctuation">;)</span>
+<span class="punctuation">{</span>
+  list<span class="punctuation">[</span>index<span class="punctuation">]</span>--<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+write<span class="punctuation">(</span><span class="string">"%{%d %}\n"</span>, list<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: 0 1 2</span>
+
+<span class="type">array</span> a = <span class="punctuation">({</span> <span class="number">0.5</span>, <span class="number">3</span> <span class="punctuation">});</span>
+<span class="type">array</span> b = <span class="punctuation">({</span> <span class="number">0</span>, <span class="number">1</span> <span class="punctuation">});</span>
+<span class="comment-delimiter">// </span><span class="comment">foreach handles only one array so there is nothing to gain here. </span>
+<span class="comment-delimiter">// </span><span class="comment">better use automap:</span>
+<span class="type">array</span> a_ = a<span class="punctuation">[</span>*<span class="punctuation">]</span>*<span class="number">7</span><span class="punctuation">;</span>
+<span class="type">array</span> b_ = b<span class="punctuation">[</span>*<span class="punctuation">]</span>*<span class="number">7</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"%{%O %}\n"</span>, a_+b_<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">3.500000 21 0 7</span>
+
+<span class="type">string</span> scalar = <span class="string">" abc "</span><span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> list = <span class="punctuation">({</span> <span class="string">" a "</span>, <span class="string">" b "</span> <span class="punctuation">});</span>
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">mixed</span>:<span class="type">string</span><span class="punctuation">)</span> hash = <span class="punctuation">([</span> <span class="string">"a"</span>:<span class="string">" a "</span>, <span class="string">"b"</span>:<span class="string">" b "</span> <span class="punctuation">]);</span>
+
+scalar = <span class="constant">String</span>.trim_whites<span class="punctuation">(</span>scalar<span class="punctuation">);</span>
+list = <span class="constant">String</span>.trim_whites<span class="punctuation">(</span>list<span class="punctuation">[</span>*<span class="punctuation">]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>hash<span class="punctuation">;</span> <span class="type">int</span> key<span class="punctuation">;)</span>
+<span class="punctuation">{</span>
+  hash<span class="punctuation">[</span>key<span class="punctuation">]</span>=<span class="constant">String</span>.trim_whites<span class="punctuation">(</span>hash<span class="punctuation">[</span>key<span class="punctuation">]);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN185"
+>Iterating Over an Array by Reference</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">pike does not distinguish between arrays and array references </span>
+<span class="comment-delimiter">// </span><span class="comment">(they are all references anyways) so this section does not apply</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN188"
+>Extracting Unique Elements from a List</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span> seen = <span class="punctuation">([]);</span>
+<span class="type">array</span>   uniq = <span class="punctuation">({});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!seen<span class="punctuation">[</span>item<span class="punctuation">])</span>
+    seen<span class="punctuation">[</span>item<span class="punctuation">]</span> = <span class="number">1</span><span class="punctuation">;</span>
+  <span class="keyword">else</span>
+    uniq += <span class="punctuation">({</span> item <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+
+<span class="type">mapping</span> seen = <span class="punctuation">([]);</span>
+<span class="type">array</span>   uniq = <span class="punctuation">({});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!seen<span class="punctuation">[</span>item<span class="punctuation">]</span>++<span class="punctuation">)</span>
+    uniq += <span class="punctuation">({</span> item <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="type">mapping</span> seen = <span class="punctuation">([]);</span>
+<span class="type">array</span>   uniq = <span class="punctuation">({});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!seen<span class="punctuation">[</span>item<span class="punctuation">]</span>++<span class="punctuation">)</span>
+    some_func<span class="punctuation">(</span>item<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">the following is probably the most natural for pike</span>
+<span class="type">mapping</span> seen = <span class="punctuation">([]);</span>
+<span class="type">array</span>   uniq = <span class="punctuation">({});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  seen<span class="punctuation">[</span>item<span class="punctuation">]</span>++<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+uniq = indices<span class="punctuation">(</span>seen<span class="punctuation">);</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">not necessarily faster but shorter:</span>
+<span class="type">array</span> uniq = indices<span class="punctuation">(({</span> list<span class="punctuation">[</span>*<span class="punctuation">]</span>,<span class="number">1</span> <span class="punctuation">}));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">also short, and preserving the originaal order:</span>
+<span class="type">array</span> uniq = list&amp;indices<span class="punctuation">(({</span> list<span class="punctuation">[</span>*<span class="punctuation">]</span>,<span class="number">1</span> <span class="punctuation">}));</span>
+
+
+<span class="type">object</span> pipe = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+<span class="constant">Process</span>.create_process<span class="punctuation">(({</span> <span class="string">"who"</span> <span class="punctuation">})</span>, <span class="punctuation">([</span> <span class="string">"stdout"</span>:pipe-&gt;pipe<span class="punctuation">()</span> <span class="punctuation">]));</span>
+<span class="type">mapping</span> ucnt = <span class="punctuation">([]);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>pipe-&gt;line_iterator<span class="punctuation">();;</span> <span class="type">string</span> line<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  ucnt<span class="punctuation">[(</span>line/<span class="string">" "</span><span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">]]</span>++<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> users = sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>ucnt<span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"users logged in: %s\n"</span>, users*<span class="string">" "</span><span class="punctuation">);</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN191"
+>Finding Elements in One Array but Not Another</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">one of pikes strenghts are operators.</span>
+<span class="comment-delimiter">// </span><span class="comment">the following are the only idiomatic solutions to the problem</span>
+
+<span class="type">array</span> A = <span class="punctuation">({</span> <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> <span class="punctuation">});</span>
+<span class="type">array</span> B = <span class="punctuation">({</span> <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span> <span class="punctuation">});</span>
+<span class="type">array</span> aonly = A-B<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">Result: ({ 1 });</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN194"
+>Computing Union, Intersection, or Difference of Unique Lists</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">array</span> a = <span class="punctuation">({</span> <span class="number">1</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span> <span class="punctuation">});</span>
+<span class="type">array</span> b = <span class="punctuation">({</span> <span class="number">2</span>, <span class="number">3</span>, <span class="number">5</span>, <span class="number">7</span>, <span class="number">9</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">union:</span>
+<span class="type">array</span> union = a|b<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">({ 1, 3, 5, 6, 7, 8, 2, 9 })</span>
+
+<span class="comment-delimiter">// </span><span class="comment">intersection</span>
+<span class="type">array</span> intersection = a&amp;b<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">({ 3, 5, 7 })</span>
+
+<span class="comment-delimiter">// </span><span class="comment">difference</span>
+<span class="type">array</span> difference = a-b<span class="punctuation">;</span> 
+<span class="comment-delimiter">// </span><span class="comment">({ 1, 6, 8 })</span>
+
+<span class="comment-delimiter">// </span><span class="comment">symetric difference</span>
+<span class="type">array</span> symdiff= a^b<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">({ 1, 6, 8, 2, 9 })</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN197"
+>Appending One Array to Another</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">join arrays</span>
+
+<span class="comment-delimiter">// </span><span class="comment">appending to an array will always create a new array and pike is designed to</span>
+<span class="comment-delimiter">// </span><span class="comment">handle this efficiently.</span>
+
+<span class="type">array</span> members = <span class="punctuation">({</span> <span class="string">"Time"</span>, <span class="string">"Flies"</span> <span class="punctuation">});</span>
+<span class="type">array</span> initiates = <span class="punctuation">({</span> <span class="string">"An"</span>, <span class="string">"Arrow"</span> <span class="punctuation">});</span>
+members += initiates<span class="punctuation">;</span>
+<span class="comment-delimiter">// </span><span class="comment">members is now ({ "Time", "Flies", "An", "Arrow" })</span>
+
+members = members<span class="punctuation">[</span>..<span class="number">1</span><span class="punctuation">]</span>+<span class="punctuation">({</span> <span class="string">"Like"</span> <span class="punctuation">})</span>+members<span class="punctuation">[</span><span class="number">2</span>..<span class="punctuation">];</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, members*<span class="string">" "</span><span class="punctuation">);</span>
+
+members<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> = <span class="string">"Fruit"</span><span class="punctuation">;</span>
+members = members<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>members<span class="punctuation">)</span><span class="number">-3</span><span class="punctuation">]</span>+<span class="punctuation">({</span> <span class="string">"A"</span>, <span class="string">"Banana"</span> <span class="punctuation">});</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, members*<span class="string">" "</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Time Flies Like An Arrow</span>
+<span class="comment-delimiter">// </span><span class="comment">Fruit Flies Like A Banana</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN200"
+>Reversing an Array</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">almost any operation you do on the elements will add more overhead than</span>
+<span class="comment-delimiter">// </span><span class="comment">reversing the array, if there is any possible optimization, pike will do it</span>
+<span class="comment-delimiter">// </span><span class="comment">for you.</span>
+
+<span class="type">array</span> reversed = reverse<span class="punctuation">(</span>arr<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">unless you were going to use for anyways then foreach(reverse( ...)) is</span>
+<span class="comment-delimiter">// </span><span class="comment">preferable.</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>reverse<span class="punctuation">(</span>arr<span class="punctuation">);;</span> <span class="type">mixed</span> item<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">do something with item</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i=sizeof<span class="punctuation">(</span>arr<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">;</span> i&lt;=<span class="number">0</span><span class="punctuation">;</span> i--<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">so something with arr[i]</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> ascending = sort<span class="punctuation">(</span>users<span class="punctuation">);</span>
+<span class="type">array</span> descending = reverse<span class="punctuation">(</span>sort<span class="punctuation">(</span>users<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">reverse(sort()) is faster by a magnitude</span>
+<span class="type">array</span> descending = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>users, <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+                                           <span class="punctuation">{</span> 
+                                             <span class="keyword">return</span> a&lt;b<span class="punctuation">;</span> 
+                                           <span class="punctuation">}</span>
+                                   <span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN203"
+>Processing Multiple Elements of an Array</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">array</span> arr = <span class="punctuation">({</span> <span class="number">0</span>,<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>,<span class="number">7</span>,<span class="number">8</span>,<span class="number">9</span> <span class="punctuation">});</span>
+<span class="type">int</span> n=<span class="number">3</span><span class="punctuation">;</span>
+<span class="type">array</span> front = arr<span class="punctuation">[</span>..n<span class="number">-1</span><span class="punctuation">];</span>
+arr = arr<span class="punctuation">[</span>n..<span class="punctuation">];</span>
+
+<span class="type">array</span> back = arr<span class="punctuation">[</span>sizeof<span class="punctuation">(</span>arr<span class="punctuation">)</span>-n..<span class="punctuation">];</span>
+arr = arr<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>arr<span class="punctuation">)</span>-<span class="punctuation">(</span>n+<span class="number">1</span><span class="punctuation">)];</span>
+
+<span class="comment-delimiter">// </span><span class="comment">since new arrays are created if elements are added or removed</span>
+<span class="comment-delimiter">// </span><span class="comment">shift and pop are not usefull here.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if you need shift and pop capabilities use the ADT classes:</span>
+
+<span class="type">array</span> shift2<span class="punctuation">(</span><span class="constant">ADT</span>.Queue queue<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> <span class="punctuation">({</span> queue-&gt;read<span class="punctuation">()</span>, queue-&gt;read<span class="punctuation">()</span> <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="constant">ADT</span>.Queue friends = <span class="constant">ADT</span>.Queue<span class="punctuation">(</span><span class="string">"Peter"</span>, <span class="string">"Paul"</span>, <span class="string">"Mary"</span>, <span class="string">"Jim"</span>, <span class="string">"Tim"</span><span class="punctuation">);</span>
+<span class="type">string</span> <span class="keyword">this</span>, that<span class="punctuation">;</span>
+<span class="punctuation">[</span><span class="keyword">this</span>, that<span class="punctuation">]</span> = shift2<span class="punctuation">(</span>friends<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">this contains Peter, that has Paul, and</span>
+<span class="comment-delimiter">// </span><span class="comment">friends has Mary, Jim, and Tim</span>
+
+<span class="constant">ADT</span>.Stack beverages = <span class="constant">ADT</span>.Stack<span class="punctuation">();</span>
+beverages-&gt;set_stack<span class="punctuation">(({</span> <span class="string">"Dew"</span>, <span class="string">"Jolt"</span>, <span class="string">"Cola"</span>, <span class="string">"Sprite"</span>, <span class="string">"Fresca"</span> <span class="punctuation">}));</span>
+<span class="type">array</span> pair = beverages-&gt;pop<span class="punctuation">(</span><span class="number">2</span><span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">implementing pop2 would gain nothing here</span>
+<span class="comment-delimiter">// </span><span class="comment">pair[0] contains Sprite, pair[1] has Fresca,</span>
+<span class="comment-delimiter">// </span><span class="comment">and beverages has (Dew, Jolt, Cola)</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">to be able to shift and pop on the same list use the following:</span>
+
+<span class="type">array</span> shift2<span class="punctuation">(</span><span class="constant">ADT</span>.CircularList list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> <span class="punctuation">({</span> list-&gt;pop_front<span class="punctuation">()</span>, list-&gt;pop_front<span class="punctuation">()</span> <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> pop2<span class="punctuation">(</span><span class="constant">ADT</span>.CircularList list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> reverse<span class="punctuation">(</span> <span class="punctuation">({</span> list-&gt;pop_back<span class="punctuation">()</span>, list-&gt;pop_back<span class="punctuation">()</span> <span class="punctuation">})</span> <span class="punctuation">);</span>
+<span class="punctuation">}</span>
+  
+<span class="constant">ADT</span>.CircularList friends = <span class="constant">ADT</span>.CircularList<span class="punctuation">(</span> <span class="punctuation">({</span><span class="string">"Peter"</span>, <span class="string">"Paul"</span>, <span class="string">"Mary"</span>, <span class="string">"Jim"</span>, <span class="string">"Tim"</span><span class="punctuation">})</span> <span class="punctuation">);</span>
+<span class="type">string</span> <span class="keyword">this</span>, that<span class="punctuation">;</span>
+<span class="punctuation">[</span><span class="keyword">this</span>, that<span class="punctuation">]</span> = shift2<span class="punctuation">(</span>friends<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">this contains Peter, that has Paul, and</span>
+<span class="comment-delimiter">// </span><span class="comment">friends has Mary, Jim, and Tim</span>
+
+<span class="constant">ADT</span>.CircularList beverages = <span class="constant">ADT</span>.CircularList<span class="punctuation">(</span> <span class="punctuation">({</span> <span class="string">"Dew"</span>, <span class="string">"Jolt"</span>, <span class="string">"Cola"</span>, <span class="string">"Sprite"</span>, <span class="string">"Fresca"</span> <span class="punctuation">})</span> <span class="punctuation">);</span>
+<span class="type">array</span> pair = pop2<span class="punctuation">(</span>beverates<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">pair[0] contains Sprite, pair[1] has Fresca,</span>
+<span class="comment-delimiter">// </span><span class="comment">and beverages has (Dew, Jolt, Cola)</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN206"
+>Finding the First List Element That Passes a Test</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mixed</span> match = search<span class="punctuation">(</span>arr, element<span class="punctuation">);</span>
+
+<span class="type">int</span> test<span class="punctuation">(</span><span class="type">mixed</span> element<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>element<span class="punctuation">)</span>==<span class="number">5</span><span class="punctuation">)</span>
+    <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span>
+  <span class="keyword">else</span>
+    <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">mixed</span> match = <span class="constant">Array</span>.search_array<span class="punctuation">(</span>arr, test<span class="punctuation">);</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span>match != <span class="number">-1</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">do something with arr[match]</span>
+<span class="punctuation">}</span>
+<span class="keyword">else</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">do something else</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">another convenient way if you do many tests on the same list,</span>
+<span class="comment-delimiter">// </span><span class="comment">and you do not care for the position is:</span>
+
+<span class="keyword">if</span><span class="punctuation">(</span> <span class="punctuation">(</span><span class="type">multiset</span><span class="punctuation">)</span>arr<span class="punctuation">[</span>element<span class="punctuation">]</span> <span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">found</span>
+<span class="punctuation">}</span>
+<span class="keyword">else</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">not found</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN209"
+>Finding All Elements in an Array Matching Certain Criteria</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">array</span> matching=<span class="punctuation">({});</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>list<span class="punctuation">;;</span> <span class="type">mixed</span> element<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>test<span class="punctuation">(</span>element<span class="punctuation">))</span>
+    matching+=<span class="punctuation">({</span> element <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> matching = map<span class="punctuation">(</span>list, test<span class="punctuation">)</span>-<span class="punctuation">({</span> <span class="number">0</span> <span class="punctuation">});</span>
+<span class="type">array</span> matching = test<span class="punctuation">(</span>list<span class="punctuation">[</span>*<span class="punctuation">])</span>-<span class="punctuation">({</span> <span class="number">0</span> <span class="punctuation">});</span> 
+<span class="comment-delimiter">// </span><span class="comment">apply test() on each element in list, collect the results, and remove</span>
+<span class="comment-delimiter">// </span><span class="comment">results that are 0.</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN212"
+>Sorting an Array Numerically</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">since pike has different types for strings and numbers, ints and floats are</span>
+<span class="comment-delimiter">// </span><span class="comment">of course sorted numerically </span>
+<span class="comment-delimiter">// </span><span class="comment">(sort() is destructive, the original array is changed)</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> unsorted = ...<span class="punctuation">;</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> sorted = sort<span class="punctuation">(</span>unsorted<span class="punctuation">);</span>
+
+
+<span class="comment-delimiter">// </span><span class="comment">but suppose you want to sort an array of strings by their numeric value then</span>
+<span class="comment-delimiter">// </span><span class="comment">things get a bit more interresting:</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> unsorted = <span class="punctuation">({</span> <span class="string">"123asdf"</span>, <span class="string">"3poiu"</span>, <span class="string">"23qwert"</span>, <span class="string">"3ayxcv"</span> <span class="punctuation">});</span>
+
+sort<span class="punctuation">((</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span>unsorted, unsorted<span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">unsorted is now sorted.</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN215"
+>Sorting a List by Computable Field</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">array</span> unordered<span class="punctuation">;</span>
+<span class="type">int</span> compare<span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">return comparison of a and b</span>
+<span class="punctuation">}</span>
+<span class="type">array</span> ordered = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>unordered, compare<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">int</span> compute<span class="punctuation">(</span><span class="type">mixed</span> element<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">return computation from element</span>
+<span class="punctuation">}</span>
+<span class="type">array</span> precomputed = map<span class="punctuation">(</span>unordered, compute<span class="punctuation">);</span>
+sort<span class="punctuation">(</span>precomputed, unordered<span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">will destructively sort unordered in the same</span>
+<span class="type">array</span> ordered = unordered<span class="punctuation">;</span>    <span class="comment-delimiter">// </span><span class="comment">manner as precomputed.</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+sort<span class="punctuation">(</span>map<span class="punctuation">(</span>unordered, compute<span class="punctuation">)</span>, unordered<span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">without a temp variable</span>
+sort<span class="punctuation">(</span>compute<span class="punctuation">(</span>unordered<span class="punctuation">[</span>*<span class="punctuation">])</span>, unordered<span class="punctuation">);</span>   <span class="comment-delimiter">// </span><span class="comment">using the automap operator</span>
+                                          <span class="comment-delimiter">// </span><span class="comment">both get compiled to the same code</span>
+
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> ordered = sort<span class="punctuation">(</span>employees, <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+                                <span class="punctuation">{</span> 
+                                  <span class="keyword">return</span> a-&gt;name &gt; b-&gt;name<span class="punctuation">;</span>
+                                <span class="punctuation">}</span>
+                    <span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Array</span>.sort_array<span class="punctuation">(</span>employees, 
+                         <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">){</span> <span class="keyword">return</span> a-&gt;name &gt; b-&gt;name<span class="punctuation">;</span> <span class="punctuation">})</span>
+        <span class="punctuation">;;</span> <span class="type">mixed</span> employee<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s earns $%d\n"</span>, employee-&gt;name, employee-&gt;salary<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> ordered_employees = 
+        <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>employees, 
+                         <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">){</span> <span class="keyword">return</span> a-&gt;name &gt; b-&gt;name<span class="punctuation">;</span> <span class="punctuation">});</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>ordered_employees<span class="punctuation">;;</span> <span class="type">mixed</span> employee<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%s earns $%d\n"</span>, employee-&gt;name, employee-&gt;salary<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">mapping</span> bonus<span class="punctuation">;</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>ordered_employees<span class="punctuation">;;</span> <span class="type">mixed</span> employee<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">you are not supposed to use the social security number as an id</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>bonus<span class="punctuation">[</span>employee-&gt;id<span class="punctuation">])</span>  
+    write<span class="punctuation">(</span><span class="string">"%s got a bonus!\n"</span>, employee-&gt;name<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> sorted = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>employees, 
+                                <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+                                <span class="punctuation">{</span>
+                                  <span class="keyword">if</span><span class="punctuation">(</span>a-&gt;name!=b-&gt;name<span class="punctuation">)</span>
+                                    <span class="keyword">return</span> <span class="punctuation">(</span>a-&gt;name &lt; b-&gt;name<span class="punctuation">)</span>
+                                  <span class="keyword">return</span> <span class="punctuation">(</span>b-&gt;age &lt; a-&gt;age<span class="punctuation">);</span>
+                                <span class="punctuation">}</span>
+                               <span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span> users = <span class="constant">System</span>.get_all_users<span class="punctuation">();</span>
+
+sort<span class="punctuation">(</span>users<span class="punctuation">);</span> 
+<span class="comment-delimiter">// </span><span class="comment">System.get_all_users() returns an array of arrays, with the name as the</span>
+<span class="comment-delimiter">// </span><span class="comment">first element in each inner array, sort handles multidimensional arrays, so</span>
+<span class="comment-delimiter">// </span><span class="comment">we can skip creating our own sort function.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">if we wanted to sort on something else one could rearrange the array:</span>
+<span class="type">array</span> user<span class="punctuation">;</span>
+<span class="keyword">while</span><span class="punctuation">(</span>user=<span class="constant">System</span>.getpwent<span class="punctuation">())</span>
+<span class="punctuation">{</span>
+  users += <span class="punctuation">({</span> user<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>, user <span class="punctuation">});</span>
+<span class="punctuation">}</span>
+<span class="constant">System</span>.endpwent<span class="punctuation">();</span>
+sort<span class="punctuation">(</span>users<span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">now we are sorting by uid.</span>
+
+<span class="comment-delimiter">// </span><span class="comment">alternative:</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span> users = <span class="constant">System</span>.get_all_users<span class="punctuation">();</span>
+sort<span class="punctuation">(</span>users<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">2</span><span class="punctuation">]</span>, users<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span>users<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">0</span><span class="punctuation">]</span>*<span class="string">"\n"</span><span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> names<span class="punctuation">;</span>
+<span class="type">array</span> sorted = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>names, <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+                                       <span class="punctuation">{</span>
+                                         <span class="keyword">return</span> a<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> &lt; b<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+                                       <span class="punctuation">}</span>
+                               <span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">faster:</span>
+sort<span class="punctuation">(</span>names<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">1</span><span class="punctuation">]</span>, names<span class="punctuation">);</span>
+sorted=names<span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> strings<span class="punctuation">;</span>
+<span class="type">array</span> sorted = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>strings, <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+                                       <span class="punctuation">{</span>
+                                         <span class="keyword">return</span> sizeof<span class="punctuation">(</span>a<span class="punctuation">)</span> &lt; sizeof<span class="punctuation">(</span>b<span class="punctuation">);</span>
+                                       <span class="punctuation">}</span>
+                               <span class="punctuation">);</span>
+<span class="comment-delimiter">// </span><span class="comment">faster:</span>
+sort<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>strings<span class="punctuation">[</span>*<span class="punctuation">])</span>, strings<span class="punctuation">);</span>
+sorted=strings<span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> strings<span class="punctuation">;</span>
+<span class="type">array</span> temp = map<span class="punctuation">(</span>strings, sizeof<span class="punctuation">);</span>
+sort<span class="punctuation">(</span>temp, strings<span class="punctuation">);</span> 
+<span class="type">array</span> sorted = strings<span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> strings<span class="punctuation">;</span>
+sort<span class="punctuation">(</span>map<span class="punctuation">(</span>strings, sizeof<span class="punctuation">)</span>, strings<span class="punctuation">);</span>   <span class="comment-delimiter">// </span><span class="comment">pick one</span>
+sort<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>strings<span class="punctuation">[</span>*<span class="punctuation">])</span>, strings<span class="punctuation">);</span>
+sorted=strings<span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> fields<span class="punctuation">;</span>
+<span class="type">array</span> temp = map<span class="punctuation">(</span>fields, array_sscanf, <span class="string">"%*s%d%*s"</span><span class="punctuation">);</span>
+sort<span class="punctuation">(</span>temp, fields<span class="punctuation">);</span>
+<span class="type">array</span> sorted_fields=fields<span class="punctuation">;</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+sort<span class="punctuation">(</span>array_sscanf<span class="punctuation">(</span>fields<span class="punctuation">[</span>*<span class="punctuation">]</span>, <span class="string">"%*s%d%*s"</span><span class="punctuation">)</span>, fields<span class="punctuation">);</span>
+<span class="type">array</span> sorted_fields=fields<span class="punctuation">;</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">array</span> passwd_lines = <span class="punctuation">(</span><span class="constant">Stdio</span>.read_file<span class="punctuation">(</span><span class="string">"/etc/passwd"</span><span class="punctuation">)</span>/<span class="string">"\n"</span><span class="punctuation">)</span>-<span class="punctuation">({</span><span class="string">""</span><span class="punctuation">});</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">)</span> passwd = passwd_lines<span class="punctuation">[</span>*<span class="punctuation">]</span>/<span class="string">":"</span><span class="punctuation">;</span>
+
+<span class="type">int</span> compare<span class="punctuation">(</span><span class="type">mixed</span> a, <span class="type">mixed</span> b<span class="punctuation">)</span>
+<span class="punctuation">{</span> 
+  <span class="keyword">if</span><span class="punctuation">(</span>a<span class="punctuation">[</span><span class="number">3</span><span class="punctuation">]</span>!=b<span class="punctuation">[</span><span class="number">3</span><span class="punctuation">])</span>
+    <span class="keyword">return</span> <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>a<span class="punctuation">[</span><span class="number">3</span><span class="punctuation">]</span>&lt;<span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>b<span class="punctuation">[</span><span class="number">3</span><span class="punctuation">];</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>a<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>!=b<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">])</span>
+    <span class="keyword">return</span> <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>a<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">]</span>&lt;<span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>b<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">];</span>
+  <span class="keyword">return</span> a<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>&lt;b<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> sorted_passwd = <span class="constant">Array</span>.sort_array<span class="punctuation">(</span>passwd, compare<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">alternatively the following uses the builtin sort</span>
+sort<span class="punctuation">(</span> passwd<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">0</span><span class="punctuation">]</span>, passwd<span class="punctuation">);</span>
+sort<span class="punctuation">(</span> <span class="punctuation">((</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span>passwd<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">2</span><span class="punctuation">])</span>, passwd<span class="punctuation">);</span>
+sort<span class="punctuation">(</span> <span class="punctuation">((</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span>passwd<span class="punctuation">[</span>*<span class="punctuation">][</span><span class="number">3</span><span class="punctuation">])</span>, passwd<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN218"
+>Implementing a Circular List</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="constant">ADT</span>.CircularList circular<span class="punctuation">;</span>
+circular-&gt;push_front<span class="punctuation">(</span>circular-&gt;pop_back<span class="punctuation">());</span>
+circular-&gt;push_back<span class="punctuation">(</span>circular-&gt;pop_front<span class="punctuation">());</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="type">mixed</span> grab_and_rotate<span class="punctuation">(</span><span class="constant">ADT</span>.CircularList list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mixed</span> element = list-&gt;pop_front<span class="punctuation">();</span>
+  list-&gt;push_back<span class="punctuation">(</span>element<span class="punctuation">);</span>
+  <span class="keyword">return</span> element<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="constant">ADT</span>.CircularList processes = <span class="constant">ADT</span>.CircularList<span class="punctuation">(</span> <span class="punctuation">({</span> <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span> <span class="punctuation">})</span> <span class="punctuation">);</span>
+<span class="keyword">while</span><span class="punctuation">(</span><span class="number">1</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> process = grab_and_rotate<span class="punctuation">(</span>processes<span class="punctuation">);</span>
+  write<span class="punctuation">(</span><span class="string">"Handling process %d\n"</span>, process<span class="punctuation">);</span>
+  sleep<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN221"
+>Randomizing an Array</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">array</span> arr<span class="punctuation">;</span>
+<span class="constant">Array</span>.shuffle<span class="punctuation">(</span>arr<span class="punctuation">);</span>  <span class="comment-delimiter">// </span><span class="comment">this uses the fisher-yates shuffle</span>
+
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">being creative with the algorithm, this is not as memory efficient,</span>
+<span class="comment-delimiter">// </span><span class="comment">but it shows the utility of multisets.</span>
+<span class="type">array</span> set_shuffle<span class="punctuation">(</span><span class="type">array</span> list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">multiset</span> elements=<span class="punctuation">(</span><span class="type">multiset</span><span class="punctuation">)</span>list<span class="punctuation">;</span>
+  list=<span class="punctuation">({});</span>                     <span class="comment-delimiter">// </span><span class="comment">reset the list</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>elements<span class="punctuation">))</span>        <span class="comment-delimiter">// </span><span class="comment">while we still have elements left</span>
+  <span class="punctuation">{</span>
+    <span class="type">mixed</span> pick=random<span class="punctuation">(</span>elements<span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">pick a random element</span>
+    list+=<span class="punctuation">({</span> pick <span class="punctuation">});</span>            <span class="comment-delimiter">// </span><span class="comment">add it to the new list</span>
+    elements<span class="punctuation">[</span>pick<span class="punctuation">]</span>--<span class="punctuation">;</span>            <span class="comment-delimiter">// </span><span class="comment">remove the element we picked</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> list<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> list<span class="punctuation">;</span>
+list=set_shuffle<span class="punctuation">(</span>list<span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+
+<span class="keyword">inherit</span> <span class="string">"mjd_permute"</span><span class="punctuation">;</span>
+<span class="type">int</span> permutations = factorial<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>list<span class="punctuation">));</span>
+<span class="type">array</span> shuffle = list<span class="punctuation">[</span>n2perm<span class="punctuation">(</span>random<span class="punctuation">(</span>permutations<span class="punctuation">)</span>+<span class="number">1</span>, sizeof<span class="punctuation">(</span>list<span class="punctuation">))[</span>*<span class="punctuation">]];</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+
+<span class="type">void</span> naive_shuffle<span class="punctuation">(</span><span class="type">array</span> list<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i=<span class="number">0</span><span class="punctuation">;</span> i&lt;sizeof<span class="punctuation">(</span>list<span class="punctuation">);</span> i++<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">int</span> j=random<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>list<span class="punctuation">)</span><span class="number">-1</span><span class="punctuation">);</span>
+    <span class="punctuation">[</span> list<span class="punctuation">[</span>i<span class="punctuation">]</span>, list<span class="punctuation">[</span>j<span class="punctuation">]</span> <span class="punctuation">]</span> = <span class="punctuation">({</span> list<span class="punctuation">[</span>j<span class="punctuation">]</span>, list<span class="punctuation">[</span>i<span class="punctuation">]</span> <span class="punctuation">});</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN224"
+>Program: words</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch04/words">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">section 4.18 example 4.2
+</span><span class="comment-delimiter">// </span><span class="comment">words - gather lines, present in columns
+</span>
+<span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span> words=<span class="constant">Stdio</span>.<span class="constant">stdin</span>.read<span class="punctuation">()</span>/<span class="string">"\n"</span><span class="punctuation">;</span>   <span class="comment-delimiter">// </span><span class="comment">get all input
+</span>  <span class="type">int</span> maxlen=sort<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>words<span class="punctuation">[</span>*<span class="punctuation">]))[</span><span class="number">-1</span><span class="punctuation">];</span> <span class="comment-delimiter">// </span><span class="comment">sort by size and pick the largest
+</span>  maxlen++<span class="punctuation">;</span>                              <span class="comment-delimiter">// </span><span class="comment">add space
+</span>
+  <span class="comment-delimiter">// </span><span class="comment">get boundaries, this should be portable
+</span>  <span class="type">int</span> cols = <span class="constant">Stdio</span>.stdout-&gt;tcgetattr<span class="punctuation">()</span>-&gt;columns/maxlen<span class="punctuation">;</span>
+  <span class="type">int</span> rows = <span class="punctuation">(</span>sizeof<span class="punctuation">(</span>words<span class="punctuation">)</span>/cols<span class="punctuation">)</span> + <span class="number">1</span><span class="punctuation">;</span>
+
+  <span class="type">string</span> mask=<span class="string">"%{%-"</span>+maxlen+<span class="string">"s%}\n"</span><span class="punctuation">;</span>     <span class="comment-delimiter">// </span><span class="comment">compute format
+</span>
+  words=<span class="constant">Array</span>.transpose<span class="punctuation">(</span>words/rows<span class="punctuation">);</span>     <span class="comment-delimiter">// </span><span class="comment">split into groups as large as the
+</span>                                         <span class="comment-delimiter">// </span><span class="comment">number of rows and then transpose
+</span>  write<span class="punctuation">(</span>mask, words<span class="punctuation">[</span>*<span class="punctuation">]);</span>                 <span class="comment-delimiter">// </span><span class="comment">apply mask to each group
+</span><span class="punctuation">}</span>
+
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN227"
+>Program: permute</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> factorial<span class="punctuation">(</span><span class="type">int</span> n<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> s=<span class="number">1</span><span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>n<span class="punctuation">)</span>
+    s*=n--<span class="punctuation">;</span>
+  <span class="keyword">return</span> s<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+write<span class="punctuation">(</span><span class="string">"%d\n"</span>, factorial<span class="punctuation">(</span><span class="number">500</span><span class="punctuation">));</span>
+<span class="comment-delimiter">// </span><span class="comment">TODO: provide a short example using Array.permute()</span>
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch04/permute.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+
+<span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> line<span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>line=<span class="constant">Stdio</span>.stdin-&gt;gets<span class="punctuation">())</span>
+  <span class="punctuation">{</span>
+    permute<span class="punctuation">(</span>line/<span class="string">" "</span><span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> permute<span class="punctuation">(</span><span class="type">array</span> items, <span class="type">array</span>|<span class="type">void</span> perms<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!perms<span class="punctuation">)</span>
+    perms=<span class="punctuation">({});</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!sizeof<span class="punctuation">(</span>items<span class="punctuation">))</span>
+    write<span class="punctuation">((</span>perms*<span class="string">" "</span><span class="punctuation">)</span>+<span class="string">"\n"</span><span class="punctuation">);</span>
+  <span class="keyword">else</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>items<span class="punctuation">;</span> <span class="type">int</span> i<span class="punctuation">;)</span>
+    <span class="punctuation">{</span>
+      <span class="type">array</span> newitems=items<span class="punctuation">[</span>..i<span class="number">-1</span><span class="punctuation">]</span>+items<span class="punctuation">[</span>i+<span class="number">1</span>..<span class="punctuation">];</span>
+      <span class="type">array</span> newperms=items<span class="punctuation">[</span>i..i<span class="punctuation">]</span>+perms<span class="punctuation">;</span>
+      permute<span class="punctuation">(</span>newitems, newperms<span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">-------------------------------------------------------------</span>
+<span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch04/mjd_permute.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+
+<span class="type">mapping</span> fact=<span class="punctuation">([</span> <span class="number">1</span>:<span class="number">1</span> <span class="punctuation">]);</span>
+
+<span class="type">int</span> factorial<span class="punctuation">(</span><span class="type">int</span> n<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span><span class="punctuation">(</span>!fact<span class="punctuation">[</span>n<span class="punctuation">])</span>
+    fact<span class="punctuation">[</span>n<span class="punctuation">]</span>=n*factorial<span class="punctuation">(</span>n<span class="number">-1</span><span class="punctuation">);</span>
+  <span class="keyword">return</span> fact<span class="punctuation">[</span>n<span class="punctuation">];</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> n2pat<span class="punctuation">(</span><span class="type">int</span> N, <span class="type">int</span> len<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> i=<span class="number">1</span><span class="punctuation">;</span>
+  <span class="type">array</span> pat=<span class="punctuation">({});</span>
+
+  <span class="keyword">while</span><span class="punctuation">(</span>i &lt;= len<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    pat += <span class="punctuation">({</span> N%i <span class="punctuation">});</span>
+    N/=i<span class="punctuation">;</span>
+    i++<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> pat<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> pat2perm<span class="punctuation">(</span><span class="type">array</span> pat<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span> source=indices<span class="punctuation">(</span>pat<span class="punctuation">);</span>
+  <span class="type">array</span> perm=<span class="punctuation">({});</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>pat<span class="punctuation">))</span>
+  <span class="punctuation">{</span>
+    perm += <span class="punctuation">({</span> source<span class="punctuation">[</span>pat<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]]</span> <span class="punctuation">});</span>
+    source = source<span class="punctuation">[</span>..pat<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]</span><span class="number">-1</span><span class="punctuation">]</span>+source<span class="punctuation">[</span>pat<span class="punctuation">[</span><span class="number">-1</span><span class="punctuation">]</span>+<span class="number">1</span>..<span class="punctuation">];</span>
+    pat=pat<span class="punctuation">[</span>..sizeof<span class="punctuation">(</span>pat<span class="punctuation">)</span><span class="number">-2</span><span class="punctuation">];</span>
+  <span class="punctuation">}</span>
+  <span class="keyword">return</span> perm<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">array</span> n2perm<span class="punctuation">(</span><span class="type">int</span> N, <span class="type">int</span> len<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> pat2perm<span class="punctuation">(</span>n2pat<span class="punctuation">(</span>N, len<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+
+<span class="type">void</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">array</span> data<span class="punctuation">;</span>
+  <span class="keyword">while</span><span class="punctuation">(</span>data=<span class="constant">Stdio</span>.stdin-&gt;gets<span class="punctuation">()</span>/<span class="string">" "</span><span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="type">int</span> num_permutations = factorial<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>data<span class="punctuation">));</span>
+    <span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i<span class="punctuation">;</span> i&lt;num_permutations<span class="punctuation">;</span> i++<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="type">array</span> permutation = data<span class="punctuation">[</span>n2perm<span class="punctuation">(</span>i, sizeof<span class="punctuation">(</span>data<span class="punctuation">))[</span>*<span class="punctuation">]];</span>
+      write<span class="punctuation">(</span>permutation*<span class="string">" "</span>+<span class="string">"\n"</span><span class="punctuation">);</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="datesandtimes.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="hashes.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Dates and Times</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Hashes</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,1108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Directories</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="File Contents"
+HREF="filecontents.html"><LINK
+REL="NEXT"
+TITLE="Subroutines"
+HREF="subroutines.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="filecontents.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="subroutines.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DIRECTORIES"
+>9. Directories</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN495"
+>Introduction</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="constant">Stdio</span>.Stat entry<span class="punctuation">;</span>
+
+entry = file_stat<span class="punctuation">(</span><span class="string">"/bin/vi"</span><span class="punctuation">);</span>
+entry = file_stat<span class="punctuation">(</span><span class="string">"/usr/bin"</span><span class="punctuation">);</span>
+entry = file_stat<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="constant">Stdio</span>.Stat entry<span class="punctuation">;</span> <span class="type">int</span> ctime, size<span class="punctuation">;</span>
+
+entry = file_stat<span class="punctuation">(</span><span class="string">"/bin/vi"</span><span class="punctuation">);</span>
+ctime = entry-&gt;ctime<span class="punctuation">;</span>
+size = entry-&gt;size<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">A routine detecting whether a file is a 'text' file doesn't appear</span>
+<span class="comment-delimiter">// </span><span class="comment">to exist, so have implemented the following [crude] function(s)</span>
+<span class="comment-delimiter">// </span><span class="comment">which search for a LF / NEWLINE in the file:</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Usable with any file</span>
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> containsText<span class="punctuation">(</span><span class="constant">Stdio</span>.File file<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> c<span class="punctuation">;</span>
+  <span class="keyword">while</span> <span class="punctuation">((</span>c = file-&gt;read<span class="punctuation">(</span><span class="number">1</span><span class="punctuation">))</span> != NULL<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">(</span>c == NEWLINE<span class="punctuation">)</span> &amp;&amp; <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Alternate version, expects a buffered file [usually containing text]</span>
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> containsText<span class="punctuation">(</span><span class="constant">Stdio</span>.FILE file<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> c<span class="punctuation">;</span>
+  <span class="keyword">while</span> <span class="punctuation">((</span>c = file-&gt;getchar<span class="punctuation">())</span> != EOF<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="punctuation">(</span>c == LF<span class="punctuation">)</span> &amp;&amp; <span class="keyword">return</span> <span class="number">1</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Yet another alternative - this time we cheat and use the *NIX 'file'</span>
+<span class="comment-delimiter">// </span><span class="comment">utility :) !</span>
+
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> isTextFile<span class="punctuation">(</span><span class="type">string</span> filename<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> chop<span class="punctuation">(</span><span class="constant">Process</span>.popen<span class="punctuation">(</span><span class="string">"file -bN "</span> + filename<span class="punctuation">)</span>, <span class="number">1</span><span class="punctuation">)</span>  == <span class="string">"ASCII text"</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+containsText<span class="punctuation">(</span><span class="constant">Stdio</span>.File<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]))</span> || write<span class="punctuation">(</span><span class="string">"File %s doesn't have any text in it\n"</span>, argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+
+isTextFile<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">])</span> || write<span class="punctuation">(</span><span class="string">"File %s doesn't have any text in it\n"</span>, argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="constant">Filesystem</span>.Traversion dirtree = <span class="constant">Filesystem</span>.Traversion<span class="punctuation">(</span><span class="string">"/usr/bin"</span><span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>dirtree<span class="punctuation">;</span> <span class="type">string</span> dir<span class="punctuation">;</span> <span class="type">string</span> file<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"Inside %s is something called %s\n"</span>, chop<span class="punctuation">(</span>dir, <span class="number">1</span><span class="punctuation">)</span>, file<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN498"
+>Getting and Setting Timestamps</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> filename = <span class="string">"example.txt"</span><span class="punctuation">;</span>
+
+<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>filename<span class="punctuation">);</span>
+<span class="type">int</span> readtime = fs-&gt;atime, writetime = fs-&gt;mtime<span class="punctuation">;</span>
+
+<span class="constant">System</span>.utime<span class="punctuation">(</span>filename, readtime, writetime<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="keyword">constant</span> <span class="variable-name">SECONDS_PER_DAY</span> = <span class="number">60</span> * <span class="number">60</span> * <span class="number">24</span><span class="punctuation">;</span>
+
+<span class="type">string</span> filename = <span class="string">"example.txt"</span><span class="punctuation">;</span>
+
+<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>filename<span class="punctuation">);</span>
+<span class="type">int</span> atime = fs-&gt;atime, mtime = fs-&gt;mtime<span class="punctuation">;</span>
+
+atime -= <span class="number">7</span> * SECONDS_PER_DAY<span class="punctuation">;</span> mtime -= <span class="number">7</span> * SECONDS_PER_DAY<span class="punctuation">;</span>
+
+<span class="constant">System</span>.utime<span class="punctuation">(</span>filename, atime, mtime<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+argc != <span class="number">1</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" filename"</span><span class="punctuation">);</span>
+
+<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+<span class="type">int</span> atime = fs-&gt;atime, mtime = fs-&gt;mtime<span class="punctuation">;</span>
+
+<span class="constant">Process</span>.system<span class="punctuation">(</span>getenv<span class="punctuation">(</span><span class="string">"EDITOR"</span><span class="punctuation">)</span> || <span class="string">"vi"</span> + <span class="string">" "</span> + argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+
+<span class="type">mixed</span> result = <span class="keyword">catch</span> <span class="punctuation">{</span> <span class="constant">System</span>.utime<span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>, atime, mtime<span class="punctuation">);</span> <span class="punctuation">};</span>
+<span class="punctuation">(</span>result == OK<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Error updating timestamp on file, %s!\n"</span>, argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN501"
+>Deleting a File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> filename = <span class="string">"..."</span><span class="punctuation">;</span>
+
+rm<span class="punctuation">(</span>filename<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Can't delete, %s!\n"</span>, filename<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> rmAll<span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filelist<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mixed</span> result = <span class="keyword">catch</span>
+  <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>filelist, <span class="type">string</span> filename<span class="punctuation">)</span> <span class="punctuation">{</span> rm<span class="punctuation">(</span>filename<span class="punctuation">)</span> || <span class="keyword">throw</span><span class="punctuation">(</span>PROBLEM<span class="punctuation">);</span> <span class="punctuation">}</span>
+  <span class="punctuation">};</span>
+  
+  <span class="keyword">return</span> result == OK<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filelist = <span class="punctuation">({</span><span class="string">"/tmp/x"</span>, <span class="string">"/tmp/y"</span>, <span class="string">"/tmp/z"</span><span class="punctuation">});</span>
+
+rmAll<span class="punctuation">(</span>filelist<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Can't delete all files in array!\n"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">void</span> die<span class="punctuation">(</span><span class="type">string</span> msg, <span class="type">void</span>|<span class="type">int</span><span class="punctuation">(</span><span class="number">1</span>..<span class="number">256</span><span class="punctuation">)</span> rc<span class="punctuation">)</span> <span class="punctuation">{</span> werror<span class="punctuation">(</span>msg + NEWLINE<span class="punctuation">);</span> exit<span class="punctuation">(</span>rc ? rc : PROBLEM<span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> filename = <span class="string">"..."</span><span class="punctuation">;</span>
+
+rm<span class="punctuation">(</span>filename<span class="punctuation">)</span> || die<span class="punctuation">(</span><span class="string">"Can't delete "</span> + filename<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filelist = <span class="punctuation">({</span><span class="string">"/tmp/x"</span>, <span class="string">"/tmp/y"</span>, <span class="string">"/tmp/z"</span><span class="punctuation">});</span>
+
+<span class="type">int</span> deleted, count = sizeof<span class="punctuation">(</span>filelist<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>filelist, <span class="type">string</span> filename<span class="punctuation">)</span> <span class="punctuation">{</span> rm<span class="punctuation">(</span>filename<span class="punctuation">)</span> &amp;&amp; ++deleted<span class="punctuation">;</span> <span class="punctuation">}</span>
+
+<span class="punctuation">(</span>deleted == count<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Could only delete %d of %d files\n"</span>, deleted, count<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN504"
+>Copying or Moving a File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> oldfile = <span class="string">"/tmp/old"</span>, newfile = <span class="string">"/tmp/new"</span><span class="punctuation">;</span>
+
+<span class="constant">Stdio</span>.cp<span class="punctuation">(</span>oldfile, newfile<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Error copying file\n"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> oldfile = <span class="string">"/tmp/old"</span>, newfile = <span class="string">"/tmp/new"</span><span class="punctuation">;</span>
+
+<span class="type">mixed</span> result = <span class="keyword">catch</span> <span class="punctuation">{</span> <span class="constant">Stdio</span>.write_file<span class="punctuation">(</span>newfile, <span class="constant">Stdio</span>.read_file<span class="punctuation">(</span>oldfile<span class="punctuation">));</span> <span class="punctuation">};</span>
+
+<span class="punctuation">(</span>result == OK<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Problem copying file %s to file %s\n"</span>, oldfile, newfile<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Note: This is a cross between, 'Process.system', which displays</span>
+<span class="comment-delimiter">// </span><span class="comment">output on stdout, and, 'Process.popen', which does not display</span>
+<span class="comment-delimiter">// </span><span class="comment">output [it returns it as a string] but does not return the status</span>
+<span class="comment-delimiter">// </span><span class="comment">code</span>
+<span class="type">int</span> system<span class="punctuation">(</span><span class="type">string</span> cmd<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="constant">Stdio</span>.File fout = <span class="constant">Stdio</span>.File<span class="punctuation">()</span>, ferr = <span class="constant">Stdio</span>.File<span class="punctuation">();</span>
+  <span class="constant">Stdio</span>.File pout = fout-&gt;pipe<span class="punctuation">(</span><span class="constant">Stdio</span>.PROP_IPC<span class="punctuation">)</span>,
+             perr = ferr-&gt;pipe<span class="punctuation">(</span><span class="constant">Stdio</span>.PROP_IPC<span class="punctuation">);</span>
+
+  <span class="type">int</span> rc = <span class="constant">Process</span>.spawn<span class="punctuation">(</span>cmd, <span class="number">0</span>, pout, perr<span class="punctuation">)</span>-&gt;wait<span class="punctuation">();</span>
+
+  pout-&gt;close<span class="punctuation">();</span> destruct<span class="punctuation">(</span>pout<span class="punctuation">);</span> fout-&gt;close<span class="punctuation">();</span> destruct<span class="punctuation">(</span>fout<span class="punctuation">);</span>
+  perr-&gt;close<span class="punctuation">();</span> destruct<span class="punctuation">(</span>perr<span class="punctuation">);</span> ferr-&gt;close<span class="punctuation">();</span> destruct<span class="punctuation">(</span>ferr<span class="punctuation">);</span>
+
+  <span class="keyword">return</span> rc<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> unixFileCopy<span class="punctuation">(</span><span class="type">string</span> oldfile, <span class="type">string</span> newfile<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> cmd = <span class="string">"cp --force --reply=yes "</span> + oldfile + <span class="string">" "</span> + newfile<span class="punctuation">;</span>
+  <span class="keyword">return</span> system<span class="punctuation">(</span>cmd<span class="punctuation">)</span> == OK<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> vmsFileCopy<span class="punctuation">(</span><span class="type">string</span> oldfile, <span class="type">string</span> newfile<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> cmd = <span class="string">"copy "</span> + oldfile + <span class="string">" "</span> + newfile<span class="punctuation">;</span>
+  <span class="keyword">return</span> system<span class="punctuation">(</span>cmd<span class="punctuation">)</span> == OK<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> oldfile = <span class="string">"/tmp/old"</span>, newfile = <span class="string">"/tmp/new"</span><span class="punctuation">;</span>
+
+unixFileCopy<span class="punctuation">(</span>oldfile, newfile<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Problem copying file %s to file %s\n"</span>, oldfile, newfile<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> oldfile = <span class="string">"/tmp/old"</span>, newfile = <span class="string">"/tmp/new"</span><span class="punctuation">;</span>
+
+mv<span class="punctuation">(</span>oldfile, newfile<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Problem moving / renaming file %s to file %s\n"</span>, oldfile, newfile<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN507"
+>Recognizing Two Names for the Same File</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">mapping</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>:<span class="type">int</span><span class="punctuation">)</span> seen = <span class="punctuation">([]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">void</span> do_my_thing<span class="punctuation">(</span><span class="type">string</span> filename<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>filename<span class="punctuation">);</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr = aggregate<span class="punctuation">(</span>fs-&gt;inode, fs-&gt;dev<span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Could do this [apply a lambda assigned to variable 'p']:</span>
+  <span class="comment-delimiter">//</span><span class="comment"></span>
+  <span class="comment-delimiter">//    </span><span class="comment">... || (p(arr), seen[arr] = 1);</span>
+  <span class="comment-delimiter">//</span><span class="comment"></span>
+  <span class="comment-delimiter">//    </span><span class="comment">function p = lambda(array(int) arr) { ... };</span>
+  <span class="comment-delimiter">//</span><span class="comment"></span>
+  <span class="comment-delimiter">// </span><span class="comment">to process a file that has not previously been seen</span>
+  
+  <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> &amp;&amp; <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> += <span class="number">1</span><span class="punctuation">))</span> || <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> = <span class="number">1</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="keyword">constant</span> <span class="variable-name">SEP</span> = <span class="string">":"</span><span class="punctuation">;</span> <span class="type">mapping</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>:<span class="type">string</span><span class="punctuation">)</span> seen = <span class="punctuation">([]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> files = <span class="punctuation">({</span><span class="string">"f1.txt"</span>, <span class="string">"f2.txt"</span>, <span class="string">"f3.txt"</span><span class="punctuation">});</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>files, <span class="type">string</span> filename<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>filename<span class="punctuation">);</span>
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> arr = aggregate<span class="punctuation">(</span>fs-&gt;inode, fs-&gt;dev<span class="punctuation">);</span>
+  <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> &amp;&amp; <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> += <span class="punctuation">(</span>SEP + filename<span class="punctuation">)))</span> || <span class="punctuation">(</span>seen<span class="punctuation">[</span>arr<span class="punctuation">]</span> = filename<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">))</span> idxarr = indices<span class="punctuation">(</span>seen<span class="punctuation">);</span> sort<span class="punctuation">(</span>idxarr<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>idxarr, <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> inodev<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>seen<span class="punctuation">[</span>inodev<span class="punctuation">]</span> / SEP, <span class="type">string</span> filename<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="comment-delimiter">// </span><span class="comment">... do stuff with each filename ...</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, filename<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN510"
+>Processing All Files in a Directory</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> dirname = <span class="string">"..."</span><span class="punctuation">;</span> <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> DIR = get_dir<span class="punctuation">(</span>dirname<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>DIR, <span class="type">string</span> filename<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> path = dirname + <span class="string">"/"</span> + filename<span class="punctuation">;</span>
+  <span class="comment-delimiter">// </span><span class="comment">... do something with 'path' ...</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> dirname = <span class="string">"/usr/local/bin"</span><span class="punctuation">;</span> <span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> DIR = get_dir<span class="punctuation">(</span>dirname<span class="punctuation">);</span>
+
+DIR || die<span class="punctuation">(</span><span class="string">"Can't open "</span> + dirname<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"Text files in %s are:\n"</span>, dirname<span class="punctuation">);</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>DIR, <span class="type">string</span> filename<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> path = dirname + <span class="string">"/"</span> + filename<span class="punctuation">;</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">'isTextFile' defined in an earlier section</span>
+  isTextFile<span class="punctuation">(</span>path<span class="punctuation">)</span> &amp;&amp; write<span class="punctuation">(</span><span class="string">"%s\n"</span>, filename<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">'.' and '..' don't show up in a 'get_dir'-generated array</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> plain_files<span class="punctuation">(</span><span class="type">string</span> dirname<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">'filter' procedure</span>
+  <span class="type">function</span> fp =
+    <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> filename, <span class="type">string</span> dirname<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="comment-delimiter">// </span><span class="comment">'isTextFile' defined in an earlier section</span>
+      <span class="keyword">return</span> !has_prefix<span class="punctuation">(</span>filename, <span class="string">"."</span><span class="punctuation">)</span> &amp;&amp; isTextFile<span class="punctuation">(</span>dirname + <span class="string">"/"</span> + filename<span class="punctuation">);</span>
+    <span class="punctuation">};</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">'map' procedure</span>
+  <span class="type">function</span> mp =
+    <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> filename, <span class="type">string</span> dirname<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="keyword">return</span> dirname + <span class="string">"/"</span> + filename<span class="punctuation">;</span>
+    <span class="punctuation">};</span>
+
+  <span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> paths = map<span class="punctuation">(</span>filter<span class="punctuation">(</span>get_dir<span class="punctuation">(</span>dirname<span class="punctuation">)</span>, fp, dirname<span class="punctuation">)</span>, mp, dirname<span class="punctuation">);</span>
+
+  sort<span class="punctuation">(</span>paths<span class="punctuation">);</span>
+
+  <span class="keyword">return</span> paths<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN513"
+>Globbing, or Getting a List of Filenames Matching a Pattern</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">A 'glob' workalike that filters using regular expressions</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Note: Pike offers many non-regexp-based string pattern matching</span>
+<span class="comment-delimiter">// </span><span class="comment">functions [e.g. 'has_prefix' and other 'has_...' functions,</span>
+<span class="comment-delimiter">// </span><span class="comment">'search', etc]. These are preferable in many situations as they are</span>
+<span class="comment-delimiter">// </span><span class="comment">much faster than regexprs. However, code shown here mostly uses</span>
+<span class="comment-delimiter">// </span><span class="comment">regexprs in order to better match the Perl examples</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> grep<span class="punctuation">(</span><span class="type">string</span> regexp, <span class="type">string</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> arr<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>stringp<span class="punctuation">(</span>arr<span class="punctuation">))</span> <span class="keyword">return</span> <span class="constant">Regexp</span>.match<span class="punctuation">(</span>regexp, arr<span class="punctuation">);</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>arrayp<span class="punctuation">(</span>arr<span class="punctuation">))</span>
+  <span class="punctuation">{</span>
+    <span class="type">function</span> fp =
+      <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> filename, <span class="type">string</span> regexp<span class="punctuation">)</span>
+      <span class="punctuation">{</span>
+        <span class="keyword">return</span> <span class="constant">Regexp</span>.match<span class="punctuation">(</span>regexp, filename<span class="punctuation">);</span>
+      <span class="punctuation">};</span>
+
+    <span class="keyword">return</span> filter<span class="punctuation">(</span>arr, fp, regexp<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+
+  <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> dirname = <span class="string">"..."</span><span class="punctuation">;</span>
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filenames = glob<span class="punctuation">(</span><span class="string">"*.c"</span>, get_dir<span class="punctuation">(</span>dirname<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">string</span> dirname = <span class="string">"..."</span><span class="punctuation">;</span>
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filenames = grep<span class="punctuation">(</span><span class="string">"\.c$"</span>, get_dir<span class="punctuation">(</span>dirname<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">string</span> dirname = <span class="string">"..."</span><span class="punctuation">;</span>
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filenames = grep<span class="punctuation">(</span><span class="string">"\.[CHch]$"</span>, get_dir<span class="punctuation">(</span>dirname<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> dirname = <span class="string">"..."</span><span class="punctuation">;</span>
+<span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> dir = get_dir<span class="punctuation">(</span>dirname<span class="punctuation">);</span>
+
+dir || die<span class="punctuation">(</span><span class="string">"Couldn't open "</span> + dirname + <span class="string">" for reading"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Note: Pike arrays are immutable, so we use a mapping to emulate</span>
+<span class="comment-delimiter">// </span><span class="comment">mutable arrays by using a numeric index as the key :)</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">int</span>:<span class="type">string</span><span class="punctuation">)</span> files = <span class="punctuation">([]);</span> <span class="type">int</span> idx = <span class="number">-1</span><span class="punctuation">;</span> <span class="type">string</span> path<span class="punctuation">;</span>    
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>dir, <span class="type">string</span> file<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>!grep<span class="punctuation">(</span><span class="string">"\.[CHch]$"</span>, file<span class="punctuation">))</span> <span class="keyword">continue</span><span class="punctuation">;</span>
+  path = dirname + <span class="string">"/"</span> + file<span class="punctuation">;</span>
+  isTextFile<span class="punctuation">(</span>path<span class="punctuation">)</span> &amp;&amp; <span class="punctuation">(</span>files<span class="punctuation">[</span>++idx<span class="punctuation">]</span> = path<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Note: Traverse a mapping-based, emulated array in index order:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//  </span><span class="comment">foreach(sort(indices(files)), int i)</span>
+<span class="comment-delimiter">//  </span><span class="comment">{</span>
+<span class="comment-delimiter">//    </span><span class="comment">write("%d -&gt; %s\n", i, files[i]); </span>
+<span class="comment-delimiter">//  </span><span class="comment">}</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN516"
+>Processing All Files in a Directory Recursively</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Routine inspired by library function, 'Stdio.recursive_rm'. A little</span>
+<span class="comment-delimiter">// </span><span class="comment">extra code helped make it more generally useful</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="type">void</span>|<span class="type">mixed</span> process_directory<span class="punctuation">(</span><span class="type">string</span> path, <span class="type">function</span><span class="punctuation">(</span><span class="type">string</span>, <span class="type">mixed</span> ... : <span class="type">void</span>|<span class="type">mixed</span><span class="punctuation">)</span> op, <span class="type">mixed</span> ... extra_args<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="constant">Stdio</span>.Stat file = file_stat<span class="punctuation">(</span>path, <span class="number">1</span><span class="punctuation">);</span> <span class="keyword">if</span> <span class="punctuation">(</span>!file<span class="punctuation">)</span> <span class="keyword">return</span> <span class="number">0</span><span class="punctuation">;</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>file-&gt;isdir<span class="punctuation">)</span>
+    <span class="keyword">if</span> <span class="punctuation">(</span><span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> files = get_dir<span class="punctuation">(</span>path<span class="punctuation">))</span>
+      <span class="keyword">foreach</span><span class="punctuation">(</span>files, <span class="type">string</span> file<span class="punctuation">)</span>
+        process_directory<span class="punctuation">(</span>path + <span class="string">"/"</span> + file, op, @extra_args<span class="punctuation">);</span>
+
+  <span class="keyword">return</span> op<span class="punctuation">(</span>path, @extra_args<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> dirlist = <span class="punctuation">({</span> <span class="string">"/tmp/d1"</span>, <span class="string">"/tmp/d2"</span>, <span class="string">"/tmp/d3"</span> <span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Do something with each directory in the list</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>dirlist, <span class="type">string</span> dir<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Delete directory [if empty]     -&gt; rm(dir); </span>
+  <span class="comment-delimiter">// </span><span class="comment">Make it the 'current directory' -&gt; cd(dir);</span>
+  <span class="comment-delimiter">// </span><span class="comment">Get list of files it contains   -&gt; array(string) filelist = get_dir(dir);</span>
+  <span class="comment-delimiter">// </span><span class="comment">Get directory metadata          -&gt; Stdio.Stat ds = file_stat(dir);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> dirlist = <span class="punctuation">({</span> <span class="string">"/tmp/d1"</span>, <span class="string">"/tmp/d2"</span>, <span class="string">"/tmp/d3"</span> <span class="punctuation">});</span>
+
+<span class="type">function</span> pf =
+  <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> path<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="comment-delimiter">// </span><span class="comment">... do something to the file or directory ...</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, path<span class="punctuation">);</span>
+  <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">For each directory in the list ...</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>dirlist, <span class="type">string</span> dir<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> filelist = get_dir<span class="punctuation">(</span>dir<span class="punctuation">);</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>!filelist<span class="punctuation">)</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"%s does not exist\n"</span>, dir<span class="punctuation">);</span> <span class="keyword">continue</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>sizeof<span class="punctuation">(</span>filelist<span class="punctuation">)</span> == <span class="number">0</span><span class="punctuation">)</span> <span class="punctuation">{</span> write<span class="punctuation">(</span><span class="string">"%s is empty\n"</span>, dir<span class="punctuation">);</span> <span class="keyword">continue</span><span class="punctuation">;</span> <span class="punctuation">}</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">For each file / directory in the directory ...</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>filelist, <span class="type">string</span> filename<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="comment-delimiter">// </span><span class="comment">Apply function to process the file / directory</span>
+    pf<span class="punctuation">(</span>dir + <span class="string">"/"</span> + filename<span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Special steps need to be taken in above routines to distinguish </span>
+<span class="comment-delimiter">// </span><span class="comment">between files and directories. Easiest to abstract out directory</span>
+<span class="comment-delimiter">// </span><span class="comment">traversal into a single routine [so allowing for recursive traversal</span>
+<span class="comment-delimiter">// </span><span class="comment">of entire tree], and have it apply a lambda to each file</span>
+
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> dirlist = <span class="punctuation">({</span> <span class="string">"/tmp/d1"</span>, <span class="string">"/tmp/d2"</span>, <span class="string">"/tmp/d3"</span> <span class="punctuation">});</span>
+
+<span class="type">function</span> pf =
+  <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> path<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    <span class="comment-delimiter">// </span><span class="comment">... do something to the file or directory ...</span>
+    write<span class="punctuation">(</span><span class="string">"%s\n"</span>, path<span class="punctuation">);</span>
+  <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">For each directory in the list ...</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>dirlist, <span class="type">string</span> dir<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  process_directory<span class="punctuation">(</span>dir, pf<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">void</span> accum_filesize<span class="punctuation">(</span><span class="type">string</span> path, <span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> accum<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+  <span class="comment-delimiter">// </span><span class="comment">Accumulate size only if it is a regular file</span>
+  <span class="punctuation">(</span>fs &amp;&amp; fs-&gt;isreg<span class="punctuation">)</span> &amp;&amp; <span class="punctuation">(</span>accum<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> += fs-&gt;size<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Verify arguments ...</span>
+argc == <span class="number">2</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" dir"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.Stat fs<span class="punctuation">;</span> <span class="type">string</span> dir = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="punctuation">((</span>fs = file_stat<span class="punctuation">(</span>dir<span class="punctuation">))</span> &amp;&amp; fs-&gt;isdir<span class="punctuation">)</span> || die<span class="punctuation">(</span>dir + <span class="string">" does not exist / not a directory"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Collect data [use an array to accumulate results]</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span> dirsize = <span class="punctuation">({</span><span class="number">0</span><span class="punctuation">});</span>
+process_directory<span class="punctuation">(</span>dir, accum_filesize, dirsize<span class="punctuation">);</span> 
+
+<span class="comment-delimiter">// </span><span class="comment">Report results</span>
+write<span class="punctuation">(</span><span class="string">"%s contains %d bytes\n"</span>, dir, dirsize<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">void</span> biggest_file<span class="punctuation">(</span><span class="type">string</span> path, <span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> biggest<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>fs &amp;&amp; fs-&gt;isreg &amp;&amp; biggest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> &lt; fs-&gt;size<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    biggest<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> = path<span class="punctuation">;</span> biggest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> = fs-&gt;size<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Verify arguments ...</span>
+argc == <span class="number">2</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" dir"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.Stat fs<span class="punctuation">;</span> <span class="type">string</span> dir = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="punctuation">((</span>fs = file_stat<span class="punctuation">(</span>dir<span class="punctuation">))</span> &amp;&amp; fs-&gt;isdir<span class="punctuation">)</span> || die<span class="punctuation">(</span>dir + <span class="string">" does not exist / not a directory"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Collect data [use an array to store results]</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> biggest = <span class="punctuation">({</span><span class="string">""</span>, <span class="number">0</span><span class="punctuation">});</span>
+process_directory<span class="punctuation">(</span>dir, biggest_file, biggest<span class="punctuation">);</span> 
+
+<span class="comment-delimiter">// </span><span class="comment">Report results</span>
+write<span class="punctuation">(</span><span class="string">"Biggest file is %s containing %d bytes\n"</span>, biggest<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, biggest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">void</span> youngest_file<span class="punctuation">(</span><span class="type">string</span> path, <span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> youngest<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>fs &amp;&amp; fs-&gt;isreg &amp;&amp; youngest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> &gt; fs-&gt;ctime<span class="punctuation">)</span>
+  <span class="punctuation">{</span>
+    youngest<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> = path<span class="punctuation">;</span> youngest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span> = fs-&gt;ctime<span class="punctuation">;</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Verify arguments ...</span>
+argc == <span class="number">2</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" dir"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.Stat fs<span class="punctuation">;</span> <span class="type">string</span> dir = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="punctuation">((</span>fs = file_stat<span class="punctuation">(</span>dir<span class="punctuation">))</span> &amp;&amp; fs-&gt;isdir<span class="punctuation">)</span> || die<span class="punctuation">(</span>dir + <span class="string">" does not exist / not a directory"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Collect data [use an array to store results]</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">mixed</span><span class="punctuation">)</span> youngest = <span class="punctuation">({</span><span class="string">""</span>, <span class="constant">Int</span>.NATIVE_MAX<span class="punctuation">});</span>
+process_directory<span class="punctuation">(</span>dir, youngest_file, youngest<span class="punctuation">);</span> 
+
+<span class="comment-delimiter">// </span><span class="comment">Report results</span>
+write<span class="punctuation">(</span><span class="string">"Youngest file is %s dating %s\n"</span>, youngest<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span>, ctime<span class="punctuation">(</span>youngest<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">void</span> print_name_if_dir<span class="punctuation">(</span><span class="type">string</span> path<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span>|<span class="constant">Stdio</span>.Stat fs = file_stat<span class="punctuation">(</span>path<span class="punctuation">);</span>
+  <span class="keyword">if</span> <span class="punctuation">(</span>fs &amp;&amp; fs-&gt;isdir<span class="punctuation">)</span> write<span class="punctuation">(</span><span class="string">"%s\n"</span>, path<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Verify arguments ...</span>
+argc == <span class="number">2</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" dir"</span><span class="punctuation">);</span>
+<span class="constant">Stdio</span>.Stat fs<span class="punctuation">;</span> <span class="type">string</span> dir = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">];</span>
+<span class="punctuation">((</span>fs = file_stat<span class="punctuation">(</span>dir<span class="punctuation">))</span> &amp;&amp; fs-&gt;isdir<span class="punctuation">)</span> || die<span class="punctuation">(</span>dir + <span class="string">" does not exist / not a directory"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Print directory names</span>
+process_directory<span class="punctuation">(</span>dir, print_name_if_dir<span class="punctuation">);</span> 
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN519"
+>Removing a Directory and Its Contents</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Easy way - recommended</span>
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> rmTree<span class="punctuation">(</span><span class="type">string</span> dirname<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> <span class="constant">Stdio</span>.recursive_rm<span class="punctuation">(</span>dirname<span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> dirtree = <span class="string">"/tmp/dirtree"</span><span class="punctuation">;</span>
+
+rmTree<span class="punctuation">(</span>dirtree<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Problem removing directory tree %s\n"</span>, dirtree<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Another way, but unnecessary - probably for customised deletions only</span>
+<span class="type">int</span><span class="punctuation">(</span><span class="number">0</span>..<span class="number">1</span><span class="punctuation">)</span> rmTree<span class="punctuation">(</span><span class="type">string</span> dirname<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> process_directory<span class="punctuation">(</span>dirname, rm<span class="punctuation">);</span> <span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> dirtree = <span class="string">"/tmp/dirtree"</span><span class="punctuation">;</span>
+
+rmTree<span class="punctuation">(</span>dirtree<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Problem removing directory tree %s\n"</span>, dirtree<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN522"
+>Renaming Files</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">A list of file names</span>
+<span class="type">array</span><span class="punctuation">(</span><span class="type">string</span><span class="punctuation">)</span> names = <span class="punctuation">({</span><span class="string">"f1.txt"</span>, <span class="string">"f2.txt"</span>, <span class="string">"f3.txt"</span><span class="punctuation">});</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Dynamically assigned 'rename' procedure - can be reassigned at any time</span>
+<span class="type">function</span> rename = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> name<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> replace<span class="punctuation">(</span>name, <span class="string">".txt"</span>, <span class="string">".text"</span><span class="punctuation">);</span> <span class="punctuation">};</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Process all files</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>names, <span class="type">string</span> name<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">Generate new name from existing name by applying 'rename' procedure</span>
+  <span class="type">string</span> newname = rename<span class="punctuation">(</span>name<span class="punctuation">);</span> 
+
+  <span class="comment-delimiter">// </span><span class="comment">Perform actual rename task on file</span>
+  mv<span class="punctuation">(</span>name, newname<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Could not rename %s to %s\n"</span>, name, newname<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Slightly different to the Perl example, though it does use regexp</span>
+<span class="comment-delimiter">// </span><span class="comment">and intent is roughly the same.</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">pike SCRIPTNAME '\.txt$' '.text' f1.txt f2.txt df3.txg</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//    </span><span class="comment">f1.txt  -&gt; f1.text</span>
+<span class="comment-delimiter">//    </span><span class="comment">f2.txt  -&gt; f2.text</span>
+<span class="comment-delimiter">//    </span><span class="comment">df3.txg -&gt; df3.txg [no change]</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+
+argc &gt; <span class="number">2</span> || die<span class="punctuation">(</span><span class="string">"usage: "</span> + argv<span class="punctuation">[</span><span class="number">0</span><span class="punctuation">]</span> + <span class="string">" expr repl files..."</span><span class="punctuation">);</span>
+
+<span class="type">string</span> expr = argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]</span>, repl = argv<span class="punctuation">[</span><span class="number">2</span><span class="punctuation">];</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>argv<span class="punctuation">[</span><span class="number">3</span>..<span class="punctuation">]</span>, <span class="type">string</span> name<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> newname = <span class="constant">Regexp</span>.replace<span class="punctuation">(</span>expr, name, repl<span class="punctuation">);</span> 
+
+  <span class="keyword">if</span> <span class="punctuation">(</span>!equal<span class="punctuation">(</span>name, newname<span class="punctuation">))</span>
+    mv<span class="punctuation">(</span>name, newname<span class="punctuation">)</span> || write<span class="punctuation">(</span><span class="string">"Could not rename %s to %s\n"</span>, name, newname<span class="punctuation">);</span>
+<span class="punctuation">}</span> 
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN525"
+>Splitting a Filename into Its Component Parts</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> file_extension<span class="punctuation">(</span><span class="type">string</span> filename, <span class="type">void</span>|<span class="type">string</span> separator<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> <span class="punctuation">(</span>filename / <span class="punctuation">(</span>separator || <span class="string">"."</span><span class="punctuation">))[</span><span class="number">-1</span><span class="punctuation">];</span>
+<span class="punctuation">}</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> file_parse<span class="punctuation">(</span><span class="type">string</span> path<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span>
+    mkmapping<span class="punctuation">(({</span><span class="string">"dirname"</span>, <span class="string">"basename"</span>, <span class="string">"extension"</span><span class="punctuation">})</span>,
+      <span class="punctuation">({</span>dirname<span class="punctuation">(</span>path<span class="punctuation">)</span>, basename<span class="punctuation">(</span>path<span class="punctuation">)</span>, file_extension<span class="punctuation">(</span>basename<span class="punctuation">(</span>path<span class="punctuation">))}));</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> path = <span class="string">"/tmp/dirtree/s/s1/s1.txt"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> dir = dirname<span class="punctuation">(</span>path<span class="punctuation">);</span>
+<span class="type">string</span> base = basename<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> pm = file_parse<span class="punctuation">(</span>path<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, pm<span class="punctuation">[</span><span class="string">"dirname"</span><span class="punctuation">]);</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, pm<span class="punctuation">[</span><span class="string">"basename"</span><span class="punctuation">]);</span>
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, pm<span class="punctuation">[</span><span class="string">"extension"</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">string</span> path = <span class="string">"/usr/lib/libc.a"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">string</span> dir = dirname<span class="punctuation">(</span>path<span class="punctuation">);</span>
+<span class="type">string</span> base = basename<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"dir is %s, file is %s\n"</span>, dir, base<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">string</span> path = <span class="string">"/usr/lib/libc.a"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span> pm = file_parse<span class="punctuation">(</span>path<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"dir is %s, name is %s, extension is %s\n"</span>,
+  pm<span class="punctuation">[</span><span class="string">"dirname"</span><span class="punctuation">]</span>, pm<span class="punctuation">[</span><span class="string">"basename"</span><span class="punctuation">]</span>, <span class="string">"."</span> + pm<span class="punctuation">[</span><span class="string">"extension"</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Handle as a general purpose parse task</span>
+<span class="type">string</span> path = <span class="string">"Hard%20Drive:System%20Folder:README.txt"</span><span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span>:<span class="type">string</span><span class="punctuation">)</span>
+  pm = mkmapping<span class="punctuation">(({</span><span class="string">"drive"</span>, <span class="string">"folder"</span>, <span class="string">"filename"</span><span class="punctuation">})</span>,
+                 replace<span class="punctuation">(</span>path, <span class="string">"%20"</span>, <span class="string">" "</span><span class="punctuation">)</span> / <span class="string">":"</span><span class="punctuation">)</span>,
+
+  fm = mkmapping<span class="punctuation">(({</span><span class="string">"name"</span>, <span class="string">"extension"</span><span class="punctuation">})</span>,
+                 pm<span class="punctuation">[</span><span class="string">"filename"</span><span class="punctuation">]</span> / <span class="string">"."</span><span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"dir is %s, name is %s, extension is %s\n"</span>,
+  pm<span class="punctuation">[</span><span class="string">"drive"</span><span class="punctuation">]</span> + <span class="string">":"</span> + pm<span class="punctuation">[</span><span class="string">"folder"</span><span class="punctuation">]</span>,
+  fm<span class="punctuation">[</span><span class="string">"name"</span><span class="punctuation">]</span>, <span class="string">"."</span> + fm<span class="punctuation">[</span><span class="string">"extension"</span><span class="punctuation">]);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">See implementation for 'file_extension' function above</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN528"
+>Program: symirror</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>@@INCOMPLETE@@
+@@INCOMPLETE@@
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN531"
+>Program: lst</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>@@INCOMPLETE@@
+@@INCOMPLETE@@
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="filecontents.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="subroutines.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>File Contents</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Subroutines</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

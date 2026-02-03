@@ -1,0 +1,947 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Numbers</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Strings"
+HREF="strings.html"><LINK
+REL="NEXT"
+TITLE="Dates and Times"
+HREF="datesandtimes.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="strings.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="datesandtimes.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="NUMBERS"
+>2. Numbers</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN73"
+>Checking Whether a String Is a Valid Number</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> number=<span class="string">"123.3asdf"</span><span class="punctuation">;</span>
+
+<span class="type">int</span>|<span class="type">float</span> realnumber= <span class="punctuation">(</span><span class="type">int</span><span class="punctuation">)</span>number<span class="punctuation">;</span>  <span class="comment-delimiter">// </span><span class="comment">casting to int will throw away all</span>
+                                    <span class="comment-delimiter">// </span><span class="comment">nonnumber parts</span>
+<span class="type">string</span> rest<span class="punctuation">;</span>
+<span class="punctuation">[</span>realnumber, rest<span class="punctuation">]</span> = array_sscanf<span class="punctuation">(</span>number, <span class="string">"%d%s"</span><span class="punctuation">);</span> <span class="comment-delimiter">// </span><span class="comment">scan for an integer</span>
+<span class="comment-delimiter">// </span><span class="comment">if rest contains anything but the empty string, then there was more than a</span>
+<span class="comment-delimiter">// </span><span class="comment">number in the string</span>
+<span class="comment-delimiter">// </span><span class="comment">use %f to scan for float, %x for hex or %o for octal</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN76"
+>Comparing Floating-Point Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> same<span class="punctuation">(</span><span class="type">float</span> one, <span class="type">float</span> two, <span class="type">int</span> accuracy<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"%.*f"</span>, accuracy, one<span class="punctuation">)</span> == sprintf<span class="punctuation">(</span><span class="string">"%.*f"</span>, accuracy, two<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">int</span> wage=<span class="number">536</span><span class="punctuation">;</span>
+<span class="type">int</span> week=<span class="number">40</span>*wage<span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"one week's wage is: $%.2f\n"</span>, week/<span class="number">100.0</span><span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN79"
+>Rounding Floating-Point Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">float</span> unrounded=<span class="number">3.5</span><span class="punctuation">;</span>
+<span class="type">string</span> rounded=sprintf<span class="punctuation">(</span><span class="string">"%.*f"</span>, accuracy, unrounded<span class="punctuation">);</span>
+
+<span class="type">float</span> a=<span class="number">0.255</span><span class="punctuation">;</span>
+<span class="type">string</span> b=sprintf<span class="punctuation">(</span><span class="string">"%.2f"</span>, a<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"Unrounded: %f\nRounded: %s\n"</span>, a, b<span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"Unrounded: %f\nRounded: %.2f\n"</span>, a, a<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">dec to bin</span>
+<span class="type">string</span> bin=sprintf<span class="punctuation">(</span><span class="string">"%b"</span>, <span class="number">5</span><span class="punctuation">);</span>
+
+<span class="type">int</span> dec=array_sscanf<span class="punctuation">(</span><span class="string">"0000011111111111111"</span>, <span class="string">"%b"</span><span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">];</span> 
+                <span class="comment-delimiter">// </span><span class="comment">array_sscanf returns an array</span>
+
+<span class="type">int</span> num = array_sscanf<span class="punctuation">(</span><span class="string">"0110110"</span>, <span class="string">"%b"</span><span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">];</span>  <span class="comment-delimiter">// </span><span class="comment">num is 54</span>
+<span class="type">string</span> binstr = sprintf<span class="punctuation">(</span><span class="string">"%b"</span>, <span class="number">54</span><span class="punctuation">);</span>           <span class="comment-delimiter">// </span><span class="comment">binstr is 110110</span>
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN82"
+>Converting Between Binary and Decimal</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">contributed by martin nilsson.</span>
+
+<span class="type">string</span> dec2bin<span class="punctuation">(</span><span class="type">int</span> n<span class="punctuation">)</span> 
+<span class="punctuation">{</span> 
+  <span class="keyword">return</span> sprintf<span class="punctuation">(</span><span class="string">"%b"</span>,n<span class="punctuation">);</span> 
+<span class="punctuation">}</span>
+
+<span class="type">int</span> bin2dec<span class="punctuation">(</span><span class="type">string</span> n<span class="punctuation">)</span> 
+<span class="punctuation">{</span> 
+  <span class="keyword">return</span> array_sscanf<span class="punctuation">(</span>n, <span class="string">"%b"</span><span class="punctuation">)[</span><span class="number">0</span><span class="punctuation">];</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN85"
+>Operating on a Series of Integers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">foreach(enumerate(int count, int step, int start);; int val)</span>
+<span class="comment-delimiter">// </span><span class="comment">{</span>
+<span class="comment-delimiter">//   </span><span class="comment">// val is set to each of count integers starting at start</span>
+<span class="comment-delimiter">// </span><span class="comment">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>enumerate<span class="punctuation">(</span>y-x+<span class="number">1</span>,<span class="number">1</span>,x<span class="punctuation">);;</span> <span class="type">int</span> val<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">val is set to every integer from X to Y, inclusive</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i=x<span class="punctuation">;</span> i&lt;=y<span class="punctuation">;</span> i++<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">val is set to every integer from X to Y, inclusive</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i=x<span class="punctuation">;</span> i&lt;=y<span class="punctuation">;</span> i+=<span class="number">7</span><span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">val is set to every integer from X to Y, stepsize = 7</span>
+<span class="punctuation">}</span>
+
+<span class="keyword">foreach</span><span class="punctuation">(</span>enumerate<span class="punctuation">(</span>y-x+<span class="number">1</span>,<span class="number">7</span>,x<span class="punctuation">);;</span> <span class="type">int</span> val<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="comment-delimiter">// </span><span class="comment">val is set to every integer from X to Y, stepsize = 7</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">//</span><span class="comment">----------------------------------------</span>
+write<span class="punctuation">(</span><span class="string">"Infancy is: "</span><span class="punctuation">);</span>
+<span class="keyword">foreach</span><span class="punctuation">(</span>enumerate<span class="punctuation">(</span><span class="number">3</span><span class="punctuation">);;</span> <span class="type">int</span> val<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%d "</span>, val<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"Toddling is: %{%d %}\n"</span>, enumerate<span class="punctuation">(</span><span class="number">2</span>,<span class="number">1</span>,<span class="number">3</span><span class="punctuation">));</span>
+
+write<span class="punctuation">(</span><span class="string">"Childhood is: "</span><span class="punctuation">);</span>
+<span class="keyword">for</span> <span class="punctuation">(</span><span class="type">int</span> i = <span class="number">5</span><span class="punctuation">;</span> i &lt;= <span class="number">12</span><span class="punctuation">;</span> i++<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+  write<span class="punctuation">(</span><span class="string">"%d "</span>, i<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Infancy is: 0 1 2 </span>
+<span class="comment-delimiter">// </span><span class="comment">Toddling is: 3 4 </span>
+<span class="comment-delimiter">// </span><span class="comment">Childhood is: 5 6 7 8 9 10 11 12 </span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN88"
+>Working with Roman Numerals</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> arabic<span class="punctuation">;</span>
+<span class="type">string</span> roman = <span class="constant">String</span>.int2roman<span class="punctuation">(</span>arabic<span class="punctuation">);</span>        <span class="comment-delimiter">// </span><span class="comment">handles values up to 10000</span>
+
+<span class="type">array</span> nums=enumerate<span class="punctuation">(</span><span class="number">10001</span><span class="punctuation">);</span>                
+<span class="type">array</span> romans=<span class="constant">String</span>.int2roman<span class="punctuation">(</span>nums<span class="punctuation">[</span>*<span class="punctuation">]);</span>     
+<span class="type">mapping</span> roman2int = mkmapping<span class="punctuation">(</span>romans, nums<span class="punctuation">);</span>                   
+
+<span class="type">int</span> arabic = roman2int<span class="punctuation">[</span>roman<span class="punctuation">];</span>
+
+<span class="comment-delimiter">//</span><span class="comment">------------------------------------------------</span>
+<span class="type">string</span> roman_fifteen = <span class="constant">String</span>.int2roman<span class="punctuation">(</span><span class="number">15</span><span class="punctuation">);</span>    <span class="comment-delimiter">//  </span><span class="comment">"XV"</span>
+write<span class="punctuation">(</span><span class="string">"Roman for fifteen is %s\n"</span>, roman_fifteen<span class="punctuation">);</span>
+
+<span class="type">int</span> arabic_fifteen = roman2int<span class="punctuation">[</span>roman_fifteen<span class="punctuation">];</span>
+write<span class="punctuation">(</span><span class="string">"Converted back, %s is %d\n"</span>, roman_fifteen, arabic_fifteen<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Roman for fifteen is XV</span>
+<span class="comment-delimiter">// </span><span class="comment">Converted back, XV is 15</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN91"
+>Generating Random Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">int</span> y,x<span class="punctuation">;</span>
+<span class="type">int</span> rand = random<span class="punctuation">(</span>y-x+<span class="number">1</span><span class="punctuation">)</span>+x<span class="punctuation">;</span>
+
+<span class="type">float</span> y,x<span class="punctuation">;</span>
+<span class="type">float</span> rand = random<span class="punctuation">(</span>y-x+<span class="number">1</span><span class="punctuation">)</span>+x<span class="punctuation">;</span>
+
+<span class="type">int</span> rand = random<span class="punctuation">(</span><span class="number">51</span><span class="punctuation">)</span>+<span class="number">25</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"%d\n"</span>, rand<span class="punctuation">);</span>
+
+<span class="type">array</span> arr<span class="punctuation">;</span>
+<span class="type">mixed</span> elt = arr<span class="punctuation">[</span>random<span class="punctuation">(</span>sizeof<span class="punctuation">(</span>arr<span class="punctuation">))];</span>
+<span class="type">mixed</span> elt = random<span class="punctuation">(</span>arr<span class="punctuation">);</span>
+
+<span class="type">array</span> chars=<span class="string">"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@$%^&amp;*"</span>/<span class="string">""</span><span class="punctuation">;</span>
+<span class="type">string</span> password = <span class="string">""</span><span class="punctuation">;</span>
+<span class="keyword">for</span><span class="punctuation">(</span><span class="type">int</span> i=<span class="number">1</span><span class="punctuation">;</span> i&lt;=<span class="number">8</span><span class="punctuation">;</span> i++<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  password+=random<span class="punctuation">(</span>chars<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="type">string</span> password = random<span class="punctuation">((({</span>chars<span class="punctuation">})</span>*<span class="number">8</span><span class="punctuation">)[</span>*<span class="punctuation">])</span>*<span class="string">""</span><span class="punctuation">;</span>
+
+<span class="type">string</span> password = random_string<span class="punctuation">(</span><span class="number">8</span><span class="punctuation">);</span>      <span class="comment-delimiter">// </span><span class="comment">creates an untypable string</span>
+
+<span class="comment-delimiter">// </span><span class="comment">turn the string into something typable using the base64 charset</span>
+<span class="type">string</span> password = <span class="constant">MIME</span>.encode_base64<span class="punctuation">(</span>random_string<span class="punctuation">(</span><span class="number">8</span><span class="punctuation">))[</span>..<span class="number">7</span><span class="punctuation">];</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN94"
+>Generating Different Random Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span>random_seed<span class="punctuation">(</span><span class="type">int</span> seed<span class="punctuation">);</span>
+random_seed<span class="punctuation">((</span><span class="type">int</span><span class="punctuation">)</span>argv<span class="punctuation">[</span><span class="number">1</span><span class="punctuation">]);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN97"
+>Making Numbers Even More Random</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Crypto.Random.random(int max)</span>
+<span class="comment-delimiter">// </span><span class="comment">Crypto.Random.random_string(int length)</span>
+<span class="comment-delimiter">// </span><span class="comment">Crypto.Random.blocking_random_string(int length)</span>
+<span class="comment-delimiter">// </span><span class="comment">Crypto.Random.add_entropy(string random_data, int entropy)</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN100"
+>Generating Biased Random Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">float</span> gaussian_rand<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="type">float</span> u1, u2, w, g1, g2<span class="punctuation">;</span>
+  
+  <span class="keyword">do</span>
+  <span class="punctuation">{</span>
+    u1 = <span class="number">2.0</span> * random<span class="punctuation">(</span><span class="number">1.0</span><span class="punctuation">)</span> - <span class="number">1.0</span><span class="punctuation">;</span> u2 = <span class="number">2.0</span> * random<span class="punctuation">(</span><span class="number">1.0</span><span class="punctuation">)</span> - <span class="number">1.0</span><span class="punctuation">;</span>
+    w = u1 * u1 + u2 * u2<span class="punctuation">;</span>
+  <span class="punctuation">}</span> <span class="keyword">while</span> <span class="punctuation">(</span>w &gt; <span class="number">1.0</span><span class="punctuation">);</span>
+  
+  w = sqrt<span class="punctuation">((</span><span class="number">-2.0</span> * log<span class="punctuation">(</span>w<span class="punctuation">))</span> / w<span class="punctuation">);</span> g2 = u1 * w<span class="punctuation">;</span> g1 = u2 * w<span class="punctuation">;</span>
+
+  <span class="keyword">return</span> g1<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">float</span> mean = <span class="number">25.0</span>, sdev = <span class="number">2.0</span><span class="punctuation">;</span>
+<span class="type">float</span> salary = gaussian_rand<span class="punctuation">()</span> * mean + sdev<span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"You have been hired at: %.2f\n"</span>, salary<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN103"
+>Doing Trigonometry in Degrees, not Radians</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">float</span> deg2rad<span class="punctuation">(</span><span class="type">float</span> deg<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> <span class="punctuation">(</span>deg / <span class="number">180.0</span><span class="punctuation">)</span> * <span class="constant">Math</span>.pi<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="type">float</span> rad2deg<span class="punctuation">(</span><span class="type">float</span> rad<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> <span class="punctuation">(</span>rad / <span class="constant">Math</span>.pi<span class="punctuation">)</span> * <span class="number">180.0</span><span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, <span class="constant">Math</span>.convert_angle<span class="punctuation">(</span><span class="number">180</span>, <span class="string">"deg"</span>, <span class="string">"rad"</span><span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, deg2rad<span class="punctuation">(</span><span class="number">180.0</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">float</span> degree_sin<span class="punctuation">(</span><span class="type">float</span> deg<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> sin<span class="punctuation">(</span>deg2rad<span class="punctuation">(</span>deg<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">float</span> rad = deg2rad<span class="punctuation">(</span><span class="number">380.0</span><span class="punctuation">);</span>
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, sin<span class="punctuation">(</span>rad<span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, degree_sin<span class="punctuation">(</span><span class="number">380.0</span><span class="punctuation">));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN106"
+>Calculating More Trigonometric Functions</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">float</span> my_tan<span class="punctuation">(</span><span class="type">float</span> theta<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> sin<span class="punctuation">(</span>theta<span class="punctuation">)</span> / cos<span class="punctuation">(</span>theta<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">float</span> theta = <span class="number">3.7</span><span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, my_tan<span class="punctuation">(</span>theta<span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%f\n"</span>, tan<span class="punctuation">(</span>theta<span class="punctuation">));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN109"
+>Taking Logarithms</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">float</span> value = <span class="number">100.0</span><span class="punctuation">;</span>
+
+<span class="type">float</span> log_e = log<span class="punctuation">(</span>value<span class="punctuation">);</span>
+<span class="type">float</span> log_10 = <span class="constant">Math</span>.log10<span class="punctuation">(</span>value<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">float</span> log_base<span class="punctuation">(</span><span class="type">float</span> base, <span class="type">float</span> value<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> log<span class="punctuation">(</span>value<span class="punctuation">)</span> / log<span class="punctuation">(</span>base<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">float</span> answer = log_base<span class="punctuation">(</span><span class="number">10.0</span>, <span class="number">10000.0</span><span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"log(10, 10,000) = %f\n"</span>, answer<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN112"
+>Multiplying Matrices</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Pike offers a solid matrix implementation; highlights:</span>
+<span class="comment-delimiter">// </span><span class="comment">* Operator overloading makes matrix operations succinct</span>
+<span class="comment-delimiter">// </span><span class="comment">* Matrices may be of various types, thus allowing user to</span>
+<span class="comment-delimiter">//   </span><span class="comment">choose between range representation and speed</span>
+<span class="comment-delimiter">// </span><span class="comment">* Wide variety of operations available</span>
+
+<span class="constant">Math</span>.Matrix a = <span class="constant">Math</span>.Matrix<span class="punctuation">(</span> <span class="punctuation">({</span> <span class="punctuation">({</span><span class="number">3</span>, <span class="number">2</span>, <span class="number">3</span><span class="punctuation">})</span>, <span class="punctuation">({</span><span class="number">5</span>, <span class="number">9</span>, <span class="number">8</span><span class="punctuation">})</span>  <span class="punctuation">})</span> <span class="punctuation">)</span>,
+            b = <span class="constant">Math</span>.Matrix<span class="punctuation">(</span> <span class="punctuation">({</span> <span class="punctuation">({</span><span class="number">4</span>, <span class="number">7</span><span class="punctuation">})</span>, <span class="punctuation">({</span><span class="number">9</span>, <span class="number">3</span><span class="punctuation">})</span>, <span class="punctuation">({</span><span class="number">8</span>, <span class="number">1</span><span class="punctuation">})</span> <span class="punctuation">})</span> <span class="punctuation">);</span>
+
+<span class="constant">Math</span>.Matrix c = a * b<span class="punctuation">;</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="constant">Math</span>.Matrix t = c-&gt;transpose<span class="punctuation">();</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN115"
+>Using Complex Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">@@INCOMPLETE@@</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN118"
+>Converting Between Octal and Hexadecimal</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">Like C, Pike supports decimal-alternate notations. Thus, for example,</span>
+<span class="comment-delimiter">// </span><span class="comment">the integer value, 867, is expressable in literal form as:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//   </span><span class="comment">Hexadecimal -&gt; 0x363</span>
+<span class="comment-delimiter">//   </span><span class="comment">Octal       -&gt; 01543</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">For effecting such conversions using strings there is 'sprintf' and</span>
+<span class="comment-delimiter">// </span><span class="comment">'sscanf'.</span>
+
+<span class="type">int</span> dec = <span class="number">867</span><span class="punctuation">;</span>
+<span class="type">string</span> hex = sprintf<span class="punctuation">(</span><span class="string">"%x"</span>, dec<span class="punctuation">);</span>
+<span class="type">string</span> oct = sprintf<span class="punctuation">(</span><span class="string">"%o"</span>, dec<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">int</span> dec<span class="punctuation">;</span>
+<span class="type">string</span> hex = <span class="string">"363"</span><span class="punctuation">;</span> sscanf<span class="punctuation">(</span>hex, <span class="string">"%x"</span>, dec<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">------------</span>
+
+<span class="type">int</span> dec<span class="punctuation">;</span>
+<span class="type">string</span> oct = <span class="string">"1543"</span><span class="punctuation">;</span> sscanf<span class="punctuation">(</span>oct, <span class="string">"%o"</span>, dec<span class="punctuation">);</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">int</span> number<span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"Gimme a number in decimal, octal, or hex: "</span><span class="punctuation">);</span>
+sscanf<span class="punctuation">(</span><span class="constant">Stdio</span>.stdin-&gt;gets<span class="punctuation">()</span>, <span class="string">"%D"</span>, number<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"%d %x %o\n"</span>, number, number, number<span class="punctuation">);</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN121"
+>Putting Commas in Numbers</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> commify_series<span class="punctuation">(</span><span class="type">int</span> series<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="keyword">return</span> reverse<span class="punctuation">((</span>reverse<span class="punctuation">((</span><span class="type">string</span><span class="punctuation">)</span>series<span class="punctuation">)</span> / <span class="number">3.0</span><span class="punctuation">)</span> * <span class="string">","</span><span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">int</span> hits = <span class="number">3452347</span><span class="punctuation">;</span>
+
+write<span class="punctuation">(</span><span class="string">"Your website received %s accesses last month.\n"</span>, commify_series<span class="punctuation">(</span>hits<span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> commify<span class="punctuation">(</span><span class="type">string</span> s<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">function</span> t = <span class="keyword">lambda</span><span class="punctuation">(</span><span class="type">string</span> m<span class="punctuation">)</span> <span class="punctuation">{</span> <span class="keyword">return</span> reverse<span class="punctuation">((</span>reverse<span class="punctuation">(</span>m<span class="punctuation">)</span> / <span class="number">3.0</span><span class="punctuation">)</span> * <span class="string">","</span><span class="punctuation">);</span> <span class="punctuation">};</span>
+  <span class="keyword">return</span> <span class="constant">Regexp</span>.PCRE<span class="punctuation">(</span><span class="string">"([0-9]+)"</span><span class="punctuation">)</span>-&gt;replace<span class="punctuation">(</span>s, t<span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">int</span> hits = <span class="number">3452347</span><span class="punctuation">;</span>
+<span class="type">string</span> output = sprintf<span class="punctuation">(</span><span class="string">"Your website received %d accesses last month."</span>, hits<span class="punctuation">);</span>
+
+write<span class="punctuation">(</span><span class="string">"%s\n"</span>, commify<span class="punctuation">(</span>output<span class="punctuation">));</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN124"
+>Printing Correct Plurals</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="type">string</span> pluralise<span class="punctuation">(</span><span class="type">int</span> value, <span class="type">string</span> root, <span class="type">void</span>|<span class="type">string</span> singular_, <span class="type">void</span>|<span class="type">string</span> plural_<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">string</span> singular = singular_ ? singular_ : <span class="string">""</span><span class="punctuation">;</span>
+  <span class="type">string</span> plural = plural_ ? plural_ : <span class="string">"s"</span><span class="punctuation">;</span>
+
+  <span class="keyword">return</span> root + <span class="punctuation">(</span> <span class="punctuation">(</span>value &gt; <span class="number">1</span><span class="punctuation">)</span> ? plural : singular <span class="punctuation">);</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">int</span> duration = <span class="number">1</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"It took %d %s\n"</span>, duration, pluralise<span class="punctuation">(</span>duration, <span class="string">"hour"</span><span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%d %s %s enough.\n"</span>, duration, pluralise<span class="punctuation">(</span>duration, <span class="string">"hour"</span><span class="punctuation">)</span>,
+      pluralise<span class="punctuation">(</span>duration, <span class="string">""</span>, <span class="string">"is"</span>, <span class="string">"are"</span><span class="punctuation">));</span>
+
+duration = <span class="number">5</span><span class="punctuation">;</span>
+write<span class="punctuation">(</span><span class="string">"It took %d %s\n"</span>, duration, pluralise<span class="punctuation">(</span>duration, <span class="string">"hour"</span><span class="punctuation">));</span>
+write<span class="punctuation">(</span><span class="string">"%d %s %s enough.\n"</span>, duration, pluralise<span class="punctuation">(</span>duration, <span class="string">"hour"</span><span class="punctuation">)</span>,
+      pluralise<span class="punctuation">(</span>duration, <span class="string">""</span>, <span class="string">"is"</span>, <span class="string">"are"</span><span class="punctuation">));</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="comment-delimiter">// </span><span class="comment">Non-regexp implementation, uses the string-based, 'has_prefix'</span>
+<span class="comment-delimiter">// </span><span class="comment">and 'replace' library functions</span>
+<span class="type">string</span> plural<span class="punctuation">(</span><span class="type">string</span> singular<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">string</span><span class="punctuation">)</span> e2 =
+    <span class="punctuation">([</span><span class="string">"ss"</span>:<span class="string">"sses"</span>, <span class="string">"ph"</span>:<span class="string">"phes"</span>, <span class="string">"sh"</span>:<span class="string">"shes"</span>, <span class="string">"ch"</span>:<span class="string">"ches"</span>,
+      <span class="string">"ey"</span>:<span class="string">"eys"</span>, <span class="string">"ix"</span>:<span class="string">"ices"</span>, <span class="string">"ff"</span>:<span class="string">"ffs"</span><span class="punctuation">]);</span>
+
+  <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">string</span><span class="punctuation">)</span> e1 =
+    <span class="punctuation">([</span><span class="string">"z"</span>:<span class="string">"zes"</span>, <span class="string">"f"</span>:<span class="string">"ves"</span>, <span class="string">"y"</span>:<span class="string">"ies"</span>, <span class="string">"s"</span>:<span class="string">"ses"</span>, <span class="string">"x"</span>:<span class="string">"xes"</span><span class="punctuation">]);</span>
+
+  <span class="keyword">foreach</span><span class="punctuation">(({</span>e2, e1<span class="punctuation">})</span>, <span class="type">mapping</span><span class="punctuation">(</span><span class="type">string</span> : <span class="type">string</span><span class="punctuation">)</span> endings<span class="punctuation">)</span> 
+  <span class="punctuation">{</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span>indices<span class="punctuation">(</span>endings<span class="punctuation">)</span>, <span class="type">string</span> ending<span class="punctuation">)</span>
+    <span class="punctuation">{</span>
+      <span class="keyword">if</span> <span class="punctuation">(</span>has_suffix<span class="punctuation">(</span>singular, ending<span class="punctuation">))</span>
+      <span class="punctuation">{</span>
+        <span class="keyword">return</span> replace<span class="punctuation">(</span>singular, ending, endings<span class="punctuation">[</span>ending<span class="punctuation">]);</span>
+      <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+  <span class="punctuation">}</span>
+
+  <span class="keyword">return</span> singular<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----</span>
+
+<span class="type">int</span> main<span class="punctuation">()</span>
+<span class="punctuation">{</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>aggregate<span class="punctuation">(</span><span class="string">"mess"</span>, <span class="string">"index"</span>, <span class="string">"leaf"</span>, <span class="string">"puppy"</span><span class="punctuation">)</span>, <span class="type">string</span> word<span class="punctuation">)</span>
+    write<span class="punctuation">(</span><span class="string">"%6s -&gt; %s\n"</span>, word, plural<span class="punctuation">(</span>word<span class="punctuation">));</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN127"
+>Program: Calculating Prime Factors</A
+></H2
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment"><font size="-1"><a href="https://pleac.sourceforge.net/include/pike/ch02/bigfact.html">download the following standalone program</a></font>
+#!/usr/bin/pike</span>
+<span class="comment-delimiter">// </span><span class="comment">contributed by martin nilsson
+</span>
+<span class="type">void</span> main<span class="punctuation">(</span><span class="type">int</span> n, <span class="type">array</span> args<span class="punctuation">)</span> 
+<span class="punctuation">{</span>
+  <span class="keyword">foreach</span><span class="punctuation">(</span>args<span class="punctuation">[</span><span class="number">1</span>..<span class="punctuation">]</span>, <span class="type">string</span> arg<span class="punctuation">)</span> 
+  <span class="punctuation">{</span>
+    <span class="type">mapping</span> r = <span class="punctuation">([]);</span>
+    <span class="keyword">foreach</span><span class="punctuation">(</span><span class="constant">Math</span>.factor<span class="punctuation">((</span><span class="type">int</span><span class="punctuation">)</span>arg<span class="punctuation">)</span>, <span class="type">int</span> f<span class="punctuation">)</span>
+      r<span class="punctuation">[</span>f<span class="punctuation">]</span>++<span class="punctuation">;</span>
+    write<span class="punctuation">(</span><span class="string">"%-10s"</span>, arg<span class="punctuation">);</span>
+    <span class="keyword">if</span><span class="punctuation">(</span>sizeof<span class="punctuation">(</span>r<span class="punctuation">)</span>==<span class="number">1</span><span class="punctuation">)</span>
+      write<span class="punctuation">(</span><span class="string">" PRIME"</span><span class="punctuation">);</span>
+    <span class="keyword">else</span> 
+    <span class="punctuation">{</span>
+      <span class="keyword">foreach</span><span class="punctuation">(</span>sort<span class="punctuation">(</span>indices<span class="punctuation">(</span>r<span class="punctuation">))</span>, <span class="type">int</span> f<span class="punctuation">)</span> 
+      <span class="punctuation">{</span>
+        write<span class="punctuation">(</span><span class="string">" %d"</span>, f<span class="punctuation">);</span>
+        <span class="keyword">if</span><span class="punctuation">(</span>r<span class="punctuation">[</span>f<span class="punctuation">]</span>&gt;<span class="number">1</span><span class="punctuation">)</span> write<span class="punctuation">(</span><span class="string">"**%d"</span>, r<span class="punctuation">[</span>f<span class="punctuation">]);</span>
+      <span class="punctuation">}</span>
+    <span class="punctuation">}</span>
+    write<span class="punctuation">(</span><span class="string">"\n"</span><span class="punctuation">);</span>
+  <span class="punctuation">}</span>
+<span class="punctuation">}</span>
+
+
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="strings.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="datesandtimes.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Strings</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>Dates and Times</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,1079 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Database Access</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Classes, Objects, and Ties"
+HREF="classesetc.html"><LINK
+REL="NEXT"
+TITLE="User Interfaces"
+HREF="userinterfaces.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="classesetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="userinterfaces.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DBACCESS"
+>14. Database Access</A
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN754"
+>Introduction to Database Access in Pike 8</A
+></H2
+><P
+>Pike 8 provides a comprehensive SQL interface through the <TT
+CLASS="LITERAL"
+>Sql.Sql</TT
+> class, supporting multiple database backends including PostgreSQL, MySQL, and SQLite. The interface offers type-safe queries, prepared statements, connection pooling, and asynchronous operations.</P
+>
+
+<H3
+>Supported Databases</H3
+>
+<TABLE
+BORDER="1"
+CLASS="CALSTABLE"
+>
+<TR
+><TH
+>Database</TH
+><TH
+>URL Format</TH
+><TH
+>Features</TH
+></TR
+>
+<TR
+><TD
+>PostgreSQL</TD
+><TD
+><TT
+CLASS="LITERAL"
+>pgsql://host:port/database</TT
+></TD
+><TD
+>Full featured, SSL, async queries, NOTIFY/LISTEN</TD
+></TR
+>
+<TR
+><TD
+>MySQL</TD
+><TD
+><TT
+CLASS="LITERAL"
+>mysql://host:port/database</TT
+></TD
+><TD
+>Widely used, SSL support via mysqls://</TD
+></TR
+>
+<TR
+><TD
+>SQLite</TD
+><TD
+><TT
+CLASS="LITERAL"
+>sqlite://path/to/database.db</TT
+></TD
+><TD
+>Embedded, in-memory databases supported</TD
+></TR
+>
+</TABLE
+>
+
+<H3
+>Basic Connection</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>#!/usr/bin/env pike
+#pragma strict_types
+#pike 8.0
+
+// PostgreSQL connection
+Sql.Sql db = Sql.Sql("pgsql://localhost:5432/mydb");
+
+// MySQL connection
+Sql.Sql db = Sql.Sql("mysql://localhost:3306/mydb");
+
+// SQLite connection
+Sql.Sql db = Sql.Sql("sqlite://example.db");
+
+// With authentication
+Sql.Sql db = Sql.Sql("pgsql://user:password@localhost:5432/mydb");
+
+// With options
+Sql.Sql db = Sql.Sql("pgsql://host", "database", "user", "password", ([
+    "use_ssl": 1,
+    "reconnect": -1,
+    "cache_autoprepared_statements": 1
+]));</PRE
+></TD
+></TR
+></TABLE
+>
+
+<P
+>For complete working examples, see the recipe files in <TT
+CLASS="LITERAL"
+>recipes/database/</TT
+>:
+<UL
+>
+<LI
+><TT
+CLASS="LITERAL"
+>dbconnection.pike</TT
+> - Connection management and pooling</LI
+>
+<LI
+><TT
+CLASS="LITERAL"
+>basic_queries.pike</TT
+> - Query execution and results</LI
+>
+<LI
+><TT
+CLASS="LITERAL"
+>advanced_operations.pike</TT
+> - Joins, aggregations, CTEs</LI
+>
+<LI
+><TT
+CLASS="LITERAL"
+>async_operations.pike</TT
+> - Asynchronous database operations</LI
+>
+<LI
+><TT
+CLASS="LITERAL"
+>best_practices.pike</TT
+> - Security and performance patterns</LI
+>
+</UL
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN757"
+>Executing SQL Queries</A
+></H2
+>
+
+<H3
+>Simple SELECT Query</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Basic query - returns array of mappings
+array(mapping(string:mixed)) result = db->query("SELECT * FROM users");
+
+foreach (result, mapping(string:mixed) row) {
+    werror("User: %s, Email: %s\n", row->name, row->email);
+}</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>Type-Safe Queries (Pike 8)</H3
+>
+<P
+>Use <TT
+CLASS="LITERAL"
+>typed_query()</TT
+> for automatic type conversion:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Returns properly typed values (int, float, string, Val.null)
+array(mapping(string:mixed)) result =
+    db->typed_query("SELECT id, name, age FROM users WHERE age > %d", 28);
+
+foreach (result, mapping row) {
+    // row->id is int, row->name is string, row->age is int
+    werror("%s (ID: %d) is %d years old\n",
+           row->name, row->id, row->age);
+}</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>Parameter Binding (SQL Injection Prevention)</H3
+>
+<P
+><STRONG
+>CRITICAL:</STRONG
+> Always use parameter binding to prevent SQL injection:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// SAFE: Using sprintf-style parameters
+string username = "alice";
+int min_age = 25;
+
+array(mapping) result = db->query(
+    "SELECT * FROM users WHERE username = %s AND age > %d",
+    username, min_age
+);
+
+// SAFE: Using named parameters
+array(mapping) result = db->query(
+    "SELECT * FROM users WHERE username = :username AND age > :min_age",
+    (["username": username, "min_age": min_age])
+);
+
+// DANGEROUS: Never do this!
+// string query = "SELECT * FROM users WHERE username = '" + username + "'";
+// This is vulnerable to SQL injection attacks</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>Large Result Sets (Streaming)</H3
+>
+<P
+>For large result sets, use <TT
+CLASS="LITERAL"
+>big_query()</TT
+> to fetch rows one at a time:</P
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Stream results - memory efficient
+object result = db->big_query("SELECT * FROM large_table");
+
+if (result) {
+    array(mixed) row;
+    while ((row = result->fetch_row())) {
+        // Process one row at a time
+        process_row(row);
+    }
+
+    // Get metadata
+    werror("Total rows: %d\n", result->num_rows());
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN760"
+>INSERT, UPDATE, DELETE Operations</A
+></H2
+>
+
+<H3
+>INSERT Operations</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Simple insert
+db->query("INSERT INTO users (name, email, age) VALUES (%s, %s, %d)",
+         "Alice", "alice@example.com", 30);
+
+// Insert with named parameters
+db->query("INSERT INTO users (name, email, age) "
+         "VALUES (:name, :email, :age)",
+         (["name": "Bob", "email": "bob@example.com", "age": 25]));
+
+// Get last insert ID (SQLite, MySQL, PostgreSQL)
+int last_id = db->master_sql->last_insert_id();</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>UPDATE Operations</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Update single record
+db->query("UPDATE users SET age = :new_age WHERE name = :name",
+         (["new_age": 31, "name": "Alice"]));
+
+// Update multiple records
+int affected = db->query("UPDATE users SET age = age + 1 WHERE age < 30");
+
+// Check affected rows (varies by database)
+werror("Updated %d records\n", affected ? sizeof(affected) : 0);</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>DELETE Operations</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Delete with condition
+db->query("DELETE FROM users WHERE age > :max_age",
+         (["max_age": 50]));
+
+// Delete single record
+db->query("DELETE FROM users WHERE id = %d", user_id);
+
+// Delete all (use with caution)
+db->query("DELETE FROM users");</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN763"
+>Transaction Management</A
+></H2
+>
+
+<P
+>Transactions ensure ACID properties for multi-step operations:</P
+>
+
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Basic transaction pattern
+db->query("BEGIN TRANSACTION");
+
+mixed err = catch {
+    // Multiple operations
+    db->query("INSERT INTO accounts (user_id, balance) VALUES (%d, %f)",
+             user_id, 100.0);
+    db->query("UPDATE users SET account_created = 1 WHERE id = %d", user_id);
+
+    // Commit if all successful
+    db->query("COMMIT");
+    werror("Transaction committed successfully\n");
+};
+
+if (err) {
+    // Rollback on error
+    db->query("ROLLBACK");
+    werror("Transaction rolled back: %s\n", err[0]);
+}</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>Transaction with Error Handling</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Robust transaction with proper cleanup
+class Transaction {
+    private Sql.Sql db;
+    private int in_progress = 0;
+
+    void create(Sql.Sql db) {
+        this::db = db;
+        begin();
+    }
+
+    void begin() {
+        db->query("BEGIN TRANSACTION");
+        in_progress = 1;
+    }
+
+    void commit() {
+        if (in_progress) {
+            db->query("COMMIT");
+            in_progress = 0;
+        }
+    }
+
+    void rollback() {
+        if (in_progress) {
+            db->query("ROLLBACK");
+            in_progress = 0;
+        }
+    }
+
+    void destroy() {
+        if (in_progress) {
+            rollback();
+        }
+    }
+}
+
+// Usage
+Transaction tx = Transaction(db);
+
+mixed err = catch {
+    db->query("INSERT INTO ...");
+    db->query("UPDATE ...");
+    tx->commit();
+};
+
+if (err) {
+    tx->rollback();
+    // Handle error
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN766"
+>Connection Pooling</A
+></H2
+>
+
+<P
+>For web applications and high-load scenarios, use connection pooling:</P
+>
+
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>#pragma strict_types
+#pike 8.0
+
+class ConnectionPool {
+    private string db_url;
+    private int pool_size;
+    private array(Sql.Sql) connections;
+    private Thread.Queue available;
+    private Thread.Mutex lock = Thread.Mutex();
+
+    void create(string db_url, int pool_size) {
+        this::db_url = db_url;
+        this::pool_size = pool_size;
+
+        connections = allocate(pool_size);
+        available = Thread.Queue();
+
+        // Initialize connections
+        for (int i = 0; i < pool_size; i++) {
+            connections[i] = Sql.Sql(db_url);
+            available->write(i);
+        }
+    }
+
+    // Get connection from pool
+    Sql.Sql acquire() {
+        int idx = available->read();
+        Sql.Sql conn = connections[idx];
+
+        // Verify connection is alive
+        if (conn->ping() < 0) {
+            Thread.MutexKey key = lock->lock();
+            connections[idx] = Sql.Sql(db_url);
+            conn = connections[idx];
+            destruct(key);
+        }
+
+        return conn;
+    }
+
+    // Return connection to pool
+    void release(Sql.Sql conn) {
+        Thread.MutexKey key = lock->lock();
+        int idx = search(connections, conn);
+        if (idx >= 0) {
+            available->write(idx);
+        }
+        destruct(key);
+    }
+
+    // Execute query with automatic connection management
+    array(mapping) query(string q, mixed... extraargs) {
+        Sql.Sql conn = acquire();
+        mixed err = catch {
+            array(mapping) result = conn->query(q, @extraargs);
+            release(conn);
+            return result;
+        };
+
+        release(conn);
+        throw(err);
+    }
+}
+
+// Usage
+ConnectionPool pool = ConnectionPool("pgsql://localhost/appdb", 10);
+
+// Use pool for queries
+array(mapping) users = pool->query(
+    "SELECT * FROM users WHERE active = 1"
+);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN769"
+>Advanced Query Features</A
+></H2
+>
+
+<H3
+>JOIN Operations</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// INNER JOIN
+array(mapping) result = db->typed_query(
+    "SELECT e.name, d.department "
+    "FROM employees e "
+    "INNER JOIN departments d ON e.department_id = d.id"
+);
+
+// LEFT JOIN
+array(mapping) result = db->typed_query(
+    "SELECT e.name, d.department "
+    "FROM employees e "
+    "LEFT JOIN departments d ON e.department_id = d.id"
+);</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>GROUP BY and Aggregation</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Count and average
+array(mapping) stats = db->typed_query(
+    "SELECT department, COUNT(*) as count, AVG(salary) as avg_salary "
+    "FROM employees "
+    "GROUP BY department"
+);
+
+// HAVING clause
+array(mapping) high_salary = db->typed_query(
+    "SELECT department, AVG(salary) as avg "
+    "FROM employees "
+    "GROUP BY department "
+    "HAVING AVG(salary) > 60000"
+);</PRE
+></TD
+></TR
+></TABLE
+>
+
+<H3
+>Common Table Expressions (CTE)</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Simple CTE
+array(mapping) result = db->typed_query("
+    WITH high_paid AS (
+        SELECT name, salary, department_id
+        FROM employees
+        WHERE salary > 70000
+    )
+    SELECT e.name, d.department
+    FROM high_paid e
+    JOIN departments d ON e.department_id = d.id
+");
+
+// Recursive CTE (hierarchical data)
+array(mapping) hierarchy = db->typed_query("
+    WITH RECURSIVE category_tree AS (
+        SELECT id, name, parent_id, 1 as level
+        FROM categories
+        WHERE parent_id IS NULL
+        UNION ALL
+        SELECT c.id, c.name, c.parent_id, ct.level + 1
+        FROM categories c
+        JOIN category_tree ct ON c.parent_id = ct.id
+    )
+    SELECT name, level FROM category_tree ORDER BY level
+");</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN772"
+>Asynchronous Database Operations</A
+></H2
+>
+
+<P
+>Pike 8 supports asynchronous database operations using Future/Promise:</P
+>
+
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>// Async query with Future/Promise
+class AsyncDatabase {
+    private Sql.Sql db;
+
+    void create(string db_url) {
+        db = Sql.Sql(db_url);
+    }
+
+    Promise query_async(string query, mapping|void bindings) {
+        Promise promise = Promise();
+        Thread.Thread(do_query, promise, query, bindings);
+        return promise;
+    }
+
+    private void do_query(Promise promise, string query, mapping|void bindings) {
+        mixed err = catch {
+            array(mapping) result = bindings ?
+                db->query(query, bindings) : db->query(query);
+            promise->success(result);
+        };
+
+        if (err) {
+            promise->failure(err);
+        }
+    }
+}
+
+// Usage
+AsyncDatabase async_db = AsyncDatabase("sqlite://example.db");
+Promise p = async_db->query_async("SELECT * FROM users");
+Future f = p->future();
+
+// Do other work here...
+
+// Get result when ready
+mixed result = f->get();
+if (arrayp(result)) {
+    werror("Got %d rows\n", sizeof(result));
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN775"
+>Database Best Practices</A
+></H2
+>
+
+<H3
+>Security Best Practices</H3
+>
+<UL
+>
+<LI
+>Always use parameter binding to prevent SQL injection</LI
+>
+<LI
+>Validate and sanitize user input</LI
+>
+<LI
+>Use least privilege database accounts</LI
+>
+<LI
+>Hash passwords with salt (never store plaintext)</LI
+>
+<LI
+>Use SSL for remote database connections</LI
+>
+</UL
+>
+
+<H3
+>Performance Best Practices</H3
+>
+<UL
+>
+<LI
+>Use indexes on frequently queried columns</LI
+>
+<LI
+>Batch operations in transactions</LI
+>
+<LI
+>Use connection pooling for web applications</LI
+>
+<LI
+>Prefer typed_query for better type handling</LI
+>
+<LI
+>Use EXPLAIN to analyze query performance</LI
+>
+<LI
+>Stream large results with big_query</LI
+>
+</UL
+>
+
+<H3
+>Maintainability Best Practices</H3
+>
+<UL
+>
+<LI
+>Use repository pattern for data access</LI
+>
+<LI
+>Implement migrations for schema changes</LI
+>
+<LI
+>Log queries in development environments</LI
+>
+<LI
+>Use prepared statements for repeated queries</LI
+>
+<LI
+>Handle errors gracefully with proper cleanup</LI
+>
+</UL
+>
+
+<H3
+>Example Repository Pattern</H3
+>
+<TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+>class UserRepository {
+    private Sql.Sql db;
+
+    void create(Sql.Sql db) {
+        this::db = db;
+    }
+
+    array(mapping) find_all() {
+        return db->typed_query("SELECT id, username, email FROM users");
+    }
+
+    mapping find_by_id(int id) {
+        array(mapping) result = db->typed_query(
+            "SELECT id, username, email FROM users WHERE id = :id",
+            (["id": id])
+        );
+        return sizeof(result) ? result[0] : 0;
+    }
+
+    int create(string username, string email) {
+        db->query(
+            "INSERT INTO users (username, email) VALUES (:username, :email)",
+            (["username": username, "email": email])
+        );
+        return db->master_sql->last_insert_id();
+    }
+
+    void update(int id, string|void username, string|void email) {
+        if (username) {
+            db->query("UPDATE users SET username = :username WHERE id = :id",
+                     (["username": username, "id": id]));
+        }
+        if (email) {
+            db->query("UPDATE users SET email = :email WHERE id = :id",
+                     (["email": email, "id": id]));
+        }
+    }
+
+    void delete(int id) {
+        db->query("DELETE FROM users WHERE id = :id", (["id": id]));
+    }
+}
+
+// Usage
+Sql.Sql db = Sql.Sql("sqlite://app.db");
+UserRepository users = UserRepository(db);
+
+int user_id = users->create("alice", "alice@example.com");
+mapping user = users->find_by_id(user_id);
+users->update(user_id, "alice_updated");
+array(mapping) all_users = users->find_all();
+users->delete(user_id);</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="classesetc.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="userinterfaces.html"
+ACCESSKEY="N"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Classes, Objects, and Ties</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>User Interfaces</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML>
+>

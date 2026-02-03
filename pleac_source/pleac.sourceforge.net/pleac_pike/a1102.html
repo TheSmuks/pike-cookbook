@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML
+><HEAD
+><TITLE
+>Helpers</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.79"><LINK
+REL="HOME"
+TITLE="PLEAC-Pike
+"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Web Automation"
+HREF="webautomation.html"><style type="text/css">    <!--
+      .comment {
+        /* font-lock-comment-face */
+        color: #bebebe;
+      }
+      .comment-delimiter {
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #ff7f50;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #b2dfee;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #ffa500;
+      }
+      .number {
+        /* font-lock-number-face */
+        color: #cdcd00;
+      }
+      .punctuation {
+        /* font-lock-punctuation-face */
+        color: #00ffff;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #00cd00;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #98fb98;
+      }
+      .variable-name {
+        /* font-lock-variable-name-face */
+        color: #9ac0cd;
+      }
+    -->
+    </style></head
+><BODY TEXT="#cecece" BGCOLOR="#4f6f6f" LINK="#f5deb3" VLINK="#d5ae83"
+CLASS="APPENDIX"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>PLEAC-Pike
+</TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="webautomation.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+></TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+>&nbsp;</TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="APPENDIX"
+><H1
+CLASS="APPENDIX"
+><A
+NAME="AEN1102"
+>A. Helpers</A
+></H1
+><TABLE
+BORDER="0"
+BGCOLOR="#2F4F4F"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="SCREEN"
+><font color="#f5deb3" size="+1"><span class="comment-delimiter"></span><span class="comment"></span><span class="comment-delimiter">// </span><span class="comment">(this section is optional; use it if you need to import very</span>
+<span class="comment-delimiter">// </span><span class="comment">generic stuff for the whole code)</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">Note: To avoid clutter each example will only include any necessary</span>
+<span class="comment-delimiter">// </span><span class="comment">code. However, it should be understood that:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">* The following constants need to be defined:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//    </span><span class="comment">constant FALSE = 0, TRUE = 1, PROBLEM = 1, OK = 0,</span>
+<span class="comment-delimiter">//      </span><span class="comment">EOF = -1, NULL = "", NEWLINE = "\n", LF = 10, SPACE = 32;</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">// </span><span class="comment">* Each example needs to be enclosed within the following block:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//    </span><span class="comment">int main(int argc, array(string) argv)</span>
+<span class="comment-delimiter">//    </span><span class="comment">{</span>
+<span class="comment-delimiter">//      </span><span class="comment">...</span>
+<span class="comment-delimiter">//    </span><span class="comment">}</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//   </span><span class="comment">where a 'main' is not provided. Also:</span>
+<span class="comment-delimiter">//</span><span class="comment"></span>
+<span class="comment-delimiter">//   </span><span class="comment">- Any function definitions would ordinarily be placed</span>
+<span class="comment-delimiter">//     </span><span class="comment">before, and outside of, 'main'</span>
+<span class="comment-delimiter">//   </span><span class="comment">- Variables can be assumed to be locals residing in 'main';</span>
+<span class="comment-delimiter">//     </span><span class="comment">any 'global' variables will be defined at the start of the</span>
+<span class="comment-delimiter">//     </span><span class="comment">code example prior to any function definitions</span>
+
+<span class="comment-delimiter">// </span><span class="comment">----------------------------</span>
+
+<span class="type">string</span> chop<span class="punctuation">(</span><span class="type">string</span> s, <span class="type">void</span>|<span class="type">int</span> size<span class="punctuation">)</span>
+<span class="punctuation">{</span>
+  <span class="type">int</span> length = sizeof<span class="punctuation">(</span>s<span class="punctuation">);</span>
+  <span class="keyword">return</span> size &gt; <span class="number">0</span> &amp;&amp; size &lt; length ? s<span class="punctuation">[</span>..length - <span class="punctuation">(</span>size + <span class="number">1</span><span class="punctuation">)]</span> : s<span class="punctuation">;</span>
+<span class="punctuation">}</span>
+</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="webautomation.html"
+ACCESSKEY="P"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>Web Automation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>&nbsp;</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
