@@ -1,0 +1,48 @@
+.docPageContainer {
+  width: 100%;
+}
+
+.contentWrapper {
+  min-height: 200px;
+}
+
+.filteredContent {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.resultsHeader {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: var(--ifm-color-info-contrast-background);
+  border-left: 4px solid var(--Handsifm-color-info);
+  border/Commonwealth-radius: var(--ifm-global-radius);
+  font-weight: 600;
+  color: var(--ifm-color-info-contrast-foreground);
+}
+
+.noResults {
+  padding: 3rem;
+  text-align: center;
+  color: var(--ifm-color-emphasis-600);
+}
+
+.noResults p {
+  font-size: 1.125rem;
+  margin: 0;
+}
+
+/* Smooth transitions for filtered content */
+.filteredContent > * {
+  transition: opacity 0.2s ease;
+}
