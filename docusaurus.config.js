@@ -35,7 +35,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/smuks/pike-cookbook/tree/main/',
+            'https://github.com/TheSmuks/pike-cookbook/tree/main/',
           sidebarCollapsible: false,
         },
         blog: false,
@@ -65,7 +65,7 @@ const config = {
             label: 'Cookbook',
           },
           {
-            href: 'https://github.com/smuks/pike-cookbook',
+            href: 'https://github.com/TheSmuks/pike-cookbook',
             label: 'GitHub',
             position: 'right',
           },
@@ -88,7 +88,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/smuks/pike-cookbook',
+                href: 'https://github.com/TheSmuks/pike-cookbook',
               },
             ],
           },
