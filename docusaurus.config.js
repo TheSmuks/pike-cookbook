@@ -47,6 +47,9 @@ const config = {
     ],
   ],
 
+  // Client modules for executing client-side code
+  clientModules: [require.resolve('./src/client/index.js')],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
