@@ -19,7 +19,23 @@ export default function prismIncludeLanguages(PrismObject) {
   // Register Pike language with comprehensive syntax highlighting
   PrismObject.languages.pike = {
     // Comments: //, /* */, and #! shebang
+    // AutoDoc comments (//!) get special highlighting for tags
     'comment': [
+      {
+        // AutoDoc comments with tag highlighting
+        pattern: /\/\/!.*/,
+        greedy: true,
+        inside: {
+          'autodoc-tag': {
+            pattern: /@(?:param|return|returns|throws|throw|seealso|example|note|deprecated|bugs|decl|class|endclass|module|endmodule|type|member|item|index|dl|enddl|mapping|endmapping|array|endarray|namespace|endnamespace|enum|endenum|constant|inherit|typedef|directive|fixme|todo|ol|endol|ul|endul|li|table|endtable|row|col|image|url|tt|i|b|ref|xml|expr|code|)\b/,
+            alias: 'keyword'
+          },
+          'autodoc-inline': {
+            pattern: /@(?:i|b|tt|ref|xml)\{[^@]*@/,
+            alias: 'variable'
+          }
+        }
+      },
       {
         pattern: /\/\*[\s\S]*?\*\//,
         greedy: true
