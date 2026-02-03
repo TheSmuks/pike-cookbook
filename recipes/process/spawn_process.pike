@@ -2,9 +2,28 @@
 #pragma strict_types
 
 //! Recipe: Basic Process Spawning
+//!
 //! Demonstrates creating a new process using Process.create_process
+//!
+//! @example
+//!   // Create a simple process
+//!   Process.create_process proc = Process.create_process(({"echo", "Hello"}));
+//!   proc->wait();
+//!
+//! @note
+//!   Process.create_process is the preferred method for spawning processes
+//!   in Pike 8.x over the older Process.spawn
+//!
+//! @seealso
+//!   @[Process.run], @[Process.spawn], @[Process.Process]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Method 1: Using Process.create_process with array of arguments
     write("Method 1: Process.create_process\n");
     Process.create_process proc = Process.create_process(

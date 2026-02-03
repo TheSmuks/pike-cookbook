@@ -6,17 +6,27 @@ sidebar_label: User Interfaces
 
 # User Interfaces
 
-This chapter covers user interface programming in Pike 8, from terminal/console applications to graphical interfaces with GTK2/GTK3. Pike provides excellent support for both text-based and graphical user interfaces through modern, type-safe APIs.
+## Introduction
+
+**What this covers**
+- Terminal/console programming with Readline
+- Command-line argument parsing with Getopt
+- ANSI escape codes for colors and formatting
+- Interactive terminal UIs with keyboard navigation
+- Password input and terminal control with termios
+- GTK2/GTK3 graphical user interfaces
+- Event-driven programming patterns
+
+**Why use it**
+User interfaces are how users interact with your programs. Pike 8 provides excellent support for both text-based terminal interfaces and graphical applications. This guide covers everything from simple command-line tools to interactive terminal menus and GUI applications.
+
+:::tip Key Concept
+Pike's `Stdio.Readline` provides powerful interactive input with history, editing, and completion. For GUI applications, Pike supports GTK2/GTK3 through optional modules. Always check for interactive terminals with `isatty()` before using ANSI codes.
+:::
 
 ```pike
 // User Interfaces in Pike 8
 // Demonstrating terminal, console, and GUI programming
-
-// Available UI modules:
-// - Stdio.Readline: Interactive console input
-// - GTK2/GTK3: Graphical user interfaces
-// - NCurses: Terminal screen management
-// - ANSI escape codes: Terminal control
 
 import Stdio;
 
@@ -43,12 +53,16 @@ void check_ui_modules() {
 }
 ```
 
+---
+
 ## Parsing Program Arguments
 
 Pike 8 provides the `Getopt` module for sophisticated command-line argument parsing. This modern approach handles short options, long options, and arguments with type safety.
 
 ```pike
-// Recipe 15.1: Parsing Program Arguments with Getopt
+//-----------------------------
+// Recipe: Parse command-line arguments
+//-----------------------------
 import Getopt;
 
 int verbose;
@@ -57,10 +71,10 @@ int number;
 
 // Define all options
 foreach (find_all_options(argv, ({
-    ({"help", NO_ARG, ({"-h", "--help"})}),
-    ({"verbose", NO_ARG, ({"-v", "--verbose"})}),
-    ({"output", HAS_ARG, ({"-o", "--output"})}),
-    ({"number", HAS_ARG, ({"-n", "--number"})}),
+    ({"help", NO_ARG, ({ "-h", "--help" })}),
+    ({"verbose", NO_ARG, ({ "-v", "--verbose" })}),
+    ({"output", HAS_ARG, ({ "-o", "--output" })}),
+    ({"number", HAS_ARG, ({ "-n", "--number" })}),
 }), array(string) opt) {
     switch(opt[0]) {
         case "help":
@@ -83,14 +97,20 @@ array(string) args;
 args;
 ```
 
-The example demonstrates all major features of Getopt: short options (`-v`), long options (`--verbose`), options with arguments (`-o file` or `--output=file`), and automatic help generation.
+:::tip
+Use `find_all_options()` from the Getopt module for clean, maintainable argument parsing. It automatically generates help text and handles both short (`-v`) and long (`--verbose`) option formats.
+:::
+
+---
 
 ## Testing Whether a Program Is Running Interactively
 
 Use `Stdio.isatty()` to detect if your program is running in an interactive terminal or being piped/redirected. This is crucial for deciding whether to use colors, progress indicators, or fancy terminal output.
 
 ```pike
-// Recipe 15.2: Testing for Interactive Terminal
+//-----------------------------
+// Recipe: Detect interactive terminal
+//-----------------------------
 
 int is_interactive() {
     return isatty(STDOUT->fd());
@@ -109,12 +129,16 @@ void smart_output(string msg) {
 
 Checking `isatty()` before using ANSI escape codes or terminal-specific features ensures your program works correctly when output is redirected to files or piped to other programs.
 
+---
+
 ## Clearing the Screen
 
 Use ANSI escape sequences for screen clearing and cursor positioning. Always check if you're in a terminal first.
 
 ```pike
-// Recipe 15.3: Clearing the Screen and Terminal Control
+//-----------------------------
+// Recipe: Clear screen and position cursor
+//-----------------------------
 
 constant ANSI_CLEAR = "\033[2J";
 constant ANSI_HOME = "\033[H";
@@ -150,12 +174,16 @@ void colored_write(string color, string msg) {
 }
 ```
 
+---
+
 ## Determining Terminal or Window Size
 
 Use `Stdio.get_terminal_size()` to get terminal dimensions for proper text layout and UI sizing.
 
 ```pike
-// Recipe 15.4: Getting Terminal Size
+//-----------------------------
+// Recipe: Get terminal dimensions
+//-----------------------------
 
 mapping(string:int) size;
 size;
@@ -187,12 +215,16 @@ string wrap_text(string text, int width) {
 }
 ```
 
+---
+
 ## Changing Text Color
 
 ANSI color codes provide colored terminal output. Always wrap with `isatty()` checks.
 
 ```pike
-// Recipe 15.5: Terminal Colors with ANSI
+//-----------------------------
+// Recipe: Add colors to terminal output
+//-----------------------------
 
 constant COLORS = ([
     "black": "\033[30m",
@@ -247,12 +279,20 @@ void progress_bar(int percent) {
 }
 ```
 
+:::tip
+Always test for interactive terminal with `isatty()` before using ANSI codes. This prevents escape sequences from appearing in log files or when output is piped to other programs.
+:::
+
+---
+
 ## Reading from the Keyboard
 
 `Stdio.Readline` provides interactive input with history, editing, and completion support - perfect for command-line applications.
 
 ```pike
-// Recipe 15.6: Interactive Input with Readline
+//-----------------------------
+// Recipe: Interactive input with Readline
+//-----------------------------
 
 class ReadlineUI {
     inherit Stdio.Readline;
@@ -297,24 +337,28 @@ class ReadlineUI {
 }
 ```
 
+---
+
 ## Reading Passwords
 
 For password input, disable terminal echo using `tcsetattr()` to prevent characters from being displayed.
 
 ```pike
-// Recipe 15.7: Secure Password Input
+//-----------------------------
+// Recipe: Secure password input
+//-----------------------------
 
 string get_password(string|void prompt) {
     string p = prompt || "Password: ";
     write(p);
 
     // Disable echo using modern Pike 8 syntax
-    STDIN->tcsetattr((["ECHO": 0]));
+    STDIN->tcsetattr(([ "ECHO": 0 ]));
 
     string password = read();
 
     // Restore echo
-    STDIN->tcsetattr((["ECHO": 1]));
+    STDIN->tcsetattr(([ "ECHO": 1 ]));
 
     write("\n");
     return password || "";
@@ -333,12 +377,20 @@ int confirm_password(string prompt) {
 }
 ```
 
+:::warning
+Always restore terminal echo after reading passwords. Use `catch` blocks or ensure the restore code runs even if errors occur to prevent leaving the terminal in a bad state.
+:::
+
+---
+
 ## Using POSIX termios
 
 Pike's `Stdio.File.tcsetattr()` provides direct access to POSIX termios for fine-grained terminal control.
 
 ```pike
-// Recipe 15.8: Terminal Control with termios
+//-----------------------------
+// Recipe: Terminal control with termios
+//-----------------------------
 
 // Save current settings
 mapping old_settings = Stdio.File(STDIN)->tcgetattr();
@@ -362,12 +414,16 @@ while (ch == -1) {
 STDIN->tcsetattr(old_settings);
 ```
 
+---
+
 ## Checking for Waiting Input
 
 Use `Stdio.File.peek()` or `select()` to check for available input without blocking.
 
 ```pike
-// Recipe 15.9: Non-blocking Input Check
+//-----------------------------
+// Recipe: Non-blocking input check
+//-----------------------------
 
 // Check if input is available
 int has_input() {
@@ -376,7 +432,7 @@ int has_input() {
 
 // Wait for input with timeout
 int wait_for_input(float timeout) {
-    return select(({STDIN}), ({}), ({}), timeout)[0];
+    return select(({ STDIN }), ({}), ({}), timeout)[0];
 }
 
 // Read with timeout
@@ -388,12 +444,16 @@ string|zero read_with_timeout(float timeout) {
 }
 ```
 
+---
+
 ## Editing Input
 
 `Stdio.Readline` automatically provides line editing (arrow keys, backspace, delete, home/end) and command history.
 
 ```pike
-// Recipe 15.10: Readline with History and Editing
+//-----------------------------
+// Recipe: Readline with history and editing
+//-----------------------------
 
 class InteractiveShell {
     inherit Stdio.Readline;
@@ -427,12 +487,16 @@ class InteractiveShell {
 }
 ```
 
+---
+
 ## Managing the Screen
 
 For complex terminal UIs, use NCurses or create your own screen management with ANSI codes and positioning.
 
 ```pike
-// Recipe 15.11: Simple Screen Management
+//-----------------------------
+// Recipe: Simple screen management
+//-----------------------------
 
 class Screen {
     array(array(string)) buffer;
@@ -464,11 +528,16 @@ class Screen {
 }
 ```
 
+---
+
 ## Creating GUI Applications with GTK2
 
 GTK2 provides full-featured GUI development with Pike. Use lambda functions for callbacks and modern Pike 8 syntax.
 
 ```pike
+//-----------------------------
+// Recipe: Basic GTK2 window
+//-----------------------------
 #ifdef __GTK2__
 import GTK2;
 
@@ -525,14 +594,20 @@ int main() {
 #endif
 ```
 
-The GTK2 example shows window creation, widget layout with containers, and event handling using lambda functions - all with Pike 8's type-safe syntax.
+:::tip
+GTK2 support is optional in Pike. Always wrap GTK2 code in `#ifdef __GTK2__` preprocessor directives and provide fallback behavior for systems without GTK2.
+:::
+
+---
 
 ## Event-Driven Programming
 
 Pike's backend provides an event loop for timers, I/O events, and asynchronous operations.
 
 ```pike
-// Recipe 15.13: Event Loop and Async I/O
+//-----------------------------
+// Recipe: Event loop and async I/O
+//-----------------------------
 
 class EventApplication {
     int running = 1;
@@ -575,12 +650,16 @@ class AsyncClient {
 }
 ```
 
+---
+
 ## Program: Interactive Menu System
 
 Complete terminal-based menu system with keyboard navigation, using Readline and ANSI codes.
 
 ```pike
+//-----------------------------
 // Program: Full-Featured Terminal Menu System
+//-----------------------------
 
 class MenuSystem {
     inherit Stdio.Readline;
@@ -611,7 +690,7 @@ class MenuSystem {
     }
 
     int|zero navigate() {
-        STDIN->tcsetattr((["ECHO": 0, "ICANON": 0]));
+        STDIN->tcsetattr(([ "ECHO": 0, "ICANON": 0 ]));
 
         while (1) {
             display();
@@ -627,11 +706,11 @@ class MenuSystem {
                     selected = (selected + 1) % sizeof(items);
                     break;
                 case '\r':  // Enter
-                    STDIN->tcsetattr((["ECHO": 1, "ICANON": 1]));
+                    STDIN->tcsetattr(([ "ECHO": 1, "ICANON": 1 ]));
                     return selected;
                 case 'q':
                 case 'Q':
-                    STDIN->tcsetattr((["ECHO": 1, "ICANON": 1]));
+                    STDIN->tcsetattr(([ "ECHO": 1, "ICANON": 1 ]));
                     return -1;
             }
         }
@@ -659,4 +738,15 @@ int main() {
 }
 ```
 
-This complete menu system demonstrates combining Readline, ANSI escape codes, and termios control for professional terminal UIs in Pike 8.
+:::tip
+This complete menu system demonstrates combining Readline, ANSI escape codes, and termios control for professional terminal UIs in Pike 8. The reverse video highlighting and arrow key navigation create an intuitive user experience.
+:::
+
+---
+
+## See Also
+
+- [Process Management](/docs/advanced/processes) - Inter-process communication
+- [File Access](/docs/files/file-access) - File I/O operations
+- [Network Programming](/docs/network/sockets) - Socket-based UIs
+- [Classes](/docs/advanced/classes) - Object-oriented UI frameworks

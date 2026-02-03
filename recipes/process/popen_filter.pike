@@ -2,9 +2,27 @@
 #pragma strict_types
 
 //! Recipe: Process Output Filtering
+//!
 //! Demonstrates filtering output through external processes
+//!
+//! @example
+//!   // Simple pipeline using popen
+//!   string output = Process.popen("echo 'hello' | tr a-z A-Z");
+//!
+//! @note
+//!   Process.popen() uses the shell for command execution, which can be
+//!   convenient but may have security implications with untrusted input
+//!
+//! @seealso
+//!   @[Process.popen], @[Process.run], @[Process.create_process]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Output Filtering Examples ===\n\n");
 
     // Example 1: Simple pipeline using popen

@@ -3,9 +3,27 @@
 #pike 8.0
 
 //! Basic SQL query examples for Pike 8
+//!
 //! Demonstrates query execution, result handling, and prepared statements
+//!
+//! @example
+//!   // Simple query
+//!   Sql.Sql db = Sql.Sql("sqlite://test.db");
+//!   array(mapping) result = db->query("SELECT * FROM users");
+//!
+//! @note
+//!   Always use parameter binding (%s, %d, or :name) to prevent SQL injection
+//!
+//! @seealso
+//!   @[Sql.Sql], @[typed_query], @[big_query]
 
 //! Example: Simple SELECT query
+//!
+//! Demonstrates basic query execution and result iteration
+//!
+//! @seealso
+//!   @[typed_query_example], @[big_query_example]
+
 void simple_select_example() {
     werror("\n=== Simple SELECT Query ===\n");
 
@@ -35,6 +53,14 @@ void simple_select_example() {
 }
 
 //! Example: Typed query for better type safety
+//!
+//! @note
+//!   typed_query returns values with proper types (int, float, string)
+//!   instead of everything as strings
+//!
+//! @seealso
+//!   @[simple_select_example], @[big_query_example]
+
 void typed_query_example() {
     werror("\n=== Typed Query Example ===\n");
 
@@ -54,6 +80,13 @@ void typed_query_example() {
 }
 
 //! Example: Using big_query for large result sets
+//!
+//! @note
+//!   big_query is memory-efficient for large datasets as it streams results
+//!
+//! @seealso
+//!   @[simple_select_example], @[prepared_statement_example]
+
 void big_query_example() {
     werror("\n=== Big Query Example ===\n");
 
@@ -77,6 +110,13 @@ void big_query_example() {
 }
 
 //! Example: Prepared statements with parameter binding
+//!
+//! @note
+//!   Parameter binding prevents SQL injection attacks
+//!
+//! @seealso
+//!   @[sql_injection_prevention]
+
 void prepared_statement_example() {
     werror("\n=== Prepared Statement Example ===\n");
 
@@ -97,6 +137,10 @@ void prepared_statement_example() {
 }
 
 //! Example: INSERT operations
+//!
+//! @seealso
+//!   @[update_example], @[delete_example]
+
 void insert_example() {
     werror("\n=== INSERT Example ===\n");
 
@@ -122,6 +166,13 @@ void insert_example() {
 }
 
 //! Example: UPDATE operations
+//!
+//! @note
+//!   UPDATE returns the number of affected rows
+//!
+//! @seealso
+//!   @[insert_example], @[delete_example]
+
 void update_example() {
     werror("\n=== UPDATE Example ===\n");
 
@@ -145,6 +196,13 @@ void update_example() {
 }
 
 //! Example: DELETE operations
+//!
+//! @note
+//!   Always use WHERE clause with DELETE to avoid deleting all rows
+//!
+//! @seealso
+//!   @[insert_example], @[update_example]
+
 void delete_example() {
     werror("\n=== DELETE Example ===\n");
 
@@ -162,6 +220,13 @@ void delete_example() {
 }
 
 //! Example: Transaction management
+//!
+//! @note
+//!   Use BEGIN TRANSACTION, COMMIT, and ROLLBACK for atomic operations
+//!
+//! @seealso
+//!   @[error_handling_example]
+
 void transaction_example() {
     werror("\n=== Transaction Example ===\n");
 
@@ -189,6 +254,13 @@ void transaction_example() {
 }
 
 //! Example: Error handling
+//!
+//! @note
+//!   Always wrap database operations in catch blocks for proper error handling
+//!
+//! @seealso
+//!   @[transaction_example]
+
 void error_handling_example() {
     werror("\n=== Error Handling Example ===\n");
 
@@ -219,6 +291,13 @@ void error_handling_example() {
 }
 
 //! Example: SQL injection prevention
+//!
+//! @note
+//!   NEVER concatenate user input into SQL queries. Always use parameter binding
+//!
+//! @seealso
+//!   @[prepared_statement_example]
+
 void sql_injection_prevention() {
     werror("\n=== SQL Injection Prevention ===\n");
 
@@ -249,6 +328,13 @@ void sql_injection_prevention() {
 }
 
 //! Example: Working with NULL values
+//!
+//! @note
+//!   NULL values are represented as Val.null in Pike
+//!
+//! @seealso
+//!   @[insert_example]
+
 void null_handling_example() {
     werror("\n=== NULL Handling Example ===\n");
 
@@ -278,6 +364,12 @@ void null_handling_example() {
 }
 
 int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Run all examples
     simple_select_example();
     typed_query_example();

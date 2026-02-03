@@ -2,11 +2,34 @@
 #pragma strict_types
 
 //! Recipe: Process Groups and Sessions
+//!
 //! Demonstrates managing process groups for signaling multiple processes
+//!
+//! @example
+//!   // Send signal to entire process group
+//!   int pid = fork();
+//!   if (pid == 0) {
+//!       setpgid(0, 0);  // Create new process group
+//!   } else {
+//!       kill(-pid, SIGTERM);  // Negative PID signals entire group
+//!   }
+//!
+//! @note
+//!   Use negative PIDs with kill() to signal entire process groups.
+//!   This is useful for terminating all processes in a group
+//!
+//! @seealso
+//!   @[fork], @[setpgid], @[getpgrp], @[kill]
 
 #if constant(fork) && constant(setpgrp)
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Process Group Example ===\n\n");
 
     // Fork to create a child

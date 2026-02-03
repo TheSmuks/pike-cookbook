@@ -4,162 +4,184 @@ title: Internet Services
 sidebar_label: Internet Services
 ---
 
-# 18. Internet Services
+# Internet Services
+
+## Introduction
+
+Internet services enable communication over standard protocols like DNS, FTP, SMTP, and POP3. Pike 8 provides robust modules for implementing and interacting with these services through the `Protocols` module.
+
+**What this covers:**
+- DNS lookups (A, MX, TXT, AAAA records)
+- FTP file transfer operations
+- Email sending and receiving
+- Working with internet protocols
+
+**Why use it:**
+- Build networked applications
+- Implement email automation
+- Create FTP clients and servers
+- Perform DNS lookups dynamically
+
+:::tip
+Pike's `Protocols.DNS` module provides both synchronous and asynchronous DNS resolution methods.
+:::
+
+---
 
 ## Simple DNS Lookups
 
+### A Record Lookup
+
 ```pike
-// Recipe 18.1: DNS Lookups with Protocols.DNS - Pike 8
-//--------------------------------------------------------------------------
+//-----------------------------
+// Recipe: DNS lookups with Protocols.DNS - Pike 8
+//-----------------------------
+
+#pragma strict_types
+#require constant(Protocols.DNS)
 
 import Protocols.DNS;
 import Standards.DNS;
 
-// Basic A record lookup (hostname to IP)
-async void lookup_a(string hostname) {
-    object client = Protocols.DNS.client();
-    array(string) ips = [array](client->getaddrbyname(hostname));
+void main() {
+    // A record lookup (hostname to IP)
+    Protocols.DNS.Client client = Protocols.DNS.Client();
 
+    array(string) ips = client->getaddrbyname("www.example.com");
     foreach(ips; string ip) {
-        write("%s -> %s\n", hostname, ip);
+        write("www.example.com -> %s\n", ip);
     }
-}
 
-// Reverse DNS lookup (IP to hostname)
-async void lookup_ptr(string ip) {
-    object client = Protocols.DNS.client();
-    string hostname = client->getnamebyaddr(ip);
-    write("%s -> %s\n", ip, hostname);
+    // Reverse DNS lookup (IP to hostname)
+    string hostname = client->getnamebyaddr("93.184.216.34");
+    write("93.184.216.34 -> %s\n", hostname);
 }
+```
 
-// MX record lookup (mail servers)
-async void lookup_mx(string domain) {
-    object client = Protocols.DNS.client();
-    mapping(string:mixed) result = client->lookup(
-        domain, Protocol.DNS.MX
+### MX Record Lookup
+
+```pike
+//-----------------------------
+// Recipe: MX record lookup for mail servers
+//-----------------------------
+
+#pragma strict_types
+#require constant(Protocols.DNS)
+
+void main() {
+    Protocols.DNS.Client client = Protocols.DNS.Client();
+
+    // MX record lookup
+    mapping result = client->lookup(
+        "example.com",
+        Standards.DNS.MX
     );
 
-    if(result->rcode == Protocol.DNS.NOERROR) {
-        write("MX records for %s:\n", domain);
+    if (result->rcode == Standards.DNS.NOERROR) {
+        write("MX records for %s:\n", "example.com");
+
         foreach(result->an; mapping rr) {
-            if(rr->type == Protocol.DNS.MX) {
-                write("  Priority %d: %s\n", rr->preference, rr->exchange);
+            if (rr->type == Standards.DNS.MX) {
+                write("  Priority %d: %s\n",
+                      rr->preference, rr->exchange);
             }
         }
     }
 }
+```
 
-// TXT record lookup (DKIM, SPF, verification records)
-async void lookup_txt(string domain) {
-    object client = Protocols.DNS.client();
-    mapping(string:mixed) result = client->lookup(
-        domain, Protocol.DNS.TXT
+### TXT Record Lookup
+
+```pike
+//-----------------------------
+// Recipe: TXT record lookup for verification
+//-----------------------------
+
+#pragma strict_types
+#require constant(Protocols.DNS)
+
+void main() {
+    Protocols.DNS.Client client = Protocols.DNS.Client();
+
+    // TXT record lookup (for SPF, DKIM, etc.)
+    mapping result = client->lookup(
+        "example.com",
+        Standards.DNS.TXT
     );
 
-    if(result->rcode == Protocol.DNS.NOERROR) {
-        write("TXT records for %s:\n", domain);
+    if (result->rcode == Standards.DNS.NOERROR) {
+        write("TXT records for %s:\n", "example.com");
+
         foreach(result->an; mapping rr) {
-            if(rr->type == Protocol.DNS.TXT) {
+            if (rr->type == Standards.DNS.TXT) {
                 write("  %s\n", rr->txt);
             }
         }
     }
 }
-
-// AAAA record lookup (IPv6 addresses)
-async void lookup_aaaa(string hostname) {
-    object client = Protocols.DNS.client();
-    mapping(string:mixed) result = client->lookup(
-        hostname, Protocol.DNS.AAAA
-    );
-
-    if(result->rcode == Protocol.DNS.NOERROR) {
-        write("IPv6 addresses for %s:\n", hostname);
-        foreach(result->an; mapping rr) {
-            if(rr->type == Protocol.DNS.AAAA) {
-                write("  %s\n", rr->ipv6);
-            }
-        }
-    }
-}
-
-// Async DNS queries with Future
-async void async_lookup(string hostname) {
-    object client = Protocols.DNS.async_client();
-    Future(array(string)) future = client->getaddrbyname(hostname);
-    array(string) ips = await future;
-
-    write("Resolved %s: %s\n", hostname, ips*", ");
-}
-
-// Concurrent lookups
-async void concurrent_lookups(array(string) hostnames) {
-    array(Future) futures = map(hostnames, lambda(string host) {
-        object client = Protocols.DNS.async_client();
-        return client->getaddrbyname(host);
-    });
-
-    array(array(string)) results = await Future.all(futures);
-    foreach(results; int i; array(string) ips) {
-        write("%s -> %s\n", hostnames[i], ips*", ");
-    }
-}
 ```
+
+---
 
 ## Being an FTP Client
 
+### FTP File Operations
+
 ```pike
-// Recipe 18.2: FTP Operations with Protocols.FTP - Pike 8
-//--------------------------------------------------------------------------
+//-----------------------------
+// Recipe: FTP operations with Protocols.FTP - Pike 8
+//-----------------------------
 
-import Protocols.FTP;
+#pragma strict_types
+#require constant(Protocols.FTP)
 
-// Basic FTP connection and file download
-async void ftp_download(string host, string user, string pass,
-                          string remote_file, string local_path) {
-    object ftp = Protocols.FTP.client();
+void main() {
+    Protocols.FTP.Client ftp = Protocols.FTP.Client();
 
     // Connect and authenticate
-    int result = await(ftp->connect(host));
+    int result = ftp->connect("ftp.example.com");
     if (result != 220) {
         werror("FTP connection failed: %d\n", result);
         return;
     }
 
-    result = await(ftp->login(user, pass));
+    result = ftp->login("username", "password");
     if (result != 230) {
         werror("FTP login failed: %d\n", result);
         return;
     }
 
     // Download file
-    string data = await(ftp->get(remote_file));
+    string data = ftp->get("remote_file.txt");
     if (data) {
-        object f = Stdio.File(local_path, "wct");
+        Stdio.File f = Stdio.File("local_file.txt", "wct");
         f->write(data);
         f->close();
-        write("Downloaded %s to %s\n", remote_file, local_path);
+        write("Downloaded remote_file.txt to local_file.txt\n");
     }
 
-    ftp->close();
-}
-
-// Upload file to FTP server
-async void ftp_upload(string host, string user, string pass,
-                        string local_file, string remote_path) {
-    object ftp = Protocols.FTP.client();
-    await(ftp->connect(host));
-    await(ftp->login(user, pass));
-
-    // Read local file
-    string data = Stdio.read_file(local_file);
-
-    // Upload to server
-    int result = await(ftp->put(remote_path, data));
+    // Upload file
+    string content = Stdio.read_file("upload.txt");
+    result = ftp->put("remote_upload.txt", content);
     if (result == 226) {
-        write("Uploaded %s to %s\n", local_file, remote_path);
+        write("Uploaded file successfully\n");
     }
 
-    ftp->close();
+    // List directory
+    array(mapping) files = ftp->get_dir("/");
+    foreach(files; mapping fileinfo) {
+        write("  %s\n", fileinfo->filename);
+    }
+
+    ftp->quit();
 }
 ```
+
+---
+
+## See Also
+
+- [Sockets](/docs/network/sockets) - TCP/UDP programming
+- [Web Automation](/docs/network/web-automation) - HTTP clients
+- [CGI Programming](/docs/network/cgi-programming) - Web scripting
+- [File Access](/docs/files/file-access) - Local file operations

@@ -1,4 +1,5 @@
 // @ts-check
+/* eslint-disable */
 /** @type {import('@docusaurus/types').Config} */
 
 const config = {
@@ -46,6 +47,9 @@ const config = {
     ],
   ],
 
+  // Client modules to load Prism Pike grammar
+  clientModules: [require.resolve('./src/theme/prism-pike')],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -55,7 +59,7 @@ const config = {
         title: 'Pike Cookbook',
         logo: {
           alt: 'Pike Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo.png',
         },
         items: [
           {
@@ -105,8 +109,8 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Built with Docusaurus.`,
       },
       prism: {
-        additionalLanguages: ['bash', 'css', 'javascript', 'typescript'],
-        defaultLanguage: 'javascript',
+        additionalLanguages: ['pike', 'bash', 'css', 'javascript', 'typescript'],
+        defaultLanguage: 'pike',
       },
     }),
 };

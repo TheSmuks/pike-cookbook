@@ -2,9 +2,31 @@
 #pragma strict_types
 
 //! Recipe: Anonymous Pipes for IPC
+//!
 //! Demonstrates using pipes for communication between processes
+//!
+//! @example
+//!   // Create a pipe for child stdin
+//!   Stdio.File stdin_pipe = Stdio.File();
+//!   Process.create_process proc = Process.create_process(
+//!       ({"cat"}),
+//!       (["stdin": stdin_pipe->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE)])
+//!   );
+//!
+//! @note
+//!   Anonymous pipes are only available between related processes (parent-child).
+//!   For unrelated processes, use named pipes (FIFOs) or sockets
+//!
+//! @seealso
+//!   @[Stdio.File.pipe], @[Stdio.PROP_IPC], @[Process.create_process]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Anonymous Pipe Example ===\n\n");
 
     // Example 1: Simple pipe between parent and child

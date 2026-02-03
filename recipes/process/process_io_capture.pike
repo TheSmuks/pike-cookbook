@@ -2,9 +2,30 @@
 #pragma strict_types
 
 //! Recipe: Capturing Process Output
+//!
 //! Demonstrates gathering stdout and stderr from spawned processes
+//!
+//! @example
+//!   // Simple output capture with Process.run
+//!   mapping result = Process.run(({"ls", "-la"}));
+//!   write("STDOUT: %s\n", result->stdout);
+//!   write("STDERR: %s\n", result->stderr);
+//!   write("Exit code: %d\n", result->exitcode);
+//!
+//! @note
+//!   Process.run provides the easiest way to capture output, but for
+//!   long-running processes, manual pipe handling gives more control
+//!
+//! @seealso
+//!   @[Process.run], @[Process.create_process], @[Stdio.File.pipe]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Example 1: Capture output using Process.run
     write("=== Example 1: Process.run ===\n");
 

@@ -2,11 +2,37 @@
 #pragma strict_types
 
 //! Recipe: Traditional Double-Fork Daemonization
+//!
 //! Demonstrates the classic Unix double-fork technique for daemonization
+//!
+//! @example
+//!   // First fork and exit parent
+//!   int pid1 = fork();
+//!   if (pid1 > 0) exit(0);
+//!
+//!   // Create new session
+//!   setsid();
+//!
+//!   // Second fork and exit first child
+//!   int pid2 = fork();
+//!   if (pid2 > 0) exit(0);
+//!
+//! @note
+//!   The double-fork technique ensures the daemon is not a session leader
+//!   and cannot acquire a controlling terminal. Process.daemon() handles this
+//!
+//! @seealso
+//!   @[Process.daemon], @[fork], @[setsid]
 
 #if constant(fork) && constant(exece)
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("Starting double-fork daemon...\n");
 
     // First fork: create parent-child relationship

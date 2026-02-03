@@ -3,13 +3,34 @@
 #pike 8.0
 
 //! Database best practices for Pike 8
+//!
 //! Demonstrates security, performance, and maintainability patterns
+//!
+//! @example
+//!   // Always use parameter binding
+//!   db->query("SELECT * FROM users WHERE id = :id", (["id": user_id]));
+//!
+//! @note
+//!   Follow these practices: use parameter binding, validate input,
+//!   use transactions for multi-step operations, implement proper error handling
+//!
+//! @seealso
+//!   @[Sql.Sql], @[basic_queries], @[advanced_operations]
 
 //! ============================================================================
 //! SECURITY BEST PRACTICES
 //! ============================================================================
 
 //! Example: Always use parameter binding (SQL injection prevention)
+//!
+//! Demonstrates safe parameter binding to prevent SQL injection
+//!
+//! @note
+//!   NEVER concatenate user input directly into SQL queries
+//!
+//! @seealso
+//!   @[security_password_handling], @[security_input_validation]
+
 void security_parameter_binding() {
     werror("\n=== Security: Parameter Binding ===\n");
 
@@ -37,6 +58,13 @@ void security_parameter_binding() {
 }
 
 //! Example: Proper password handling
+//!
+//! @note
+//!   NEVER store passwords in plain text. Always use salted hashes
+//!
+//! @seealso
+//!   @[security_least_privilege]
+
 void security_password_handling() {
     werror("\n=== Security: Password Handling ===\n");
 
@@ -84,6 +112,13 @@ void security_password_handling() {
 }
 
 //! Example: Principle of least privilege
+//!
+//! @note
+//!   Connect with application-specific user, not root/admin
+//!
+//! @seealso
+//!   @[security_input_validation]
+
 void security_least_privilege() {
     werror("\n=== Security: Least Privilege ===\n");
 
@@ -107,6 +142,13 @@ void security_least_privilege() {
 }
 
 //! Example: Validate input before database operations
+//!
+//! @note
+//!   Always validate and sanitize user input before database operations
+//!
+//! @seealso
+//!   @[performance_indexes]
+
 void security_input_validation() {
     werror("\n=== Security: Input Validation ===\n");
 
@@ -145,6 +187,13 @@ void security_input_validation() {
 //! ============================================================================
 
 //! Example: Use indexes for better query performance
+//!
+//! @note
+//!   Create indexes on frequently queried columns
+//!
+//! @seealso
+//!   @[performance_column_types]
+
 void performance_indexes() {
     werror("\n=== Performance: Indexes ===\n");
 
@@ -176,6 +225,13 @@ void performance_indexes() {
 }
 
 //! Example: Use appropriate column types
+//!
+//! @note
+//!   Use appropriate data types and constraints for better performance
+//!
+//! @seealso
+//!   @[performance_query_analysis]
+
 void performance_column_types() {
     werror("\n=== Performance: Column Types ===\n");
 
@@ -197,6 +253,13 @@ void performance_column_types() {
 }
 
 //! Example: Use EXPLAIN to analyze queries
+//!
+//! @note
+//!   Use EXPLAIN QUERY PLAN to analyze and optimize queries
+//!
+//! @seealso
+//!   @[performance_batch_operations]
+
 void performance_query_analysis() {
     werror("\n=== Performance: Query Analysis ===\n");
 
@@ -217,6 +280,13 @@ void performance_query_analysis() {
 }
 
 //! Example: Batch operations with transactions
+//!
+//! @note
+//!   Use transactions for batch operations to improve performance
+//!
+//! @seealso
+//!   @[performance_connection_pooling]
+
 void performance_batch_operations() {
     werror("\n=== Performance: Batch Operations ===\n");
 
@@ -255,12 +325,28 @@ void performance_batch_operations() {
 }
 
 //! Example: Connection pooling
+//!
+//! Thread-safe connection pool implementation
+//!
+//! @seealso
+//!   @[performance_batch_operations]
+
 class ConnectionPool {
     private string db_url;
     private int pool_size;
     private array(Sql.Sql) connections;
     private Thread.Mutex lock = Thread.Mutex();
     private array(int) available;
+
+    //! Create connection pool
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //! @param pool_size
+    //!   Number of connections in the pool
+    //!
+    //! @seealso
+    //!   @[acquire], @[release]
 
     void create(string db_url, int pool_size) {
         this::db_url = db_url;
@@ -274,6 +360,17 @@ class ConnectionPool {
             available += ({i});
         }
     }
+
+    //! Acquire connection from pool
+    //!
+    //! @returns
+    //!   Database connection from the pool
+    //!
+    //! @note
+    //!   Blocks until a connection becomes available
+    //!
+    //! @seealso
+    //!   @[release], @[create]
 
     Sql.Sql acquire() {
         Thread.MutexKey key = lock->lock();
@@ -299,6 +396,14 @@ class ConnectionPool {
         return conn;
     }
 
+    //! Release connection back to pool
+    //!
+    //! @param conn
+    //!   Connection to return to the pool
+    //!
+    //! @seealso
+    //!   @[acquire]
+
     void release(Sql.Sql conn) {
         Thread.MutexKey key = lock->lock();
 
@@ -310,6 +415,11 @@ class ConnectionPool {
         destruct(key);
     }
 }
+
+//! Example: Connection pooling
+//!
+//! @seealso
+//!   @[performance_prepared_statements]
 
 void performance_connection_pooling() {
     werror("\n=== Performance: Connection Pooling ===\n");
@@ -327,6 +437,13 @@ void performance_connection_pooling() {
 }
 
 //! Example: Use prepared statements for repeated queries
+//!
+//! @note
+//!   Compile queries once for reuse with different parameters
+//!
+//! @seealso
+//!   @[maintainability_repository]
+
 void performance_prepared_statements() {
     werror("\n=== Performance: Prepared Statements ===\n");
 
@@ -351,16 +468,48 @@ void performance_prepared_statements() {
 //! ============================================================================
 
 //! Example: Use a repository pattern
+//!
+//! Repository pattern for database operations
+//!
+//! @seealso
+//!   @[MigrationManager]
+
 class UserRepository {
     private Sql.Sql db;
+
+    //! Create user repository
+    //!
+    //! @param db
+    //!   Database connection
+    //!
+    //! @seealso
+    //!   @[find_all], @[find_by_id]
 
     void create(Sql.Sql db) {
         this::db = db;
     }
 
+    //! Find all users
+    //!
+    //! @returns
+    //!   Array of user mappings
+    //!
+    //! @seealso
+    //!   @[find_by_id]
+
     array(mapping) find_all() {
         return db->typed_query("SELECT id, username, email FROM users");
     }
+
+    //! Find user by ID
+    //!
+    //! @param id
+    //!   User ID to search for
+    //! @returns
+    //!   User mapping or 0 if not found
+    //!
+    //! @seealso
+    //!   @[find_by_username]
 
     mapping find_by_id(int id) {
         array(mapping) result = db->typed_query(
@@ -371,6 +520,16 @@ class UserRepository {
         return sizeof(result) ? result[0] : 0;
     }
 
+    //! Find user by username
+    //!
+    //! @param username
+    //!   Username to search for
+    //! @returns
+    //!   User mapping or 0 if not found
+    //!
+    //! @seealso
+    //!   @[find_by_id]
+
     mapping find_by_username(string username) {
         array(mapping) result = db->typed_query(
             "SELECT id, username, email FROM users WHERE username = :username",
@@ -380,6 +539,18 @@ class UserRepository {
         return sizeof(result) ? result[0] : 0;
     }
 
+    //! Create new user
+    //!
+    //! @param username
+    //!   Username for new user
+    //! @param email
+    //!   Email for new user
+    //! @returns
+    //!   ID of created user
+    //!
+    //! @seealso
+    //!   @[update]
+
     int create(string username, string email) {
         db->query(
             "INSERT INTO users (username, email) VALUES (:username, :email)",
@@ -388,6 +559,18 @@ class UserRepository {
 
         return db->master_sql->last_insert_id();
     }
+
+    //! Update user
+    //!
+    //! @param id
+    //!   User ID to update
+    //! @param username
+    //!   Optional new username
+    //! @param email
+    //!   Optional new email
+    //!
+    //! @seealso
+    //!   @[create], @[delete]
 
     void update(int id, string|void username, string|void email) {
         array(mapping) updates = ({});
@@ -410,10 +593,23 @@ class UserRepository {
         }
     }
 
+    //! Delete user
+    //!
+    //! @param id
+    //!   User ID to delete
+    //!
+    //! @seealso
+    //!   @[update]
+
     void delete(int id) {
         db->query("DELETE FROM users WHERE id = :id", (["id": id]));
     }
 }
+
+//! Example: Repository pattern
+//!
+//! @seealso
+//!   @[maintainability_migrations]
 
 void maintainability_repository() {
     werror("\n=== Maintainability: Repository Pattern ===\n");
@@ -444,15 +640,34 @@ void maintainability_repository() {
 }
 
 //! Example: Database migration system
+//!
+//! Database migration management system
+//!
+//! @seealso
+//!   @[UserRepository]
+
 class Migration {
     string name;
     string up_sql;
     string down_sql;
 }
 
+//! Migration manager for database schema versioning
+//!
+//! @seealso
+//!   @[Migration]
+
 class MigrationManager {
     private Sql.Sql db;
     private array(Migration) migrations = ({});
+
+    //! Create migration manager
+    //!
+    //! @param db
+    //!   Database connection
+    //!
+    //! @seealso
+    //!   @[add_migration], @[migrate]
 
     void create(Sql.Sql db) {
         this::db = db;
@@ -464,9 +679,29 @@ class MigrationManager {
                   "applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)");
     }
 
+    //! Add migration to manager
+    //!
+    //! @param name
+    //!   Migration name/identifier
+    //! @param up_sql
+    //!   SQL to apply migration
+    //! @param down_sql
+    //!   SQL to rollback migration
+    //!
+    //! @seealso
+    //!   @[migrate], @[rollback]
+
     void add_migration(string name, string up_sql, string down_sql) {
         migrations += ({ Migration(name, up_sql, down_sql) });
     }
+
+    //! Run all pending migrations
+    //!
+    //! @note
+    //!   Skips migrations that have already been applied
+    //!
+    //! @seealso
+    //!   @[rollback], @[add_migration]
 
     void migrate() {
         // Get applied migrations
@@ -496,6 +731,14 @@ class MigrationManager {
             }
         }
     }
+
+    //! Rollback migrations
+    //!
+    //! @param steps
+    //!   Number of migrations to rollback
+    //!
+    //! @seealso
+    //!   @[migrate]
 
     void rollback(int steps) {
         // Get applied migrations in reverse order
@@ -537,6 +780,11 @@ class MigrationManager {
     }
 }
 
+//! Example: Database migrations
+//!
+//! @seealso
+//!   @[maintainability_logging]
+
 void maintainability_migrations() {
     werror("\n=== Maintainability: Database Migrations ===\n");
 
@@ -575,14 +823,40 @@ void maintainability_migrations() {
 }
 
 //! Example: Logging database operations
+//!
+//! Database wrapper that logs all queries
+//!
+//! @seealso
+//!   @[UserRepository]
+
 class LoggingDatabase {
     private Sql.Sql db;
     private string log_file;
+
+    //! Create logging database wrapper
+    //!
+    //! @param db
+    //!   Database connection to wrap
+    //! @param log_file
+    //!   Path to log file
+    //!
+    //! @seealso
+    //!   @[query], @[typed_query]
 
     void create(Sql.Sql db, string log_file) {
         this::db = db;
         this::log_file = log_file;
     }
+
+    //! Log query to file
+    //!
+    //! @param query
+    //!   SQL query string
+    //! @param bindings
+    //!   Optional parameter bindings
+    //!
+    //! @seealso
+    //!   @[query]
 
     private void log_query(string query, mapping|void bindings) {
         string log_entry = sprintf("[%s] Query: %s\n",
@@ -595,11 +869,35 @@ class LoggingDatabase {
         Stdio.append_file(log_file, log_entry);
     }
 
+    //! Execute query with logging
+    //!
+    //! @param query
+    //!   SQL query string
+    //! @param extraargs
+    //!   Optional parameter bindings
+    //! @returns
+    //!   Query result array
+    //!
+    //! @seealso
+    //!   @[typed_query]
+
     array(mapping) query(string query, mixed... extraargs) {
         log_query(query, sizeof(extraargs) && mappingp(extraargs[0]) ?
                  extraargs[0] : 0);
         return db->query(query, @extraargs);
     }
+
+    //! Execute typed query with logging
+    //!
+    //! @param query
+    //!   SQL query string
+    //! @param extraargs
+    //!   Optional parameter bindings
+    //! @returns
+    //!   Typed query result array
+    //!
+    //! @seealso
+    //!   @[query]
 
     array(mapping) typed_query(string query, mixed... extraargs) {
         log_query(query, sizeof(extraargs) && mappingp(extraargs[0]) ?
@@ -607,6 +905,11 @@ class LoggingDatabase {
         return db->typed_query(query, @extraargs);
     }
 }
+
+//! Example: Query logging
+//!
+//! @seealso
+//!   @[UserRepository]
 
 void maintainability_logging() {
     werror("\n=== Maintainability: Query Logging ===\n");
@@ -622,6 +925,12 @@ void maintainability_logging() {
 }
 
 int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Security examples
     security_parameter_binding();
     security_password_handling();

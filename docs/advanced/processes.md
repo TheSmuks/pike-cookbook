@@ -6,36 +6,80 @@ sidebar_label: Process Management
 
 # Process Management and Communication
 
-## Gathering Output from a Program
+## Introduction
+
+**What this covers**
+- Running external programs and commands from Pike
+- Capturing stdout, stderr, and exit codes
+- Inter-process communication with pipes
+- Process management (spawning, monitoring, terminating)
+- Signal handling (SIGINT, SIGTERM, SIGKILL, etc.)
+- Avoiding zombie processes and proper cleanup
+
+**Why use it**
+Process management is essential for systems programming, automation, and building tools that interact with other programs. Pike 8's modern Process API provides type-safe, object-oriented process handling with comprehensive support for stdin/stdout/stderr redirection, timeout handling, and signal management.
+
+:::tip Key Concept
+Pike 8 provides the modern `Process` module with `Process.run()` for simple cases and `Process.create_process()` for advanced control. Always prefer these over legacy backtick operators or popen() for better security and error handling.
+:::
 
 ```pike
-// Gather output using Process.run (Pike 8 modern API)
+// Modern Pike 8 process management
 #pragma strict_types
 
 #include <process.h>
 
-mapping result = Process.run(({"ls", "-l", "/tmp"}));
+// Simple command execution
+mapping result = Process.run(({ "ls", "-l", "/tmp" }));
 
 write("Exit code: %d\n", result->exitcode);
 write("Output:\n%s\n", result->stdout);
 write("Errors:\n%s\n", result->stderr);
 ```
 
+---
+
+## Gathering Output from a Program
+
+```pike
+//-----------------------------
+// Recipe: Capture program output with Process.run
+//-----------------------------
+#pragma strict_types
+
+#include <process.h>
+
+// Run command and capture all output
+mapping result = Process.run(({ "ls", "-l", "/tmp" }));
+
+write("Exit code: %d\n", result->exitcode);
+write("Output:\n%s\n", result->stdout);
+write("Errors:\n%s\n", result->stderr);
+```
+
+:::note
+`Process.run()` returns a mapping with `exitcode`, `stdout`, and `stderr` keys. The stdout and stderr are captured as strings, making it easy to process command output programmatically.
+:::
+
+---
+
 ## Running Another Program
 
 ```pike
-// Run a command using Process.create_process (Pike 8)
+//-----------------------------
+// Recipe: Spawn processes and wait for completion
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
 
 // Method 1: Create and wait
-Process.create_process proc = Process.create_process(({"echo", "Hello"}));
+Process.create_process proc = Process.create_process(({ "echo", "Hello" }));
 int exit_code = proc->wait();
 write("Exit code: %d\n", exit_code);
 
 // Method 2: Use Process.Process with callbacks
-Process.Process p = Process.Process(({"sleep", "5"}}), ([
+Process.Process p = Process.Process(({ "sleep", "5" }), ([
     "timeout": 10,
     "timeout_callback": lambda(Process.Process proc) {
         write("Process timed out!\n");
@@ -45,10 +89,18 @@ Process.Process p = Process.Process(({"sleep", "5"}}), ([
 p->wait();
 ```
 
+:::tip
+Use `Process.Process` for long-running processes that need timeout handling or callbacks. Use `Process.create_process()` for simpler cases where you just need to spawn and wait.
+:::
+
+---
+
 ## Replacing the Current Program with a Different One
 
 ```pike
-// Replace current process using Process.exec (Pike 8)
+//-----------------------------
+// Recipe: Replace current process with exec
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -64,10 +116,18 @@ write("exec not available on this system\n");
 #endif
 ```
 
+:::warning
+`Process.exec()` completely replaces the current process. No code after the exec call will run (unless exec fails). This is useful for building wrapper scripts or implementing shell-like behavior.
+:::
+
+---
+
 ## Reading or Writing to Another Program
 
 ```pike
-// Bidirectional communication with a process (Pike 8)
+//-----------------------------
+// Recipe: Bidirectional communication with pipes
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -77,7 +137,7 @@ Stdio.File stdin_pipe = Stdio.File();
 Stdio.File stdout_pipe = Stdio.File();
 
 Process.create_process proc = Process.create_process(
-    ({"cat", "-n"}),
+    ({ "cat", "-n" }),
     ([
         "stdin": stdin_pipe->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE),
         "stdout": stdout_pipe->pipe()
@@ -99,10 +159,14 @@ write("Output:\n%s", output);
 proc->wait();
 ```
 
+---
+
 ## Filtering Your Own Output
 
 ```pike
-// Filter output through external processes (Pike 8)
+//-----------------------------
+// Recipe: Pipe output through external commands
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -111,23 +175,27 @@ string text = "zebra\napple\nbanana\napple\ncherry\n";
 
 // Sort the output
 mapping sorted = Process.run(
-    ({"sort"}),
-    (["stdin": text])
+    ({ "sort" }),
+    ([ "stdin": text ])
 );
 
 // Get unique lines
 mapping unique = Process.run(
-    ({"uniq"}),
-    (["stdin": sorted->stdout])
+    ({ "uniq" }),
+    ([ "stdin": sorted->stdout ])
 );
 
 write("After sort | uniq:\n%s", unique->stdout);
 ```
 
+---
+
 ## Preprocessing Input
 
 ```pike
-// Preprocess input through awk (Pike 8)
+//-----------------------------
+// Recipe: Process input through awk
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -135,24 +203,27 @@ write("After sort | uniq:\n%s", unique->stdout);
 string data = "alice:30\nbob:25\ncharlie:35\n";
 
 mapping result = Process.run(
-    ({"awk", "-F:", "{print $1, $2}"}),
-    (["stdin": data])
+    ({ "awk", "-F:", "{print $1, $2}" }),
+    ([ "stdin": data ])
 );
 
 write("Processed output:\n%s", result->stdout);
 ```
 
+---
+
 ## Reading STDERR from a Program
 
 ```pike
-// Capture stderr separately (Pike 8)
+//-----------------------------
+// Recipe: Capture stderr separately from stdout
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
 
-mapping result = Process.run((
-    "ls", "/nonexistent"
-));
+// Capture stderr with Process.run
+mapping result = Process.run(({ "ls", "/nonexistent" }));
 
 write("Exit code: %d\n", result->exitcode);
 write("STDERR:\n%s\n", result->stderr);
@@ -161,8 +232,8 @@ write("STDERR:\n%s\n", result->stderr);
 Stdio.File stderr_pipe = Stdio.File();
 
 Process.create_process proc = Process.create_process(
-    ({"ls", "/nonexistent"}),
-    (["stderr": stderr_pipe->pipe()])
+    ({ "ls", "/nonexistent" }),
+    ([ "stderr": stderr_pipe->pipe() ])
 );
 
 stderr_pipe->close();
@@ -170,10 +241,18 @@ string errors = stderr_pipe->read();
 write("Errors: %s\n", errors);
 ```
 
+:::tip
+`Process.run()` automatically separates stdout and stderr. For more complex scenarios, use manual pipe handling to redirect stdout and stderr independently.
+:::
+
+---
+
 ## Controlling Input and Output of Another Program
 
 ```pike
-// Full control of stdin, stdout, stderr (Pike 8)
+//-----------------------------
+// Recipe: Full control of stdin, stdout, stderr
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -183,7 +262,7 @@ Stdio.File stdout_p = Stdio.File();
 Stdio.File stderr_p = Stdio.File();
 
 Process.create_process proc = Process.create_process(
-    ({"cat", "-n"}),
+    ({ "cat", "-n" }),
     ([
         "stdin": stdin_p->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE),
         "stdout": stdout_p->pipe(),
@@ -205,16 +284,20 @@ string err = stderr_p->read();
 proc->wait();
 ```
 
+---
+
 ## Controlling the Input, Output, and Error of Another Program
 
 ```pike
-// Using Process.run for simple cases (Pike 8)
+//-----------------------------
+// Recipe: Working directory and environment control
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
 
 mapping result = Process.run(
-    ({"awk", "{print $1}"}),
+    ({ "awk", "{print $1}" }),
     ([
         "stdin": "apple:1\nbanana:2\n",
         "cwd": "/tmp"
@@ -224,10 +307,14 @@ mapping result = Process.run(
 write("Output: %s", result->stdout);
 ```
 
+---
+
 ## Communicating Between Related Processes
 
 ```pike
-// Parent-child communication via pipes (Pike 8)
+//-----------------------------
+// Recipe: Parent-child communication via pipes
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -238,7 +325,7 @@ Stdio.File child_rd = Stdio.File();
 Stdio.File child_wr = Stdio.File();
 
 Process.create_process child = Process.create_process(
-    ({"cat", "-e"}),
+    ({ "cat", "-e" }),
     ([
         "stdin": child_rd->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE),
         "stdout": child_wr->pipe()
@@ -260,10 +347,14 @@ write("Child response:\n%s", response);
 child->wait();
 ```
 
+---
+
 ## Making a Process Look Like a File with Named Pipes
 
 ```pike
-// Named pipes (FIFOs) for IPC (Pike 8)
+//-----------------------------
+// Recipe: Use FIFOs for IPC
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -271,30 +362,34 @@ child->wait();
 string fifo_path = "/tmp/pike_fifo";
 
 // Create FIFO
-Process.create_process mkfifo = Process.create_process(({"mkfifo", fifo_path}));
+Process.create_process mkfifo = Process.create_process(({ "mkfifo", fifo_path }));
 mkfifo->wait();
 
 // Writer process
 Process.create_process writer = Process.create_process(
-    ({"sh", "-c", "echo 'Hello through FIFO' > " + fifo_path})
+    ({ "sh", "-c", "echo 'Hello through FIFO' > " + fifo_path })
 );
 
 // Reader process
-mapping result = Process.run(({"cat", fifo_path}));
+mapping result = Process.run(({ "cat", fifo_path }));
 write("FIFO data: %s", result->stdout);
 
 writer->wait();
 
 // Cleanup
-Process.create_process({"rm", "-f", fifo_path})->wait();
+Process.create_process({ "rm", "-f", fifo_path })->wait();
 ```
+
+---
 
 ## Sharing Variables in Different Processes
 
 For sharing variables between processes, use files, shared memory, or implement a message passing system. Here's a file-based approach:
 
 ```pike
-// Shared state via file (Pike 8)
+//-----------------------------
+// Recipe: Share state via file serialization
+//-----------------------------
 #pragma strict_types
 
 string state_file = "/tmp/pike_shared_state.txt";
@@ -309,9 +404,7 @@ Stdio.write_file(state_file, encode_value(state));
 
 // Reader process
 string data = Stdio.read_file(state_file);
-mapping loaded_state = mixederr = catch {
-    return decode_value(data);
-};
+mapping loaded_state = decode_value(data);
 
 if (loaded_state) {
     write("Counter: %d\n", loaded_state->counter);
@@ -319,10 +412,14 @@ if (loaded_state) {
 }
 ```
 
+---
+
 ## Listing Available Signals
 
 ```pike
-// List available signals (Pike 8)
+//-----------------------------
+// Recipe: Enumerate available signals
+//-----------------------------
 #pragma strict_types
 
 array(string) signals = ({
@@ -341,17 +438,21 @@ foreach(signals; int i; string sig) {
 }
 ```
 
+---
+
 ## Sending a Signal
 
 ```pike
-// Send signal to process (Pike 8)
+//-----------------------------
+// Recipe: Terminate processes with signals
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
 
 #if constant(kill)
 // Create a long-running process
-Process.create_process proc = Process.create_process(({"sleep", "30"}));
+Process.create_process proc = Process.create_process(({ "sleep", "30" }));
 int pid = proc->pid();
 
 // Wait a bit, then send SIGTERM
@@ -366,10 +467,18 @@ write("kill() not available on this system\n");
 #endif
 ```
 
+:::warning
+Always try SIGTERM (15) before SIGKILL (9). SIGTERM allows the process to clean up gracefully, while SIGKILL terminates immediately without cleanup.
+:::
+
+---
+
 ## Installing a Signal Handler
 
 ```pike
-// Signal handlers for graceful shutdown (Pike 8)
+//-----------------------------
+// Recipe: Handle signals for graceful shutdown
+//-----------------------------
 #pragma strict_types
 
 volatile int shutdown_requested = 0;
@@ -392,10 +501,18 @@ while (!shutdown_requested) {
 write("Cleanup complete.\n");
 ```
 
+:::tip
+Signal handlers should be minimal and avoid complex operations. Set a volatile flag and handle the shutdown logic in your main loop. This prevents deadlocks and makes cleanup more predictable.
+:::
+
+---
+
 ## Temporarily Overriding a Signal Handler
 
 ```pike
-// Save and restore signal handler (Pike 8)
+//-----------------------------
+// Recipe: Save and restore signal handlers
+//-----------------------------
 #pragma strict_types
 
 #if constant(signal)
@@ -416,10 +533,14 @@ signal(signum("SIGINT"), old_handler);
 #endif
 ```
 
+---
+
 ## Writing a Signal Handler
 
 ```pike
-// Comprehensive signal handler (Pike 8)
+//-----------------------------
+// Recipe: Comprehensive signal handling
+//-----------------------------
 #pragma strict_types
 
 #if constant(signal)
@@ -448,10 +569,14 @@ cleanup();
 #endif
 ```
 
+---
+
 ## Catching Ctrl-C
 
 ```pike
-// Catch Ctrl+C (SIGINT) (Pike 8)
+//-----------------------------
+// Recipe: Handle Ctrl+C gracefully
+//-----------------------------
 #pragma strict_types
 
 #if constant(signal)
@@ -480,10 +605,14 @@ write("Graceful shutdown complete.\n");
 #endif
 ```
 
+---
+
 ## Avoiding Zombie Processes
 
 ```pike
-// Proper child reaping to avoid zombies (Pike 8)
+//-----------------------------
+// Recipe: Proper child reaping to prevent zombies
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -492,9 +621,9 @@ array(Process.create_process) children = ({});
 
 // Spawn multiple children
 for (int i = 0; i < 3; i++) {
-    Process.create_process proc = Process.create_process(({
-        "sleep", sprintf("%d", (i + 1) * 2)
-    }));
+    Process.create_process proc = Process.create_process((
+        { "sleep", sprintf("%d", (i + 1) * 2) }
+    ));
     children += ({ proc });
 }
 
@@ -507,10 +636,18 @@ foreach(children; int i; Process.create_process proc) {
 write("All children reaped. No zombies!\n");
 ```
 
+:::warning
+Always `wait()` for child processes. If you fork or spawn children and don't wait for them, they become zombies - dead processes still in the process table, consuming system resources.
+:::
+
+---
+
 ## Blocking Signals
 
 ```pike
-// Signal blocking for critical sections (Pike 8)
+//-----------------------------
+// Recipe: Signal blocking for critical sections
+//-----------------------------
 #pragma strict_types
 
 #if constant(sigprocmask)
@@ -532,16 +669,20 @@ write("sigprocmask not available\n");
 #endif
 ```
 
+---
+
 ## Timing Out an Operation
 
 ```pike
-// Process timeout with callback (Pike 8)
+//-----------------------------
+// Recipe: Process timeout with callback
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
 
 Process.Process proc = Process.Process(
-    ({"sleep", "30"}),
+    ({ "sleep", "30" }),
     ([
         "timeout": 2,
         "timeout_callback": lambda(Process.Process p) {
@@ -555,12 +696,16 @@ int exit_code = proc->wait();
 write("Exit code: %d\n", exit_code);
 ```
 
+---
+
 ## Program: sigrand
 
 A simple daemon that generates random numbers and responds to signals:
 
 ```pike
-// Signal-handling daemon example (Pike 8)
+//-----------------------------
+// Program: Signal-handling daemon
+//-----------------------------
 #pragma strict_types
 
 #include <process.h>
@@ -593,3 +738,12 @@ while (running) {
 log->write(sprintf("Total iterations: %d\n", count));
 log->close();
 ```
+
+---
+
+## See Also
+
+- [User Interfaces](/docs/advanced/user-interfaces) - Terminal and GUI programming
+- [Network Programming](/docs/network/sockets) - Socket programming and network I/O
+- [File Access](/docs/files/file-access) - File I/O operations
+- [Classes](/docs/advanced/classes) - Object-oriented process wrappers

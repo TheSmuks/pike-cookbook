@@ -2,9 +2,28 @@
 #pragma strict_types
 
 //! Recipe: Avoiding Zombie Processes
+//!
 //! Demonstrates proper child process handling to prevent zombies
+//!
+//! @example
+//!   // Always wait for child processes
+//!   Process.create_process proc = Process.create_process(({"sleep", "10"}));
+//!   proc->wait();  // Reap the child
+//!
+//! @note
+//!   Zombie processes are created when children exit but parent hasn't waited.
+//!   Always call wait() on child processes or use Process.run which handles it
+//!
+//! @seealso
+//!   @[Process.create_process], @[Process.wait], @[Process.run]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Creating multiple child processes ===\n\n");
 
     array(Process.create_process) children = ({});

@@ -2,9 +2,38 @@
 #pragma strict_types
 
 //! Recipe: Communication Between Related Processes
+//!
 //! Demonstrates using file descriptors for IPC between parent and child
+//!
+//! @example
+//!   // Create bidirectional pipes
+//!   Stdio.File parent_to_child_rd = Stdio.File();
+//!   Stdio.File parent_to_child_wr = Stdio.File();
+//!   Stdio.File child_to_parent_rd = Stdio.File();
+//!   Stdio.File child_to_parent_wr = Stdio.File();
+//!
+//!   // Spawn child with redirected I/O
+//!   Process.create_process child = Process.create_process(
+//!       ({"cat"}),
+//!       ([
+//!           "stdin": parent_to_child_rd->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE),
+//!           "stdout": child_to_parent_wr->pipe()
+//!       ])
+//!   );
+//!
+//! @note
+//!   Always close pipe ends you don't use to avoid deadlocks and resource leaks
+//!
+//! @seealso
+//!   @[Stdio.File.pipe], @[Stdio.PROP_IPC], @[Process.create_process]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Parent-Child Communication Example ===\n\n");
 
     // Create pipes for bidirectional communication

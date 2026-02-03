@@ -3,9 +3,32 @@
 #pike 8.0
 
 //! Asynchronous database operations for Pike 8
+//!
 //! Demonstrates async queries with Future/Promise and PostgreSQL
+//!
+//! @example
+//!   // Create async database wrapper
+//!   AsyncDatabase async_db = AsyncDatabase("sqlite://test.db");
+//!
+//!   // Execute query asynchronously
+//!   Promise p = async_db->query_async("SELECT * FROM users");
+//!   mixed result = p->future()->get();
+//!
+//! @note
+//!   Async operations use threads internally. Ensure thread safety when
+//!   sharing connections between async operations
+//!
+//! @seealso
+//!   @[Promise], @[Future], @[Thread.Thread]
 
 //! Example: Basic async query with PostgreSQL
+//!
+//! @note
+//!   PostgreSQL has native async query support through its protocol
+//!
+//! @seealso
+//!   @[future_promise_example], @[parallel_queries_example]
+
 void async_query_example() {
     werror("\n=== Async Query Example ===\n");
 
@@ -30,17 +53,41 @@ void async_query_example() {
 }
 
 //! Example: Using Future/Promise for async operations
+//!
+//! Provides async wrapper around Sql.Sql using threads and Promise/Future
+//!
+//! @seealso
+//!   @[QueryWithTimeout], @[AsyncConnectionPool]
+
 class AsyncDatabase {
     private Sql.Sql db;
     private Thread.Queue queue;
 
     //! Create async database wrapper
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //!
+    //! @seealso
+    //!   @[query_async], @[typed_query_async]
+
     void create(string db_url) {
         db = Sql.Sql(db_url);
         queue = Thread.Queue();
     }
 
     //! Execute query asynchronously
+    //!
+    //! @param query
+    //!   SQL query string with optional parameter binding
+    //! @param bindings
+    //!   Optional mapping of parameter names to values
+    //! @returns
+    //!   Promise that resolves to query results
+    //!
+    //! @seealso
+    //!   @[typed_query_async]
+
     Promise query_async(string query, mapping|void bindings) {
         Promise promise = Promise();
 
@@ -69,6 +116,17 @@ class AsyncDatabase {
     }
 
     //! Execute typed query asynchronously
+    //!
+    //! @param query
+    //!   SQL query string with optional parameter binding
+    //! @param bindings
+    //!   Optional mapping of parameter names to values
+    //! @returns
+    //!   Promise that resolves to typed query results
+    //!
+    //! @seealso
+    //!   @[query_async]
+
     Promise typed_query_async(string query, mapping|void bindings) {
         Promise promise = Promise();
 
@@ -95,6 +153,11 @@ class AsyncDatabase {
         }
     }
 }
+
+//! Example: Future/Promise usage
+//!
+//! @seealso
+//!   @[parallel_queries_example], @[streaming_results_example]
 
 void future_promise_example() {
     werror("\n=== Future/Promise Example ===\n");
@@ -134,6 +197,13 @@ void future_promise_example() {
 }
 
 //! Example: Parallel query execution
+//!
+//! @note
+//!   Execute multiple queries concurrently using threads
+//!
+//! @seealso
+//!   @[future_promise_example], @[streaming_results_example]
+
 void parallel_queries_example() {
     werror("\n=== Parallel Queries Example ===\n");
 
@@ -171,6 +241,13 @@ void parallel_queries_example() {
 }
 
 //! Example: Streaming large results
+//!
+//! @note
+//!   Use big_query for memory-efficient streaming of large datasets
+//!
+//! @seealso
+//!   @[parallel_queries_example], @[batch_async_example]
+
 void streaming_results_example() {
     werror("\n=== Streaming Results Example ===\n");
 
@@ -208,9 +285,25 @@ void streaming_results_example() {
 }
 
 //! Example: Batch async operations
+//!
+//! Process data in batches with async operations
+//!
+//! @seealso
+//!   @[AsyncDatabase], @[AsyncConnectionPool]
+
 class BatchProcessor {
     private AsyncDatabase db;
     private int batch_size;
+
+    //! Create batch processor
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //! @param batch_size
+    //!   Number of operations per batch
+    //!
+    //! @seealso
+    //!   @[process_batch]
 
     void create(string db_url, int batch_size) {
         db = AsyncDatabase(db_url);
@@ -218,6 +311,17 @@ class BatchProcessor {
     }
 
     //! Process data in batches
+    //!
+    //! @param data
+    //!   Array of data mappings to process
+    //! @param query_template
+    //!   sprintf-style query template
+    //! @returns
+    //!   Array of Futures for batch operations
+    //!
+    //! @seealso
+    //!   @[create]
+
     array(Future) process_batch(array(mapping) data, string query_template) {
         array(Future) results = ({});
 
@@ -257,6 +361,11 @@ class BatchProcessor {
     }
 }
 
+//! Example: Batch async operations
+//!
+//! @seealso
+//!   @[streaming_results_example], @[async_pool_example]
+
 void batch_async_example() {
     werror("\n=== Batch Async Operations Example ===\n");
 
@@ -291,12 +400,28 @@ void batch_async_example() {
 }
 
 //! Example: Connection pool with async support
+//!
+//! Thread-safe connection pool with async query support
+//!
+//! @seealso
+//!   @[AsyncDatabase], @[BatchProcessor]
+
 class AsyncConnectionPool {
     private string db_url;
     private int max_connections;
     private array(Sql.Sql) connections;
     private Thread.Queue available;
     private Thread.Mutex lock = Thread.Mutex();
+
+    //! Create async connection pool
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //! @param max_connections
+    //!   Maximum number of connections in pool
+    //!
+    //! @seealso
+    //!   @[get_connection], @[pooled_query]
 
     void create(string db_url, int max_connections) {
         this::db_url = db_url;
@@ -313,6 +438,16 @@ class AsyncConnectionPool {
     }
 
     //! Get connection from pool (async-friendly)
+    //!
+    //! @returns
+    //!   Valid database connection from the pool
+    //!
+    //! @note
+    //!   Automatically reconnects if connection is dead
+    //!
+    //! @seealso
+    //!   @[release_connection]
+
     Sql.Sql get_connection() {
         int idx = available->read();
         Sql.Sql conn = connections[idx];
@@ -328,6 +463,13 @@ class AsyncConnectionPool {
     }
 
     //! Return connection to pool
+    //!
+    //! @param conn
+    //!   Connection to return to the pool
+    //!
+    //! @seealso
+    //!   @[get_connection]
+
     void release_connection(Sql.Sql conn) {
         // Find connection index
         Thread.MutexKey key = lock->lock();
@@ -339,6 +481,17 @@ class AsyncConnectionPool {
     }
 
     //! Execute query with pooled connection
+    //!
+    //! @param query
+    //!   SQL query string
+    //! @param bindings
+    //!   Optional parameter bindings
+    //! @returns
+    //!   Promise resolving to query results
+    //!
+    //! @seealso
+    //!   @[get_connection]
+
     Promise pooled_query(string query, mapping|void bindings) {
         Promise promise = Promise();
 
@@ -371,6 +524,11 @@ class AsyncConnectionPool {
     }
 }
 
+//! Example: Async connection pool
+//!
+//! @seealso
+//!   @[batch_async_example], @[timeout_example]
+
 void async_pool_example() {
     werror("\n=== Async Connection Pool Example ===\n");
 
@@ -393,14 +551,41 @@ void async_pool_example() {
 }
 
 //! Example: Async query with timeout
+//!
+//! Execute async queries with automatic timeout
+//!
+//! @seealso
+//!   @[AsyncDatabase], @[AsyncConnectionPool]
+
 class QueryWithTimeout {
     private AsyncDatabase db;
+
+    //! Create query timeout wrapper
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //!
+    //! @seealso
+    //!   @[query_with_timeout]
 
     void create(string db_url) {
         db = AsyncDatabase(db_url);
     }
 
     //! Execute query with timeout
+    //!
+    //! @param query
+    //!   SQL query string
+    //! @param bindings
+    //!   Optional parameter bindings
+    //! @param timeout_seconds
+    //!   Timeout in seconds before query is cancelled
+    //! @returns
+    //!   Promise that fails if timeout occurs
+    //!
+    //! @seealso
+    //!   @[create]
+
     Promise query_with_timeout(string query, void|mapping bindings,
                                int timeout_seconds) {
         Promise promise = Promise();
@@ -435,6 +620,11 @@ class QueryWithTimeout {
     }
 }
 
+//! Example: Query timeout
+//!
+//! @seealso
+//!   @[async_pool_example]
+
 void timeout_example() {
     werror("\n=== Query Timeout Example ===\n");
 
@@ -458,6 +648,12 @@ void timeout_example() {
 }
 
 int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Run examples
     async_query_example();
     future_promise_example();

@@ -4,79 +4,145 @@ title: Sockets
 sidebar_label: Sockets
 ---
 
-# 17. Sockets
+# Sockets
 
 ## Introduction
 
-```pike
-//-----------------------------
-//Pike doesn't normally use packed IP addresses. Strings such as "204.148.40.9" are used literally.
-//
-//-----------------------------
-//DNS lookups can be done with gethostbyname() and gethostbyaddr()
-[string host,array ip,array alias] = gethostbyname("www.example.com");
-//ip[0] is a string "192.0.32.10"
-//
-//-----------------------------
-```
+Socket programming enables network communication between applications. Pike 8 provides comprehensive support for TCP, UDP, UNIX domain sockets, and SSL/TLS through the `Stdio.Port`, `Stdio.File`, and `SSL` modules.
+
+**What this covers:**
+- TCP/UDP client and server programming
+- UNIX domain sockets for local IPC
+- SSL/TLS secure communication
+- Non-blocking I/O and async operations
+- Socket options and configuration
+
+**Why use it:**
+- Build networked applications and services
+- Implement custom protocols
+- Create real-time communication systems
+- Develop client-server architectures
+
+:::tip
+Pike's socket API provides both synchronous and asynchronous modes, making it easy to choose the right approach for your application.
+:::
+
+---
 
 ## Writing a TCP Client
 
+### Basic TCP Connection
+
 ```pike
 //-----------------------------
-Stdio.File sock=Stdio.File();
-if (!sock->connect(remote_host,remote_port)) //Connection failed. Error code is in sock->errno().
-{
-    werror("Couldn't connect to %s:%d: %s\n",remote_host,remote_port,strerror(sock->errno()));
-    return 1;
-}
-sock->write("Hello, world!"); //Send something to the socket
-string answer=sock->read(); //Read until the remote side disconnects. Use sock->read(1024,1) to read only some (up to 1KB here).
-sock->close(); //Not necessary if the sock object goes out of scope here.
-//
+// Recipe: Connect to TCP server
 //-----------------------------
+
+Stdio.File sock = Stdio.File();
+string remote_host = "example.com";
+int remote_port = 80;
+
+if (!sock->connect(remote_host, remote_port)) {
+    werror("Couldn't connect to %s:%d: %s\n",
+          remote_host, remote_port, strerror(sock->errno()));
+    exit(1);
+}
+
+// Send request
+sock->write("GET / HTTP/1.0\r\nHost: " + remote_host + "\r\n\r\n");
+
+// Read response
+string answer = sock->read();
+write("Received %d bytes\n", sizeof(answer));
+
+sock->close();
 ```
+
+---
 
 ## Writing a TCP Server
 
+### Basic TCP Server
+
 ```pike
 //-----------------------------
-Stdio.Port mainsock=Stdio.Port();
-if (!mainsock->bind(server_port))
-{
-    werror("Couldn't be a tcp server on port %d: %s\n",server_port,strerror(mainsock->errno()));
-    return 1;
-}
-while (1)
-{
-    Stdio.File sock=mainsock->accept();
-    if (!sock) break;
-    //sock is the new connection
-    //if you don't do anything and just let sock expire, the client connection will be closed
-}
-//
+// Recipe: Create TCP server
 //-----------------------------
+
+int server_port = 8080;
+Stdio.Port mainsock = Stdio.Port();
+
+if (!mainsock->bind(server_port)) {
+    werror("Couldn't be a tcp server on port %d: %s\n",
+          server_port, strerror(mainsock->errno()));
+    exit(1);
+}
+
+write("Server listening on port %d\n", server_port);
+
+while (1) {
+    Stdio.File sock = mainsock->accept();
+    if (!sock) break;
+
+    // Handle connection
+    string data = sock->read(1024, 1);
+    if (data) {
+        write("Received: %s\n", data);
+        sock->write("Acknowledged\n");
+    }
+
+    sock->close();
+}
 ```
+
+:::tip
+Set `Stdio.PORT_REUSE_ADDRESS` option to allow quick server restarts.
+:::
+
+---
 
 ## Communicating over TCP
 
+### Bidirectional Communication
+
 ```pike
 //-----------------------------
-sock->write("What is your name?\n");
-string response=sock->read(1024,1); //Reads up to 1KB or whatever is available (minimum 1 byte).
-//Buffered reads:
-Stdio.FILE sock2=Stdio.FILE(); sock2->assign(sock);
-string response=sock2->gets();
-//
+// Recipe: Send and receive data
 //-----------------------------
+
+Stdio.File sock = Stdio.File();
+if (!sock->connect("example.com", 80)) {
+    werror("Connection failed\n");
+    exit(1);
+}
+
+// Send data
+sock->write("What is your name?\n");
+
+// Read response (up to 1KB or whatever is available)
+string response = sock->read(1024, 1);
+write("Response: %s\n", response);
+
+// Buffered reads with Stdio.FILE
+Stdio.FILE sock2 = Stdio.FILE();
+sock2->assign(sock);
+response = sock2->gets();
+write("Line: %s\n", response);
+
+sock->close();
 ```
+
+---
 
 ## Setting Up a UDP Client
 
+### UDP Communication
+
 ```pike
 //-----------------------------
-// UDP Client (Pike 8)
+// Recipe: UDP Client (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Stdio.UDP)
 
@@ -91,18 +157,18 @@ int main(int argc, array(string) argv)
     int port = (int)argv[2];
     string msg = argc > 3 ? argv[3] : "Hello, UDP!";
 
-    //Create UDP socket
+    // Create UDP socket
     Stdio.UDP udp = Stdio.UDP();
     if (!udp) {
         werror("Failed to create UDP socket: %s\n", strerror(errno()));
         return 1;
     }
 
-    //Send datagram
+    // Send datagram
     udp->send(host, port, msg);
     write("Sent '%s' to %s:%d\n", msg, host, port);
 
-    //Wait for response (with timeout)
+    // Wait for response (with timeout)
     mixed response = udp->read(1024, ".", 5.0);
     if (response) {
         string data = response[0];
@@ -115,16 +181,19 @@ int main(int argc, array(string) argv)
     udp->close();
     return 0;
 }
-//
-//-----------------------------
 ```
+
+---
 
 ## Setting Up a UDP Server
 
+### UDP Server Implementation
+
 ```pike
 //-----------------------------
-// UDP Server (Pike 8)
+// Recipe: UDP Server (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Stdio.UDP)
 
@@ -132,7 +201,7 @@ int main(int argc, array(string) argv)
 {
     int port = argc > 1 ? (int)argv[1] : 8080;
 
-    //Create and bind UDP socket
+    // Create and bind UDP socket
     Stdio.UDP udp = Stdio.UDP();
     if (!udp->bind(port)) {
         werror("Failed to bind to port %d: %s\n", port, strerror(udp->errno()));
@@ -141,11 +210,11 @@ int main(int argc, array(string) argv)
 
     write("UDP server listening on port %d\n", port);
 
-    //Enable broadcast
+    // Enable broadcast
     udp->set_option(Stdio.PORT_BROADCAST, 1);
 
     while (1) {
-        //Read datagram
+        // Read datagram
         mixed data = udp->read();
         if (!data) {
             werror("Read error: %s\n", strerror(udp->errno()));
@@ -156,7 +225,7 @@ int main(int argc, array(string) argv)
         string from = data[1];
         write("Received '%s' from %s\n", msg, from);
 
-        //Send echo response
+        // Send echo response
         array addr = from / " ";
         udp->send(addr[0], (int)addr[1], "Echo: " + msg);
     }
@@ -164,16 +233,19 @@ int main(int argc, array(string) argv)
     udp->close();
     return 0;
 }
-//
-//-----------------------------
 ```
+
+---
 
 ## Using UNIX Domain Sockets
 
+### UNIX Domain Socket Client
+
 ```pike
 //-----------------------------
-// UNIX Domain Socket Client (Pike 8)
+// Recipe: UNIX Domain Socket Client (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Stdio.File)
 
@@ -195,16 +267,19 @@ int main(int argc, array(string) argv)
     sock->close();
     return 0;
 }
-//
-//-----------------------------
 ```
+
+---
 
 ## UNIX Domain Socket Server
 
+### UNIX Socket Server
+
 ```pike
 //-----------------------------
-// UNIX Domain Socket Server (Pike 8)
+// Recipe: UNIX Domain Socket Server (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Stdio.Port)
 
@@ -212,7 +287,7 @@ int main(int argc, array(string) argv)
 {
     string socket_path = argc > 1 ? argv[1] : "/tmp/mysocket";
 
-    //Remove old socket file if exists
+    // Remove old socket file if exists
     if (file_stat(socket_path)) {
         rm(socket_path);
     }
@@ -238,54 +313,24 @@ int main(int argc, array(string) argv)
         sock->close();
     }
 
-    //Cleanup
+    // Cleanup
     port->close();
     rm(socket_path);
     return 0;
 }
-//
-//-----------------------------
 ```
 
-## Identifying the Other End of a Socket
-
-```pike
-//-----------------------------
-string other_end=sock->query_address(); //eg "10.1.1.1 123"
-//
-//-----------------------------
-```
-
-## Finding Your Own Name and Address
-
-```pike
-//-----------------------------
-// Finding Your Own Address (Pike 8)
-//-----------------------------
-#pragma strict_types
-
-//Get local address of a socket
-string local_addr = sock->query_address(1);
-write("Local address: %s\n", local_addr);
-
-//Get hostname and local IP addresses
-string hostname = gethostname();
-write("Hostname: %s\n", hostname);
-
-[string host, array ips, array aliases] = gethostbyname(hostname);
-foreach(ips, string ip) {
-    write("Local IP: %s\n", ip);
-}
-//
-//-----------------------------
-```
+---
 
 ## SSL/TLS Sockets
 
+### SSL Client
+
 ```pike
 //-----------------------------
-// SSL/TLS Client (Pike 8)
+// Recipe: SSL/TLS Client (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(SSL.File)
 #require constant(SSL.Context)
@@ -300,17 +345,17 @@ int main(int argc, array(string) argv)
     string host = argv[1];
     int port = (int)argv[2];
 
-    //Create SSL context
+    // Create SSL context
     SSL.Context ctx = SSL.Context();
 
-    //Connect to server
+    // Connect to server
     Stdio.File sock = Stdio.File();
     if (!sock->connect(host, port)) {
         werror("Connection failed: %s\n", strerror(sock->errno()));
         return 1;
     }
 
-    //Create SSL connection
+    // Create SSL connection
     SSL.File ssl = SSL.File(sock, ctx);
     int result = ssl->connect();
     if (result < 0) {
@@ -318,26 +363,29 @@ int main(int argc, array(string) argv)
         return 1;
     }
 
-    //Send HTTPS request
+    // Send HTTPS request
     ssl->write("GET / HTTP/1.0\r\nHost: " + host + "\r\n\r\n");
 
-    //Read response
+    // Read response
     string response = ssl->read();
     write("%s\n", response);
 
     ssl->close();
     return 0;
 }
-//
-//-----------------------------
 ```
+
+---
 
 ## SSL/TLS Server
 
+### SSL Server Implementation
+
 ```pike
 //-----------------------------
-// SSL/TLS Server (Pike 8)
+// Recipe: SSL/TLS Server (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(SSL.Port)
 #require constant(SSL.Context)
@@ -358,7 +406,7 @@ int main(int argc, array(string) argv)
     string cert_file = "server.pem";
     string key_file = "server.key";
 
-    //Create SSL context with certificates
+    // Create SSL context with certificates
     SSL.Context ctx = SSL.Context();
     if (file_stat(cert_file)) {
         ctx->certificates = (([{
@@ -367,7 +415,7 @@ int main(int argc, array(string) argv)
         }]));
     }
 
-    //Create SSL port
+    // Create SSL port
     SSL.Port ssl_port = SSL.Port(ctx);
     if (!ssl_port->bind(port, handle_ssl_client)) {
         werror("Failed to bind SSL port: %s\n", strerror(ssl_port->errno()));
@@ -376,83 +424,78 @@ int main(int argc, array(string) argv)
 
     write("SSL server listening on port %d\n", port);
 
-    //Keep server running
+    // Keep server running
     while (1) {
         sleep(1);
     }
 
     return 0;
 }
-//
-//-----------------------------
 ```
 
-## Closing a Socket After Forking
+:::warning
+Always use proper SSL certificates in production. Self-signed certificates are only for testing.
+:::
+
+---
+
+## Identifying the Other End of a Socket
+
+### Get Peer Address
 
 ```pike
 //-----------------------------
-sock->close("r");   //Close the read direction
-sock->close("w");   //Close the write direction
-sock->close("rw");  //Shut down both directions
-sock->close();      //Close completely
-//
+// Recipe: Get remote socket address
 //-----------------------------
+
+Stdio.File sock = Stdio.File();
+if (sock->connect("example.com", 80)) {
+    // Get remote address
+    string other_end = sock->query_address();
+    write("Connected to: %s\n", other_end);
+
+    sock->close();
+}
 ```
 
-## Writing Bidirectional Clients
+---
+
+## Finding Your Own Name and Address
+
+### Local Address Information
 
 ```pike
 //-----------------------------
-// Bidirectional Client (Pike 8)
+// Recipe: Get local address (Pike 8)
 //-----------------------------
+
 #pragma strict_types
-#require constant(Stdio.File)
 
-void read_from_server(Stdio.File sock)
-{
-    while (1) {
-        string data = sock->read(1024, 1);
-        if (!data || !sizeof(data)) break;
-        write("Server: %s\n", data);
-    }
-    sock->close("r");
+// Get local address of a socket
+string local_addr = sock->query_address(1);
+write("Local address: %s\n", local_addr);
+
+// Get hostname and local IP addresses
+string hostname = gethostname();
+write("Hostname: %s\n", hostname);
+
+[string host, array ips, array aliases] = gethostbyname(hostname);
+foreach(ips; string ip) {
+    write("Local IP: %s\n", ip);
 }
-
-int main(int argc, array(string) argv)
-{
-    if (argc < 3) {
-        werror("Usage: %s host port\n", argv[0]);
-        return 1;
-    }
-
-    Stdio.File sock = Stdio.File();
-    if (!sock->connect(argv[1], (int)argv[2])) {
-        werror("Connection failed\n");
-        return 1;
-    }
-
-    //Start thread to read from server
-    Thread.Thread create_thread = Thread.Thread(read_from_server, sock);
-
-    //Read from stdin and send to server
-    while (string line = Stdio.stdin->gets()) {
-        sock->write(line + "\n");
-    }
-
-    sock->close("w");
-    create_thread->wait();
-    return 0;
-}
-//
-//-----------------------------
 ```
+
+---
 
 ## Non-Blocking I/O with select()
 
+### Multiplexed Server
+
 ```pike
 //-----------------------------
-// Non-blocking I/O with select() (Pike 8)
+// Recipe: Non-blocking I/O with select() (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Stdio.File)
 
@@ -470,14 +513,14 @@ int main(int argc, array(string) argv)
     write("Multiplexed server on port %d\n", port);
 
     while (1) {
-        //Build read set
+        // Build read set
         array read_fds = clients + (({listen_sock}));
 
-        //Wait for activity
+        // Wait for activity
         mixed ready = Stdio.select(read_fds);
         if (!ready || !sizeof(ready[0])) continue;
 
-        //Check for new connections
+        // Check for new connections
         if (has_value(ready[0], listen_sock)) {
             Stdio.File new_client = listen_sock->accept();
             if (new_client) {
@@ -486,12 +529,12 @@ int main(int argc, array(string) argv)
             }
         }
 
-        //Check clients for data
+        // Check clients for data
         foreach(clients, int i, Stdio.File client) {
             if (has_value(ready[0], client)) {
                 string data = client->read(1024, 1);
                 if (!data || !sizeof(data)) {
-                    //Client disconnected
+                    // Client disconnected
                     write("Client disconnected\n");
                     client->close();
                     clients = clients[..i-1] + clients[i+1..];
@@ -505,70 +548,24 @@ int main(int argc, array(string) argv)
 
     return 0;
 }
-//
-//-----------------------------
 ```
 
-## Forking Servers
-
-```pike
-//-----------------------------
-
-//Forking is generally unnecessary in Pike, as the driver works more efficiently with other models.
-//
-//-----------------------------
-```
-
-## Socket Options and Configuration
-
-```pike
-//-----------------------------
-// Socket Options and Configuration (Pike 8)
-//-----------------------------
-#pragma strict_types
-
-//Creating a socket with options
-Stdio.Port port = Stdio.Port();
-
-//Set SO_REUSEADDR to allow quick restart
-port->set_option(Stdio.PORT_REUSE_ADDRESS, 1);
-
-//Set SO_KEEPALIVE for connection monitoring
-Stdio.File sock = Stdio.File();
-sock->set_option(Stdio.KEEPALIVE, 1);
-
-//Set TCP_NODELAY to disable Nagle's algorithm (for real-time apps)
-sock->set_option(Stdio.NO_DELAY, 1);
-
-//Set socket buffer sizes
-sock->set_buffer(65536, 65536); //read_buf, write_buf
-
-//Set socket timeout
-sock->set_nonblocking(1, 0, 0); //nonblocking mode
-
-//Enable broadcast for UDP
-Stdio.UDP udp = Stdio.UDP();
-udp->set_option(Stdio.PORT_BROADCAST, 1);
-udp->set_option(Stdio.MULTICAST, 1);
-
-//Bind to specific interface
-port->bind(8080, 0, "127.0.0.1");
-
-//
-//-----------------------------
-```
+---
 
 ## Modern Async with Concurrent.Future
 
+### Async Socket I/O
+
 ```pike
 //-----------------------------
-// Modern async socket I/O with Concurrent.Future (Pike 8)
+// Recipe: Modern async socket I/O with Concurrent.Future (Pike 8)
 //-----------------------------
+
 #pragma strict_types
 #require constant(Concurrent.Future)
 #require constant(Stdio.File)
 
-//Async HTTP GET using Future
+// Async HTTP GET using Future
 Concurrent.Future async_http_get(string host, int port)
 {
     Concurrent.Promise result = Concurrent.Promise();
@@ -592,7 +589,7 @@ Concurrent.Future async_http_get(string host, int port)
 
 int main()
 {
-    //Use the future
+    // Use the future
     Concurrent.Future f = async_http_get("example.com", 80);
 
     f->on_success(lambda(string response) {
@@ -603,238 +600,58 @@ int main()
         werror("Request failed: %s\n", err->error);
     });
 
-    //Wait for completion
+    // Wait for completion
     mixed result = f->wait();
     return 0;
 }
-//
-//-----------------------------
 ```
 
-## Pre-Forking Servers
+---
+
+## Socket Options and Configuration
+
+### Socket Options
 
 ```pike
 //-----------------------------
-// Connection Pool (Pike 8)
+// Recipe: Socket options and configuration (Pike 8)
 //-----------------------------
+
 #pragma strict_types
-#require constant(Stdio.File)
-#require constant(Thread.Mutex)
 
-class ConnectionPool {
-    private string host;
-    private int port;
-    private array(Stdio.File) connections = (({}));
-    private int max_size;
-    private Thread.Mutex lock = Thread.Mutex();
+// Creating a socket with options
+Stdio.Port port = Stdio.Port();
 
-    void create(string _host, int _port, int _max_size)
-    {
-        host = _host;
-        port = _port;
-        max_size = _max_size;
-    }
+// Set SO_REUSEADDR to allow quick restart
+port->set_option(Stdio.PORT_REUSE_ADDRESS, 1);
 
-    Stdio.File acquire()
-    {
-        mixed key = lock->lock();
-        Stdio.File sock;
+// Set SO_KEEPALIVE for connection monitoring
+Stdio.File sock = Stdio.File();
+sock->set_option(Stdio.KEEPALIVE, 1);
 
-        if (sizeof(connections)) {
-            sock = connections[0];
-            connections = connections[1..];
-        } else {
-            sock = Stdio.File();
-            if (!sock->connect(host, port)) {
-                lock->unlock();
-                return 0;
-            }
-        }
+// Set TCP_NODELAY to disable Nagle's algorithm (for real-time apps)
+sock->set_option(Stdio.NO_DELAY, 1);
 
-        lock->unlock();
-        return sock;
-    }
+// Set socket buffer sizes
+sock->set_buffer(65536, 65536); // read_buf, write_buf
 
-    void release(Stdio.File sock)
-    {
-        mixed key = lock->lock();
+// Set socket timeout
+sock->set_nonblocking(1, 0, 0); // nonblocking mode
 
-        if (sizeof(connections) < max_size) {
-            connections += (({sock}));
-        } else {
-            sock->close();
-        }
+// Enable broadcast for UDP
+Stdio.UDP udp = Stdio.UDP();
+udp->set_option(Stdio.PORT_BROADCAST, 1);
+udp->set_option(Stdio.MULTICAST, 1);
 
-        lock->unlock();
-    }
-}
-//
-//-----------------------------
+// Bind to specific interface
+port->bind(8080, 0, "127.0.0.1");
 ```
 
-## Non-Forking Servers
+---
 
-```pike
-//-----------------------------
+## See Also
 
-//Incomplete. There's multiple ways to do this, including:
-//1) Threaded server (works like forking but clients can share global state if desired)
-//2) Multiplexing using select()
-//3) Callback mode (puts the sockets under the control of a Backend which uses select())
-//
-//-----------------------------
-```
-
-## Writing a Multi-Homed Server
-
-```pike
-//-----------------------------
-Stdio.Port mainsock=Stdio.Port();
-if (!mainsock->bind(server_port))
-{
-    werror("Couldn't be a tcp server on port %d: %s\n",server_port,strerror(mainsock->errno()));
-    return 1;
-}
-while (1)
-{
-    Stdio.File sock=mainsock->accept();
-    if (!sock) break;
-    string localaddr=sock->query_address(1); //Is the IP address and port connected to.
-    //The IP will be that of one of your interfaces, and the port should be equal to server_port
-}
-//
-//-----------------------------
-```
-
-## Making a Daemon Server
-
-```pike
-//-----------------------------
-if (!System.chroot("/var/daemon")) werror("Unable to chroot to /var/daemon: %s\n",strerror(errno()));
-//Incomplete (I don't fork in Pike). See predef::fork() and Process.create_process() for details.
-//
-//-----------------------------
-```
-
-## Restarting a Server on Demand
-
-```pike
-//-----------------------------
-//The best way to restart the server is to adopt a microkernel concept and restart only the parts of
-//the server that need updating. However, if you must reload, see Process.exec()
-//
-//-----------------------------
-```
-
-## Program: backsniff
-
-```pike
-//-----------------------------
-// backsniff - Simple port scanner detector (Pike 8)
-//-----------------------------
-#pragma strict_types
-#require constant(Stdio.Port)
-
-int main(int argc, array(string) argv)
-{
-    int port = argc > 1 ? (int)argv[1] : 8080;
-
-    Stdio.Port listen = Stdio.Port();
-    if (!listen->bind(port)) {
-        werror("Bind failed\n");
-        return 1;
-    }
-
-    write("backsniff listening on port %d\n", port);
-
-    while (1) {
-        Stdio.File sock = listen->accept();
-        if (!sock) continue;
-
-        string remote = sock->query_address();
-        write("Connection from: %s at %s\n", remote, ctime(time()));
-
-        //Log and close
-        sock->close();
-    }
-
-    return 0;
-}
-//
-//-----------------------------
-```
-
-## Program: fwdport
-
-```pike
-//-----------------------------
-// fwdport - TCP port forwarder (Pike 8)
-//-----------------------------
-#pragma strict_types
-#require constant(Stdio.Port)
-#require constant(Stdio.File)
-
-void forward_data(Stdio.File client, Stdio.File target)
-{
-    string data = client->read(8192, 1);
-    while (data && sizeof(data)) {
-        target->write(data);
-        data = client->read(8192, 1);
-    }
-    target->close("w");
-}
-
-void handle_client(Stdio.File client, string target_host, int target_port)
-{
-    Stdio.File target = Stdio.File();
-    if (!target->connect(target_host, target_port)) {
-        werror("Failed to connect to target\n");
-        client->close();
-        return;
-    }
-
-    //Create threads for bidirectional forwarding
-    Thread.Thread t1 = Thread.Thread(forward_data, client, target);
-    ;
-    Thread.Thread t2 = Thread.Thread(forward_data, target, client);
-    ;
-
-    t1->wait();
-    t2->wait();
-
-    client->close();
-    target->close();
-}
-
-int main(int argc, array(string) argv)
-{
-    if (argc < 4) {
-        werror("Usage: %s listen_port target_host target_port\n", argv[0]);
-        return 1;
-    }
-
-    int listen_port = (int)argv[1];
-    string target_host = argv[2];
-    int target_port = (int)argv[3];
-
-    Stdio.Port listen = Stdio.Port();
-    if (!listen->bind(listen_port)) {
-        werror("Bind failed on port %d\n", listen_port);
-        return 1;
-    }
-
-    write("Forwarding %d -> %s:%d\n", listen_port, target_host, target_port);
-
-    while (1) {
-        Stdio.File client = listen->accept();
-        if (!client) continue;
-
-        //Handle client in thread
-        Thread.Thread(handle_client, client, target_host, target_port);
-    }
-
-    return 0;
-}
-//
-//-----------------------------
-```
+- [Web Automation](/docs/network/web-automation) - HTTP clients and web scraping
+- [CGI Programming](/docs/network/cgi-programming) - Web scripting
+- [Internet Services](/docs/network/internet-services) - Email, FTP, DNS
+- [Process Management](/docs/advanced/processes) - Inter-process communication

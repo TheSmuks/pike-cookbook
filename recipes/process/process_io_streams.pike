@@ -2,9 +2,36 @@
 #pragma strict_types
 
 //! Recipe: Bidirectional Process Communication
+//!
 //! Demonstrates reading and writing to a process simultaneously
+//!
+//! @example
+//!   // Create pipes for stdin and stdout
+//!   Stdio.File stdin_pipe = Stdio.File();
+//!   Stdio.File stdout_pipe = Stdio.File();
+//!
+//!   Process.create_process proc = Process.create_process(
+//!       ({"cat"}),
+//!       ([
+//!           "stdin": stdin_pipe->pipe(Stdio.PROP_IPC | Stdio.PROP_REVERSE),
+//!           "stdout": stdout_pipe->pipe()
+//!       ])
+//!   );
+//!
+//! @note
+//!   Use Stdio.PROP_IPC | Stdio.PROP_REVERSE for stdin to get the write end
+//!   of the pipe. Remember to close pipe ends you don't use to avoid deadlocks
+//!
+//! @seealso
+//!   @[Process.create_process], @[Stdio.File.pipe], @[Stdio.PROP_IPC]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Create pipes for stdin, stdout, and stderr
     Stdio.File stdin_pipe = Stdio.File();
     Stdio.File stdout_pipe = Stdio.File();

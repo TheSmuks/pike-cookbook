@@ -2,9 +2,30 @@
 #pragma strict_types
 
 //! Recipe: Writing to Process stdin
+//!
 //! Demonstrates sending data to a process via stdin
+//!
+//! @example
+//!   // Write to process stdin using Process.run
+//!   mapping result = Process.run(
+//!       ({"grep", "pattern"}),
+//!       (["stdin": "line1\nline2\nline3\n"])
+//!   );
+//!
+//! @note
+//!   When writing to stdin manually, always close the write end to signal
+//!   EOF to the process, otherwise it may hang waiting for more input
+//!
+//! @seealso
+//!   @[Process.run], @[Stdio.File.pipe]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Example 1: Using Process.run with string stdin
     write("=== Example 1: Process.run with stdin ===\n");
 

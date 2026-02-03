@@ -2,9 +2,33 @@
 #pragma strict_types
 
 //! Recipe: Monitoring Child Processes
+//!
 //! Demonstrates monitoring multiple child processes with status checking
+//!
+//! @example
+//!   // Create and monitor child process
+//!   Process.Process proc = Process.Process(({"sleep", "10"}));
+//!
+//!   // Check status: 0=running, 1=exited, 2=signaled
+//!   int(-1..2) status = proc->status();
+//!   if (status == 0) {
+//!       write("Process is running\n");
+//!   }
+//!
+//! @note
+//!   The status() method returns: 0 (running), 1 (exited), 2 (signaled), -1 (error)
+//!   Use last_signal() to get the signal number if status returns 2
+//!
+//! @seealso
+//!   @[Process.Process], @[Process.status], @[Process.wait]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Process Monitoring Example ===\n\n");
 
     // Create multiple child processes

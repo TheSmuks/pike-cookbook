@@ -2,9 +2,32 @@
 #pragma strict_types
 
 //! Recipe: Process Status and Error Handling
+//!
 //! Demonstrates comprehensive process status checking and error handling
+//!
+//! @example
+//!   // Check process status
+//!   Process.create_process proc = Process.create_process(({"echo", "test"}));
+//!   int(-1..2) status = proc->status();
+//!
+//!   // Wait and check final status
+//!   int exit_code = proc->wait();
+//!   int final_status = proc->status();
+//!
+//! @note
+//!   Status values: -1 (error), 0 (running), 1 (exited), 2 (signaled)
+//!   Always check exit codes and stderr when using Process.run
+//!
+//! @seealso
+//!   @[Process.create_process], @[Process.status], @[Process.wait]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Process Status Checking ===\n\n");
 
     // Example 1: Successful process

@@ -2,9 +2,29 @@
 #pragma strict_types
 
 //! Recipe: Sending Signals to Processes
+//!
 //! Demonstrates sending signals to processes using Process.kill
+//!
+//! @example
+//!   // Create a process and send SIGTERM
+//!   Process.create_process proc = Process.create_process(({"sleep", "30"}));
+//!   proc->kill(signum("SIGTERM"));
+//!   proc->wait();
+//!
+//! @note
+//!   SIGKILL (9) and SIGSTOP (19) cannot be caught or ignored by the process.
+//!   SIGTERM (15) is the preferred way to gracefully terminate processes
+//!
+//! @seealso
+//!   @[Process.kill], @[signum], @[signal]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Create a long-running child process
     write("Creating child process (sleep 30)...\n");
     Process.create_process proc = Process.create_process(({"sleep", "30"}));

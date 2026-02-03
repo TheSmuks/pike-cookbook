@@ -3,18 +3,54 @@
 #pike 8.0
 
 //! Database connection examples for Pike 8
+//!
 //! Demonstrates connection to PostgreSQL, MySQL, and SQLite
+//!
+//! @example
+//!   // Simple SQLite connection
+//!   Sql.Sql db = Sql.Sql("sqlite://test.db");
+//!
+//!   // PostgreSQL with authentication
+//!   Sql.Sql pgsql = Sql.Sql("pgsql://user:pass@localhost:5432/db");
+//!
+//! @note
+//!   Connection URL format: dbtype://[user[:password]@]host[:port]/database
+//!   For SQLite, use: sqlite://path/to/database.db or sqlite://:memory: for in-memory
+//!
+//! @seealso
+//!   @[Sql.Sql], @[basic_queries], @[advanced_operations]
 
 constant DB_POSTGRESQL = 1;
 constant DB_MYSQL = 2;
 constant DB_SQLITE = 3;
+
+//! Database connection manager
+//!
+//! Provides a wrapper around Sql.Sql with enhanced connection management
+//!
+//! @example
+//!   DatabaseManager db = DatabaseManager("sqlite://test.db");
+//!   int status = db->ping();
+//!   db->close();
+//!
+//! @seealso
+//!   @[ConnectionPool]
 
 class DatabaseManager {
     private Sql.Sql con;
     private string db_type;
 
     //! Create a new database connection
-    //! @param url - Database URL format: dbtype://[user[:password]@]host[:port]/database
+    //!
+    //! @param url
+    //!   Database URL format: dbtype://[user[:password]@]host[:port]/database
+    //!
+    //! @note
+    //!   Automatically sets charset to unicode for proper string handling
+    //!
+    //! @throws
+    //!   Error if connection fails
+
     void create(string url) {
         db_type = get_db_type(url);
         con = Sql.Sql(url);
@@ -32,17 +68,40 @@ class DatabaseManager {
     }
 
     //! Get database type from URL
+    //!
+    //! @param url
+    //!   Database connection URL
+    //! @returns
+    //!   Uppercase database type (e.g., "PGSQL", "MYSQL", "SQLITE")
+    //!
+    //! @seealso
+    //!   @[create]
+
     private string get_db_type(string url) {
         sscanf(url, "%s://", string type);
         return upper_case(type);
     }
 
     //! Check if connection is alive
+    //!
+    //! @returns
+    //!   0 if connected, 1 if reconnected, -1 if disconnected/error
+    //!
+    //! @seealso
+    //!   @[status], @[server_info]
+
     int ping() {
         return con->ping();
     }
 
     //! Get connection status
+    //!
+    //! @returns
+    //!   String describing connection status: "connected", "reconnected", or "disconnected"
+    //!
+    //! @seealso
+    //!   @[ping], @[server_info]
+
     string status() {
         int ping_result = ping();
 
@@ -56,27 +115,65 @@ class DatabaseManager {
     }
 
     //! Get server information
+    //!
+    //! @returns
+    //!   Server version and information string
+    //!
+    //! @seealso
+    //!   @[host_info], @[ping]
+
     string server_info() {
         return con->server_info();
     }
 
     //! Get host information
+    //!
+    //! @returns
+    //!   Host connection information string
+    //!
+    //! @seealso
+    //!   @[server_info], @[ping]
+
     string host_info() {
         return con->host_info();
     }
 
     //! Close the connection
+    //!
+    //! @note
+    //!   After calling close(), the connection object becomes invalid
+    //!
+    //! @seealso
+    //!   @[create]
+
     void close() {
         destruct(con);
     }
 
     //! Get the raw connection for direct operations
+    //!
+    //! @returns
+    //!   The underlying Sql.Sql connection object
+    //!
+    //! @note
+    //!   Use this for advanced operations not covered by DatabaseManager methods
+    //!
+    //! @seealso
+    //!   @[Sql.Sql]
+
     Sql.Sql get_connection() {
         return con;
     }
 }
 
 //! Example: PostgreSQL connection with connection pooling
+//!
+//! @note
+//!   PostgreSQL supports SSL connections using the mysqls:// scheme
+//!
+//! @seealso
+//!   @[mysql_example], @[sqlite_example]
+
 void postgresql_example() {
     werror("\n=== PostgreSQL Connection Example ===\n");
 
@@ -107,6 +204,13 @@ void postgresql_example() {
 }
 
 //! Example: MySQL connection
+//!
+//! @note
+//!   MySQL SSL connections use the mysqls:// scheme
+//!
+//! @seealso
+//!   @[postgresql_example], @[sqlite_example]
+
 void mysql_example() {
     werror("\n=== MySQL Connection Example ===\n");
 
@@ -130,6 +234,13 @@ void mysql_example() {
 }
 
 //! Example: SQLite connection (file-based)
+//!
+//! @note
+//!   SQLite supports in-memory databases using sqlite://:memory:
+//!
+//! @seealso
+//!   @[postgresql_example], @[mysql_example]
+
 void sqlite_example() {
     werror("\n=== SQLite Connection Example ===\n");
 
@@ -143,6 +254,10 @@ void sqlite_example() {
 }
 
 //! Example: Database manager usage
+//!
+//! @seealso
+//!   @[connection_pool_example]
+
 void database_manager_example() {
     werror("\n=== Database Manager Example ===\n");
 
@@ -161,6 +276,22 @@ void database_manager_example() {
 }
 
 //! Example: Connection pooling simulation
+//!
+//! Connection pool for managing multiple database connections
+//!
+//! @example
+//!   ConnectionPool pool = ConnectionPool("sqlite://test.db", 5);
+//!   Sql.Sql conn = pool->get_connection();
+//!   // ... use connection ...
+//!   pool->release(conn);
+//!
+//! @note
+//!   This is a simplified example. Production pools need more sophisticated
+//!   connection tracking and error handling
+//!
+//! @seealso
+//!   @[DatabaseManager]
+
 class ConnectionPool {
     private string db_url;
     private int max_connections;
@@ -168,8 +299,18 @@ class ConnectionPool {
     private Thread.Mutex lock = Thread.Mutex();
 
     //! Create a connection pool
-    //! @param db_url - Database URL
-    //! @param max_connections - Maximum number of connections
+    //!
+    //! @param db_url
+    //!   Database connection URL
+    //! @param max_connections
+    //!   Maximum number of connections in the pool
+    //!
+    //! @note
+    //!   All connections are created immediately upon pool initialization
+    //!
+    //! @seealso
+    //!   @[get_connection], @[close]
+
     void create(string db_url, int max_connections) {
         this::db_url = db_url;
         this::max_connections = max_connections;
@@ -182,6 +323,17 @@ class ConnectionPool {
     }
 
     //! Get a connection from the pool
+    //!
+    //! @returns
+    //!   A valid Sql.Sql connection object
+    //!
+    //! @note
+    //!   Simple round-robin for demonstration. Production use requires
+    //!   proper pool management with connection tracking
+    //!
+    //! @seealso
+    //!   @[release], @[close]
+
     Sql.Sql get_connection() {
         // Simple round-robin for demonstration
         // In production, use proper pool management
@@ -199,6 +351,13 @@ class ConnectionPool {
     }
 
     //! Close all connections
+    //!
+    //! @note
+    //!   Closes all connections in the pool and clears the connection array
+    //!
+    //! @seealso
+    //!   @[create], @[get_connection]
+
     void close() {
         Thread.MutexKey key = lock->lock();
         foreach (connections, Sql.Sql conn) {
@@ -210,6 +369,11 @@ class ConnectionPool {
         destruct(key);
     }
 }
+
+//! Example: Connection pool usage
+//!
+//! @seealso
+//!   @[database_manager_example]
 
 void connection_pool_example() {
     werror("\n=== Connection Pool Example ===\n");
@@ -228,6 +392,18 @@ void connection_pool_example() {
 }
 
 int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
+    //!
+    //! @note
+    //!   This example demonstrates multiple connection patterns
+    //!
+    //! @seealso
+    //!   @[DatabaseManager], @[ConnectionPool]
     // Run examples
     postgresql_example();
     mysql_example();

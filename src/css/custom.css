@@ -5,14 +5,14 @@
 
 /* You can override the default Infima variables here. */
 :root {
-  /* Primary color - Pike orange/brown tone */
-  --ifm-color-primary: #e67e22;
-  --ifm-color-primary-dark: #d35400;
-  --ifm-color-primary-darker: #ba4a00;
-  --ifm-color-primary-darkest: #a04000;
-  --ifm-color-primary-light: #e89868;
-  --ifm-color-primary-lighter: #f0b07a;
-  --ifm-color-primary-lightest: #f5cba7;
+  /* Primary color - Docusaurus default blue */
+  --ifm-color-primary: #3578e5;
+  --ifm-color-primary-dark: #2e64c8;
+  --ifm-color-primary-darker: #2955a8;
+  --ifm-color-primary-darkest: #1e3a8a;
+  --ifm-color-primary-light: #4d8fff;
+  --ifm-color-primary-lighter: #66a3ff;
+  --ifm-color-primary-lightest: #99c2ff;
 
   /* Code font */
   --ifm-code-font-size: 95%;
@@ -56,14 +56,14 @@
 
 /* Dark mode palette */
 [data-theme='dark'] {
-  /* Primary color - Lighter orange for dark mode */
-  --ifm-color-primary: #f39c12;
-  --ifm-color-primary-dark: #e67e22;
-  --ifm-color-primary-darker: #d35400;
-  --ifm-color-primary-darkest: #ba4a00;
-  --ifm-color-primary-light: #f7b02a;
-  --ifm-color-primary-lighter: #f9c74f;
-  --ifm-color-primary-lightest: #fad980;
+  /* Primary color - Docusaurus default blue for dark mode */
+  --ifm-color-primary: #5c9ce6;
+  --ifm-color-primary-dark: #4a8ed9;
+  --ifm-color-primary-darker: #3d80cc;
+  --ifm-color-primary-darkest: #2e64c8;
+  --ifm-color-primary-light: #76b3ef;
+  --ifm-color-primary-lighter: #90c9f7;
+  --ifm-color-primary-lightest: #b3ddf9;
 
   /* Background colors */
   --ifm-background-color: #111827;

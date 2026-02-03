@@ -1,0 +1,10 @@
+{
+  "extends": ["@docusaurus/tsconfig"],
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*", "docusaurus.config.js"]
+}

@@ -4,19 +4,24 @@ title: Modules and Packages
 sidebar_label: Modules and Packages
 ---
 
-# Packages, Libraries, and Modules
+# Modules and Packages
 
 ## Introduction
 
-Pike 8 provides a powerful module system for organizing code into reusable libraries. Modules are stored in files with the `.pmod` extension and can contain functions, classes, constants, and other modules.
-
-Key features of Pike 8 modules:
-
-- Namespace separation through module hierarchy
-- Dynamic module loading with `master()->resolv()`
+**What this covers**
+- Creating and organizing Pike 8 modules with `.pmod` files
+- Hierarchical module structures and namespaces
 - AutoDoc documentation system with `//!` comments
-- Strict type checking with `#pragma strict_types`
-- Rich standard library (ADT, Sql, Protocols, Parser, etc.)
+- Dynamic module loading with `master()->resolv()`
+- Public vs private module symbols and visibility control
+- Standard library modules (ADT, Sql, Protocols, Parser)
+
+**Why use it**
+Modules are the foundation of code organization in Pike 8. They allow you to create reusable libraries, manage namespace conflicts, and build maintainable applications through proper separation of concerns. Pike's module system provides both compile-time safety with `#pragma strict_types` and runtime flexibility with dynamic loading.
+
+:::tip Key Concept
+Pike modules are stored in files with the `.pmod` extension. They can contain functions, classes, constants, and even nested submodules. Use `import` to bring symbols into scope, or access modules directly via their fully qualified names.
+:::
 
 ```pike
 // Importing standard modules
@@ -31,16 +36,19 @@ mapping m = ADT.Struct.map(...);
 
 // Qualified access without import
 array arr2 = Array.uniq(({1, 2, 2, 3}));
-object table = ADT.Table.table(...);;
+object table = ADT.Table.table(...);
 ```
+
+---
 
 ## Defining a Module's Interface
 
 Creating modules in Pike 8 involves defining `.pmod` files with clear public interfaces. Use `//!` AutoDoc comments to document your interface.
 
-Simple Module Example:
-
 ```pike
+//-----------------------------
+// Recipe: Create a simple utility module
+//-----------------------------
 // File: MathTools.pmod
 //! Mathematical utility functions.
 //! This module provides common mathematical operations
@@ -102,6 +110,9 @@ bool is_prime(int n) {
 Using the Module:
 
 ```pike
+//-----------------------------
+// Recipe: Import and use a custom module
+//-----------------------------
 // File: test_math.pike
 #pragma strict_types
 
@@ -117,11 +128,21 @@ int main() {
 }
 ```
 
+:::note
+Always use `#pragma strict_types` at the top of your module files. This enables Pike's type system to catch errors at compile time rather than runtime, making your code more reliable and easier to debug.
+:::
+
+---
+
 ## Creating Hierarchical Modules
 
 Pike 8 supports nested module hierarchies using directories and submodules. Organize related functionality into logical groups.
 
 ```pike
+//-----------------------------
+// Recipe: Build a nested module structure
+//-----------------------------
+
 // Directory structure:
 // MyApp/
 //   MyApp.pmod
@@ -162,7 +183,9 @@ string truncate(string s, int max_len) {
 ```
 
 ```pike
-// Using hierarchical modules
+//-----------------------------
+// Recipe: Use hierarchical modules
+//-----------------------------
 #pragma strict_types
 
 import MyApp.Utils.String;
@@ -179,11 +202,20 @@ int main() {
 }
 ```
 
+:::tip
+Organize modules by feature, not by type. For example, put all user-related functionality (models, validators, handlers) in a `User` submodule rather than separating models, handlers, and validators into different top-level modules.
+:::
+
+---
+
 ## Dynamic Module Loading with master()->resolv()
 
 Pike's master object provides dynamic module resolution through `master()->resolv()`. This allows loading modules at runtime based on string names.
 
 ```pike
+//-----------------------------
+// Recipe: Load modules dynamically at runtime
+//-----------------------------
 #pragma strict_types
 
 //! Load a module dynamically by name.
@@ -240,11 +272,20 @@ int main() {
 }
 ```
 
+:::warning
+Dynamic module loading is powerful but bypasses compile-time checking. Use it sparingly and always check the return value. For most cases, static imports (`import Module`) are preferable as they catch errors at compile time.
+:::
+
+---
+
 ## Making Variables Private to a Module
 
 Pike 8 uses lexical scoping and naming conventions to control visibility. Variables starting with underscore (`_`) are conventionally private.
 
 ```pike
+//-----------------------------
+// Recipe: Use protected for module privacy
+//-----------------------------
 // File: Auth.pmod
 #pragma strict_types
 
@@ -305,11 +346,20 @@ int main() {
 }
 ```
 
+:::tip
+Use the `protected` modifier for module-level privacy. This prevents symbols from being accessed outside the module while still allowing them to be used within the module and its subclasses.
+:::
+
+---
+
 ## Controlling Module Symbol Visibility
 
 Use `#require` to enforce module dependencies and control which symbols are exported. This is Pike 8's modern approach to module interfaces.
 
 ```pike
+//-----------------------------
+// Recipe: Define explicit module interfaces
+//-----------------------------
 // File: SecureConfig.pmod
 #pragma strict_types
 
@@ -344,7 +394,9 @@ _load_defaults();
 ```
 
 ```pike
-// Using #require to enforce module presence
+//-----------------------------
+// Recipe: Enforce module dependencies
+//-----------------------------
 // File: Database.pmod
 #pragma strict_types
 
@@ -369,11 +421,20 @@ class Connection {
 }
 ```
 
+:::note
+The `#require` directive causes a compile-time error if the specified constant or module is not available. This is useful for ensuring that required dependencies are present before the code runs.
+:::
+
+---
+
 ## AutoDoc Documentation System
 
 Pike 8 uses `//!` comments for AutoDoc documentation. Generate HTML docs with `pike -x extract_autodoc`.
 
 ```pike
+//-----------------------------
+// Recipe: Document modules with AutoDoc
+//-----------------------------
 // File: StringUtils.pmod
 #pragma strict_types
 
@@ -429,13 +490,22 @@ string make_slug(string text, int(1..) maxlen=50) {
 }
 ```
 
+:::tip
+AutoDoc comments use `//!` instead of `//`. Always document public functions, classes, and constants with `//!` comments. Use `@param`, `@returns`, `@example`, `@throws`, and `@note` tags for comprehensive documentation.
+:::
+
+---
+
 ## Pike 8 Standard Library Modules
 
 Pike 8 includes a comprehensive standard library. Here are the most commonly used modules:
 
-### ADT (Abstract Data Types):
+### ADT (Abstract Data Types)
 
 ```pike
+//-----------------------------
+// Recipe: Use ADT for structured data
+//-----------------------------
 #pragma strict_types
 
 import ADT; // Import all ADT submodules
@@ -478,9 +548,12 @@ int main() {
 }
 ```
 
-### Sql Module - Database Connectivity:
+### Sql Module - Database Connectivity
 
 ```pike
+//-----------------------------
+// Recipe: Connect to SQL databases
+//-----------------------------
 #pragma strict_types
 
 import Sql.sql;
@@ -526,9 +599,16 @@ int main() {
 }
 ```
 
-### Protocols Module - Network Protocols:
+:::warning
+Always use parameter binding (`%s` placeholders) instead of string concatenation for SQL queries. This prevents SQL injection attacks and handles proper escaping of user input.
+:::
+
+### Protocols Module - Network Protocols
 
 ```pike
+//-----------------------------
+// Recipe: Work with HTTP and DNS
+//-----------------------------
 #pragma strict_types
 
 import Protocols.HTTP;
@@ -566,11 +646,16 @@ int main() {
 }
 ```
 
+---
+
 ## Module Dependencies and Versioning
 
 Pike 8 provides mechanisms to manage module dependencies and ensure compatibility. Use constants for versioning and `#require` for dependency checking.
 
 ```pike
+//-----------------------------
+// Recipe: Add version checking to modules
+//-----------------------------
 // File: AppConfig.pmod
 #pragma strict_types
 
@@ -599,6 +684,9 @@ bool version_at_least(string required_version) {
 Module with Dependency Resolution:
 
 ```pike
+//-----------------------------
+// Recipe: Handle optional dependencies gracefully
+//-----------------------------
 // File: DataProcessor.pmod
 #pragma strict_types
 
@@ -626,16 +714,18 @@ string process(string data, bool|void encrypt) {
 }
 ```
 
+---
+
 ## Best Practices for Module Organization
 
 Follow these conventions for clean, maintainable Pike 8 modules:
 
-- Use `#pragma strict_types` - Always enable strict typing for better error detection
-- Document with AutoDoc - Use `//!` comments for all public interfaces
-- Name private members with underscore - Prefix internal functions and variables with `_`
-- Use `protected` for module-level privacy - Controls symbol visibility
-- Organize by feature, not type - Group related functionality together
-- Keep modules focused - Each module should have a single, clear responsibility
+- **Use `#pragma strict_types`** - Always enable strict typing for better error detection
+- **Document with AutoDoc** - Use `//!` comments for all public interfaces
+- **Name private members with underscore** - Prefix internal functions and variables with `_`
+- **Use `protected` for module-level privacy** - Controls symbol visibility
+- **Organize by feature, not type** - Group related functionality together
+- **Keep modules focused** - Each module should have a single, clear responsibility
 
 ```pike
 // Recommended module structure:
@@ -664,11 +754,16 @@ import .Core.Database;
 import .Services.Auth;
 ```
 
+---
+
 ## Complete Module Example: Logger
 
 Here's a complete, production-ready logger module demonstrating Pike 8 best practices:
 
 ```pike
+//-----------------------------
+// Program: Production-ready logging module
+//-----------------------------
 // File: Logger.pmod
 //! Flexible logging module with multiple output handlers.
 //! @example
@@ -802,6 +897,9 @@ protected string _strip_colors(string msg) {
 Using the Logger Module:
 
 ```pike
+//-----------------------------
+// Recipe: Use the Logger module
+//-----------------------------
 // File: app.pike
 #pragma strict_types
 
@@ -829,3 +927,16 @@ int main(int argc, array(string) argv) {
     return 0;
 }
 ```
+
+:::tip
+This logger module demonstrates several best practices: clear public interface, protected internal state, comprehensive documentation, and sensible defaults. The module is both easy to use for beginners and configurable for advanced users.
+:::
+
+---
+
+## See Also
+
+- [Classes](/docs/advanced/classes) - Object-oriented programming in Pike
+- [References and Records](/docs/advanced/references) - Data structures and memory management
+- [Strings](/docs/basics/strings) - String manipulation
+- [Network Programming](/docs/network/sockets) - Network protocols and sockets

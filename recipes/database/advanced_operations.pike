@@ -3,9 +3,29 @@
 #pike 8.0
 
 //! Advanced database operations for Pike 8
+//!
 //! Demonstrates joins, aggregations, subqueries, and performance optimization
+//!
+//! @example
+//!   // INNER JOIN example
+//!   array(mapping) result = db->typed_query(
+//!       "SELECT e.name, d.name FROM employees e "
+//!       "INNER JOIN departments d ON e.department_id = d.id"
+//!   );
+//!
+//! @note
+//!   Use EXPLAIN QUERY PLAN to analyze and optimize query performance
+//!
+//! @seealso
+//!   @[Sql.Sql], @[basic_queries], @[best_practices]
 
 //! Example: INNER JOIN
+//!
+//! Demonstrates joining tables to combine related data
+//!
+//! @seealso
+//!   @[left_join_example], @[aggregation_example]
+
 void join_example() {
     werror("\n=== JOIN Example ===\n");
 
@@ -53,6 +73,13 @@ void join_example() {
 }
 
 //! Example: LEFT JOIN and RIGHT JOIN
+//!
+//! @note
+//!   LEFT JOIN includes all rows from left table, even if no match in right table
+//!
+//! @seealso
+//!   @[join_example], @[aggregation_example]
+
 void left_join_example() {
     werror("\n=== LEFT JOIN Example ===\n");
 
@@ -77,6 +104,13 @@ void left_join_example() {
 }
 
 //! Example: GROUP BY and aggregation
+//!
+//! @note
+//!   Use HAVING clause for filtering after aggregation (vs WHERE for before)
+//!
+//! @seealso
+//!   @[join_example], @[union_subquery_example]
+
 void aggregation_example() {
     werror("\n=== Aggregation Example ===\n");
 
@@ -119,6 +153,13 @@ void aggregation_example() {
 }
 
 //! Example: UNION and subqueries
+//!
+//! @note
+//!   UNION combines result sets. Subqueries allow nested queries
+//!
+//! @seealso
+//!   @[aggregation_example], @[cte_example]
+
 void union_subquery_example() {
     werror("\n=== UNION and Subquery Example ===\n");
 
@@ -178,6 +219,13 @@ void union_subquery_example() {
 }
 
 //! Example: Window functions (PostgreSQL)
+//!
+//! @note
+//!   Window functions require PostgreSQL or other advanced databases
+//!
+//! @seealso
+//!   @[cte_example]
+
 void window_function_example() {
     werror("\n=== Window Function Example (PostgreSQL) ===\n");
 
@@ -212,6 +260,13 @@ void window_function_example() {
 }
 
 //! Example: Common Table Expressions (CTE)
+//!
+//! @note
+//!   CTEs improve readability and enable recursive queries
+//!
+//! @seealso
+//!   @[union_subquery_example], @[query_compilation_example]
+
 void cte_example() {
     werror("\n=== Common Table Expression Example ===\n");
 
@@ -268,6 +323,13 @@ void cte_example() {
 }
 
 //! Example: Query compilation and caching
+//!
+//! @note
+//!   Compile queries once for reuse with different parameters
+//!
+//! @seealso
+//!   @[cte_example], @[performance_monitoring_example]
+
 void query_compilation_example() {
     werror("\n=== Query Compilation Example ===\n");
 
@@ -288,6 +350,13 @@ void query_compilation_example() {
 }
 
 //! Example: Performance monitoring
+//!
+//! @note
+//!   Use EXPLAIN QUERY PLAN to analyze query performance
+//!
+//! @seealso
+//!   @[query_compilation_example], @[batch_operations_example]
+
 void performance_monitoring_example() {
     werror("\n=== Performance Monitoring Example ===\n");
 
@@ -318,6 +387,13 @@ void performance_monitoring_example() {
 }
 
 //! Example: Batch operations
+//!
+//! @note
+//!   Use transactions for batch operations to improve performance
+//!
+//! @seealso
+//!   @[performance_monitoring_example], @[introspection_example]
+
 void batch_operations_example() {
     werror("\n=== Batch Operations Example ===\n");
 
@@ -345,6 +421,13 @@ void batch_operations_example() {
 }
 
 //! Example: Database introspection
+//!
+//! @note
+//!   Query database metadata to list tables and fields
+//!
+//! @seealso
+//!   @[batch_operations_example]
+
 void introspection_example() {
     werror("\n=== Database Introspection Example ===\n");
 
@@ -372,6 +455,12 @@ void introspection_example() {
 }
 
 int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     // Run all examples
     join_example();
     left_join_example();

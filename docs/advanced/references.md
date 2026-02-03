@@ -8,7 +8,19 @@ sidebar_label: References and Records
 
 ## Introduction
 
-Pike handles references differently from Perl. In Pike, arrays, mappings, and objects are always passed by reference, while basic types (int, float, string) are passed by value. Pike uses reference counting and garbage collection for automatic memory management.
+**What this covers**
+- Reference types vs value types in Pike 8
+- Working with arrays, mappings, and functions as references
+- Creating and managing complex data structures
+- Implementing records with classes and mappings
+- Serializing and persisting data structures
+
+**Why use it**
+Understanding Pike's reference system is crucial for effective memory management and data manipulation. Unlike some languages that require explicit reference operators, Pike's approach to references provides both simplicity and power. This guide shows you how to leverage Pike's reference counting, garbage collection, and first-class functions to write clean, efficient code.
+
+:::tip Key Concept
+In Pike 8, arrays, mappings, and objects are **always reference types**, while basic types (int, float, string) are **value types**. You don't need special operators to create references - assignment creates a reference for complex types.
+:::
 
 ```pike
 // Pike 8 - Reference basics
@@ -33,12 +45,16 @@ m2["apple"] = 2;
 write("m1[\"apple\"]: %d\n", m1["apple"]);  // Output: 2
 ```
 
+---
+
 ## Taking References to Arrays
 
 In Pike, you don't need explicit reference operators for arrays. Arrays are always reference types. For explicit reference semantics, use the ADT.Array module or store arrays in containers.
 
 ```pike
-// Pike 8 - Array references
+//-----------------------------
+// Recipe: Work with array references
+//-----------------------------
 #pragma strict_types
 import ADT;
 
@@ -71,23 +87,31 @@ int|zero val = maybe_empty->[0];  // Safe indexing returns UNDEFINED or 0
 write("Safe access: %d\n", val);  // 0 if out of bounds
 ```
 
+:::tip
+Use the `->?[]` operator for safe array indexing that returns `UNDEFINED` instead of throwing an error when the index is out of bounds. This is especially useful when working with user input or dynamic data.
+:::
+
+---
+
 ## Making Hashes of Arrays
 
 Pike uses mappings (hash tables) where values can be arrays. Create complex data structures by nesting arrays within mappings.
 
 ```pike
-// Pike 8 - Hash of arrays
+//-----------------------------
+// Recipe: Create mapping of arrays
+//-----------------------------
 #pragma strict_types
 
 // Mapping with array values
 mapping(string:array(string)) employees = ([
-    "engineering": (["alice", "bob", "charlie"]),
-    "sales": (["david", "eve"]),
-    "marketing": (["frank"])
+    "engineering": ({"alice", "bob", "charlie"}),
+    "sales": ({"david", "eve"}),
+    "marketing": ({"frank"})
 ]);
 
 // Access and modify
-employees["engineering"] += (["david"]);  // Add to array
+employees["engineering"] += ({"david"});  // Add to array
 write("Engineering team: %s\n", employees["engineering"] * ", ");
 
 // Safe indexing with ->?
@@ -116,12 +140,20 @@ foreach (scores; string category; array(int) arr) {
 }
 ```
 
+:::note
+When dynamically building a hash of arrays, always check if the key exists before appending. This prevents errors and ensures clean initialization of array values.
+:::
+
+---
+
 ## Taking References to Hashes
 
 Mappings in Pike are always reference types. Assign a mapping to another variable to create a reference to the same mapping.
 
 ```pike
-// Pike 8 - Mapping references
+//-----------------------------
+// Recipe: Work with mapping references
+//-----------------------------
 #pragma strict_types
 
 // Mapping reference
@@ -163,12 +195,20 @@ mapping(string:mapping(string:int)) deep_copy(mapping(string:mapping(string:int)
 }
 ```
 
+:::warning
+Remember that `mapping + ([])` creates a **shallow copy**. For nested mappings or mappings containing arrays, you'll need a recursive deep copy function to avoid unintended sharing of nested data.
+:::
+
+---
+
 ## Taking References to Functions
 
 Pike supports first-class functions. Store functions in variables, pass them as arguments, and return them from other functions.
 
 ```pike
-// Pike 8 - Function references
+//-----------------------------
+// Recipe: Use functions as first-class citizens
+//-----------------------------
 #pragma strict_types
 
 // Simple function reference
@@ -213,12 +253,16 @@ foreach (ops; int i; function(int,int:int) op) {
 }
 ```
 
+---
+
 ## Taking References to Scalars
 
 Pike doesn't have scalar references like Perl. Instead, use containers (single-element arrays or mappings) to achieve similar behavior.
 
 ```pike
-// Pike 8 - Simulating scalar references
+//-----------------------------
+// Recipe: Simulate scalar references with containers
+//-----------------------------
 #pragma strict_types
 
 // Using single-element array as reference
@@ -253,12 +297,16 @@ write("17 / 5 = %d, remainder %d\n",
       result["quotient"], result["remainder"]);  // Output: 17 / 5 = 3, remainder 2
 ```
 
+---
+
 ## Creating Arrays of Scalar References
 
 Use arrays or mappings as container objects to create arrays of mutable references.
 
 ```pike
-// Pike 8 - Arrays of container references
+//-----------------------------
+// Recipe: Build array of container references
+//-----------------------------
 #pragma strict_types
 
 // Array of single-element arrays (simulating references)
@@ -298,12 +346,16 @@ increment_all(counters);
 write("Counters: %s\n", counters->value * ", ");  // Output: 1, 1, 1
 ```
 
+---
+
 ## Using Closures Instead of Objects
 
 Pike supports closures through lambda functions that capture variables from their enclosing scope. Use closures for encapsulation and state management.
 
 ```pike
-// Pike 8 - Closures for encapsulation
+//-----------------------------
+// Recipe: Create closures for encapsulation
+//-----------------------------
 #pragma strict_types
 
 // Counter using closure
@@ -364,18 +416,25 @@ function(void:mixed|int|string) create_bank_account(int initial) {
 
 function(mixed:int|string) account = create_bank_account(100);
 write("Balance: %d\n", account());         // Output: Balance: 100
-account(50);                                 // Deposit
+account(50);                                // Deposit
 write("Balance: %d\n", account());         // Output: Balance: 150
 account("Alice");                           // Set owner
-write("Owner: %s\n", account("check"));    // This won't work as shown, needs type checking
 ```
+
+:::tip
+Closures in Pike capture variables from their enclosing scope, creating private state that persists between function calls. This is perfect for implementing encapsulation without the overhead of full classes.
+:::
+
+---
 
 ## Creating References to Methods
 
 Store method references in Pike using class methods and function pointers. Pike supports object-oriented programming with proper method references.
 
 ```pike
-// Pike 8 - Method references
+//-----------------------------
+// Recipe: Store and pass method references
+//-----------------------------
 #pragma strict_types
 
 class Calculator {
@@ -429,12 +488,16 @@ array(int) result = proc->process(numbers, lambda(int x) { return x * 2; });
 write("Doubled: %s\n", result * ", ");  // Output: 2, 4, 6, 8, 10
 ```
 
+---
+
 ## Constructing Records
 
 Pike doesn't have a dedicated "record" type. Use mappings or classes to create record-like structures. Classes provide type safety and methods.
 
 ```pike
-// Pike 8 - Records using mappings and classes
+//-----------------------------
+// Recipe: Create records with classes
+//-----------------------------
 #pragma strict_types
 
 // Simple record using mapping
@@ -522,12 +585,20 @@ emp->raise(10.0);
 write("New salary: %.2f\n", emp->salary());  // Output: New salary: 55000.00
 ```
 
+:::tip
+Classes are the recommended way to create records in Pike 8. They provide encapsulation, type safety, validation, and methods - all the benefits of object-oriented programming while maintaining the simplicity of record-like structures.
+:::
+
+---
+
 ## Reading and Writing Hash Records to Text Files
 
 Serialize mapping data to text files using various formats. Pike provides encode_value for binary serialization and manual methods for text formats.
 
 ```pike
-// Pike 8 - Reading/writing records to files
+//-----------------------------
+// Recipe: Persist records to text files
+//-----------------------------
 #pragma strict_types
 
 constant DATA_FILE = "records.txt";
@@ -584,11 +655,11 @@ array(mapping(string:string)) read_records(string filename) {
 }
 
 // Usage
-array(mapping(string:string)) employees = ([
+array(mapping(string:string)) employees = ({
     (["name": "Alice", "id": "1001", "dept": "Engineering"]),
     (["name": "Bob", "id": "1002", "dept": "Sales"]),
     (["name": "Charlie", "id": "1003", "dept": "Marketing"])
-]);
+});
 
 write_records(employees, DATA_FILE);
 array(mapping(string:string)) loaded = read_records(DATA_FILE);
@@ -597,33 +668,22 @@ foreach (loaded; int i; mapping(string:string) emp) {
     write("Employee %d: %s (%s) - %s\n",
           i, emp["name"], emp["id"], emp["dept"]);
 }
-
-// JSON format (requires external module or manual encoding)
-void write_json(array(mapping(string:mixed)) data, string filename) {
-    Stdio.File file = Stdio.File(filename, "wct");
-
-    file->write("[\n");
-    foreach (data; int i; mapping(string:mixed) record) {
-        file->write("  {\n");
-        array(string) keys = indices(record);
-        foreach (keys; int j; string key) {
-            mixed value = record[key];
-            string value_str = stringp(value) ? sprintf("\"%s\"", value) : sprintf("%d", value);
-            file->write("    \"%s\": %s%s\n", key, value_str, j < sizeof(keys)-1 ? "," : "");
-        }
-        file->write("  }%s\n", i < sizeof(data)-1 ? "," : "");
-    }
-    file->write("]\n");
-    file->close();
-}
 ```
+
+:::warning
+For production applications, consider using JSON, XML, or Pike's native `encode_value()`/`decode_value()` functions for better data integrity and error handling than simple text formats.
+:::
+
+---
 
 ## Printing Data Structures
 
 Use Pike's built-in functions to inspect and debug data structures. sprintf with %O provides detailed output.
 
 ```pike
-// Pike 8 - Printing data structures
+//-----------------------------
+// Recipe: Pretty-print data structures
+//-----------------------------
 #pragma strict_types
 
 // Simple arrays and mappings
@@ -712,12 +772,16 @@ print_with_indices(fruits);
 // [2] "cherry"
 ```
 
+---
+
 ## Copying Data Structures
 
 Pike provides shallow copying by default. Implement deep copy recursively for nested structures.
 
 ```pike
-// Pike 8 - Copying data structures
+//-----------------------------
+// Recipe: Deep copy nested structures
+//-----------------------------
 #pragma strict_types
 
 // Shallow copy of array
@@ -782,33 +846,18 @@ complex_copy["nested"]["inner"]["data"] = "modified";
 
 write("Original data: %s\n", complex["nested"]["inner"]["data"]);      // Output: value
 write("Copy data: %s\n", complex_copy["nested"]["inner"]["data"]);    // Output: modified
-
-// Copy-on-write pattern for arrays
-class CowArray {
-    private array(mixed) _data;
-
-    void create(array(mixed) initial) {
-        _data = initial;
-    }
-
-    array(mixed) get_data() {
-        return _data;
-    }
-
-    void modify(int index, mixed value) {
-        // Copy on first modification
-        _data = _data + ({});  // Shallow copy
-        _data[index] = value;
-    }
-}
 ```
+
+---
 
 ## Storing Data Structures to Disk
 
 Use Pike's encode_value and decode_value for efficient binary serialization of data structures.
 
 ```pike
-// Pike 8 - Storing data structures with encode_value
+//-----------------------------
+// Recipe: Serialize data to disk
+//-----------------------------
 #pragma strict_types
 
 constant DATA_FILE = "datastore.dat";
@@ -910,12 +959,20 @@ class HistoryStore {
 }
 ```
 
+:::tip
+The `encode_value()` and `decode_value()` functions provide Pike's native binary serialization format. They're more efficient than text formats and preserve all Pike data types, including complex nested structures.
+:::
+
+---
+
 ## Transparently Persistent Data Structures
 
 Implement transparent persistence with automatic loading and saving. Use getter/setter functions to manage persistence.
 
 ```pike
-// Pike 8 - Transparently persistent data
+//-----------------------------
+// Recipe: Auto-persisting mapping
+//-----------------------------
 #pragma strict_types
 
 class PersistentMap {
@@ -1044,12 +1101,16 @@ class PersistentCache {
 }
 ```
 
-## Program: Binary Trees
+---
+
+## Program: Binary Search Tree
 
 Implement a binary search tree in Pike using classes and proper memory management.
 
 ```pike
-// Pike 8 - Binary Search Tree
+//-----------------------------
+// Program: Binary Search Tree with full CRUD operations
+//-----------------------------
 #pragma strict_types
 
 class TreeNode {
@@ -1193,3 +1254,12 @@ string serialized = serialize_tree(bst);
 BinarySearchTree restored = deserialize_tree(serialized);
 write("Restored inorder: %s\n", restored->inorder() * ", ");
 ```
+
+---
+
+## See Also
+
+- [Classes](/docs/advanced/classes) - Object-oriented programming in Pike
+- [Modules](/docs/advanced/modules) - Creating reusable code modules
+- [Strings](/docs/basics/strings) - Text processing and manipulation
+- [File Access](/docs/files/file-access) - Working with files and directories

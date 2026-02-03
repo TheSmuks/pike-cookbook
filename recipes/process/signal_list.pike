@@ -2,9 +2,28 @@
 #pragma strict_types
 
 //! Recipe: Listing Available Signals
+//!
 //! Demonstrates enumerating all available signals in the system
+//!
+//! @example
+//!   // Get signal number for SIGINT
+//!   int sigint_num = signum("SIGINT");
+//!   write("SIGINT is signal number: %d\n", sigint_num);
+//!
+//! @note
+//!   Not all signals are available on all platforms. Use signum() to check
+//!   if a signal exists (returns -1 if not found)
+//!
+//! @seealso
+//!   @[signum], @[signal], @[Process.kill]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     write("=== Available Signals ===\n\n");
 
     // Get list of all signals

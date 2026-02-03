@@ -7,6 +7,15 @@ module.exports = {
     },
     {
       type: 'category',
+      label: 'Documentation',
+      collapsible: true,
+      collapsed: false,
+      items: [
+        'autodoc-format',
+      ],
+    },
+    {
+      type: 'category',
       label: 'Basic Recipes',
       collapsible: true,
       collapsed: false,

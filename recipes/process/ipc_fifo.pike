@@ -2,9 +2,31 @@
 #pragma strict_types
 
 //! Recipe: Named Pipes (FIFOs) for IPC
+//!
 //! Demonstrates creating and using named pipes for inter-process communication
+//!
+//! @example
+//!   // Create a FIFO using mkfifo command
+//!   Process.create_process mkfifo = Process.create_process(({"mkfifo", "/tmp/my_pipe"}));
+//!   mkfifo->wait();
+//!
+//!   // Write to FIFO
+//!   Process.create_process writer = Process.create_process(({"echo", "data", ">", "/tmp/my_pipe"}));
+//!
+//! @note
+//!   FIFOs are filesystem-based named pipes that allow communication between
+//!   unrelated processes. Reads block until data is available
+//!
+//! @seealso
+//!   @[Stdio.File.pipe], @[Process.create_process]
 
-int main() {
+int main(int argc, array(string) argv) {
+    //! @param argc
+    //!   Number of command line arguments
+    //! @param argv
+    //!   Array of command line argument strings
+    //! @returns
+    //!   Exit code (0 for success)
     string fifo_path = "/tmp/pike_fifo_" + (string)time();
 
     write("=== Named Pipe (FIFO) Example ===\n\n");

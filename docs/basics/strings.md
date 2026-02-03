@@ -4,83 +4,99 @@ title: Strings
 sidebar_label: Strings
 ---
 
+# Strings
+
 ## Introduction
 
+Strings in Pike are sequences of characters used for text processing. Pike provides powerful string manipulation capabilities with full Unicode support.
+
+:::tip
+Pike strings are **immutable** - operations that "modify" strings actually create new strings. For efficient string building, use `String.Buffer`.
+:::
+
+### Basic String Syntax
+
 ```pike
-// Strings in Pike 8 - Modern Implementation
-// Using String.pmod with strict types and modern features
-
 //-----------------------------
-// Modern string imports for enhanced functionality
-import String;
-import Array;
-
-// Pike 8 string constants and features
-constant Buffer = __builtin.Buffer;
-constant Iterator = __builtin.string_iterator;
-constant SplitIterator = __builtin.string_split_iterator;
-
-// Basic string declarations (unchanged but documented)
-string str;                     // declare a variable of type string
-str = "\n";                    // a "newline" character
-str = "Jon \"Maddog\" Orwant";  // literal double quotes
+// String declarations and basic syntax
 //-----------------------------
 
-// Pike 8: Multiline strings with here document syntax
-str =
-#"This is a multiline string
-terminated by a double-quote like any other string";
+// Declare string variable
+string str;
 
-//-----------------------------
-// Modern Pike 8 String Operations
-//-----------------------------
+// String literals
+str = "Hello, World!";
+str = "\n";                      // Newline character
+str = "Jon \"Maddog\" Orwant";   // Escaped quotes
+str = "C:\\Users\\Documents";    // Escaped backslashes
+str = "Line 1\nLine 2\nLine 3";  // Multiple lines with \n
 
-// String length and modern utility functions
-int len = sizeof(str);                   // modern way to get length
-string trimmed = trim_whites(str);         // String.pmod trim
-string normalized = normalize_space(str); // String.pmod normalize
+// Multiline strings using #" syntax
+str = #"This is a multiline string
+that spans multiple lines
+without needing escape characters";
 
-// Unicode-aware operations
-string clean = filter_non_unicode(str);    // Filter out non-unicode chars
-
-//-----------------------------
-// Modern String Formatting
-//-----------------------------
-
-// Using modern sprintf with Pike 8 features
-string formatted = sprintf("Hello %s, you have %d messages",
-                           "Alice", 42);
-
-// Memory size formatting (Pike 8 feature)
-int bytes = 1024 * 1024 * 5;  // 5MB
-string size_str = int2size(bytes);
-// "5.0 MB"
-//-----------------------------
+// Raw strings (no escape processing)
+str = #'Raw\nString\t';
+// Contains literal: R a w \ n S t r i n g \ t
 ```
+
+### String Length and Size
+
+```pike
+//-----------------------------
+// Getting string length
+//-----------------------------
+
+string text = "Hello, World!";
+
+// Number of characters
+int char_count = sizeof(text);
+write("Characters: %d\n", char_count);  // 13
+
+// Number of bytes (important for UTF-8)
+int byte_count = String.width(text);
+write("Bytes: %d\n", byte_count);
+```
+
+---
 
 ## Accessing Substrings
 
+:::note
+Pike uses **0-based indexing** with range syntax `[start..end]` where both ends are inclusive.
+:::
+
+### Basic Substring Operations
+
 ```pike
-// Recipe 1.1: Accessing Substrings - Modern Pike 8
+//-----------------------------
+// Recipe: Extract parts of strings
 //-----------------------------
 
 string str = "This is what you have";
-string first, start, rest, last, end, piece;
-int t;
 
-// Basic substring access (Pike syntax)
-first = str[0..0];                     // "T"
-start = str[5..5+1];               // "is"
-rest  = str[13..];                  // "you have"
-last  = str[sizeof(str)-1..sizeof(str)-1];  // "e"
-end   = str[sizeof(str)-4..];        // "have"
-piece = str[sizeof(str)-8..sizeof(str)-8+2]; // "you"
+// Single character
+string first = str[0..0];      // "T"
+string last = str[-1];         // last character: "e"
 
+// Substrings
+string start = str[5..6];      // "is"
+string rest = str[13..];       // "you have" (from index 13 to end)
+string end = str[sizeof(str)-4..];    // "have" (last 4 chars)
+
+// Negative indices count from end
+string piece = str[sizeof(str)-8..sizeof(str)-8+2];  // "you"
+```
+
+### Practical Examples
+
+```pike
 //-----------------------------
-// Recipe 1.2: Extracting Multiple Parts
+// Recipe: Parse structured data
 //-----------------------------
 
-// Using sscanf for structured extraction
+// Parse "John Doe, 30"
 string name = "John Doe, 30";
 string first_name, last_name;
 int age;
@@ -89,464 +105,463 @@ if (sscanf(name, "%s %s, %d", first_name, last_name, age) == 3) {
     write("Name: %s %s, Age: %d\n", first_name, last_name, age);
 }
 
-// Using array_sscanf for complex patterns
+// Parse complex string with array_sscanf
 string data = "Header:Important:Data:12345";
 array(string) parts = array_sscanf(data, "%[^:]:%[^:]:%[^:]:%s");
-// ({ "Header", "Important", "Data", "12345" })
+// Result: ({"Header", "Important", "Data", "12345"})
+```
 
+### Splitting Strings
+
+```pike
 //-----------------------------
-// Recipe 1.3: Splitting Strings
+// Recipe: Split strings into parts
 //-----------------------------
 
-// Split at character boundaries
-array(string) fivers = str/5;
-// Split into 5-character chunks
+string text = "word1 word2 word3";
+
+// Split by whitespace
+array(string) words = text / " ";
+// Result: ({"word1", "word2", "word3"})
 
 // Split into individual characters
-array(string) chars = str/"";
+array(string) chars = text / "";
 
-// Using modern String.pmod splitting
-string text = "  word1  word2  word3  ";
-array(string) words = normalize_space(text)/" ";
-// ({ "word1", "word2", "word3" })
-//-----------------------------
+// Split into chunks of n characters
+string data = "abcdefghij";
+int n = 3;
+array(string) chunks = data / n;
+// Result: ({"abc", "def", "ghi", "j"})
+
+// Split with normalize_space for robust whitespace handling
+string messy = "  word1   word2  word3  ";
+array(string) clean = String.normalize_space(messy) / " ";
+// Result: ({"word1", "word2", "word3"})
 ```
+
+---
 
 ## Exchanging Values Without Using Temporary Variables
 
+:::tip
+Pike's destructuring assignment makes swapping values elegant.
+:::
+
 ```pike
-// Recipe 1.4: Value Exchange - Pike 8 Modern Patterns
+//-----------------------------
+// Recipe: Swap variables without temp
 //-----------------------------
 
-// Classic array swap (unchanged)
-[var1, var2] = ({ var2, var1 });
-
-// Modern Pike 8 functional approach
-void swap_vars(ref string a, ref string b) {
-    [a, b] = ({ b, a });
-}
-
-// Example usage
 string a = "alpha";
 string b = "omega";
 
-// Multiple value assignment and swap
-[a, b] = ({ b, a });
+// Swap using array destructuring
+[a, b] = ({b, a});
+write("a: %s, b: %s\n", a, b);
+// Output: a: omega, b: alpha
 
-// Array-based operations
+// Multiple variable assignment
 array(string) months = ({"January", "March", "August"});
 string alpha = months[0];
 string beta = months[1];
 string production = months[2];
 
-// Rotate array elements
-[alpha, beta, production] = ({ beta, production, alpha });
-//-----------------------------
+// Rotate values
+[alpha, beta, production] = ({beta, production, alpha});
+write("%s, %s, %s\n", alpha, beta, production);
+// Output: March, August, January
 ```
+
+---
 
 ## Converting Between ASCII Characters and Values
 
 ```pike
-// Recipe 1.5: Character/ASCII Conversion - Pike 8 Modern
+//-----------------------------
+// Recipe: Character/ASCII conversion
 //-----------------------------
 
-// Pike 8: Character to integer conversion
-int char_code = 'a';                    // ASCII value of 'a'
-int newline_code = '\n';             // ASCII value of newline
+// Character to ASCII code
+int char_code = 'a';           // 97
+int newline_code = '\n';       // 10
 
-// Integer to character conversion using String.pmod
-string char_from_code = String.int2char(char_code);
+// ASCII code to character
+string char_from_code = sprintf("%c", 97);  // "a"
 
-// Alternative using sprintf (compatible)
-string char_from_sprintf = sprintf("%c", char_code);
-
-// Demonstration
-write("Number %d is character %c\n", char_code, char_code);
-
-// Modern Pike 8: Convert entire string to ASCII array
+// Convert string to ASCII array
 string text = "sample";
 array(int) ascii_values = (array(int))text;
+// Result: ({115, 97, 109, 112, 108, 101})
 
-// Convert back to string
+// Convert ASCII array back to string
 string reconstructed = (string)ascii_values;
-
-write("Original: %s, ASCII: %s, Reconstructed: %s\n",
-               text, ascii_values*" ", reconstructed);
-
-//-----------------------------
-// Recipe 1.6: Unicode Character Handling
-//-----------------------------
-
-// Pike 8: Handle Unicode characters properly
-string unicode_str = "Héllo 世界";
-
-// Extract Unicode characters
-array(string) unicode_chars = unicode_str/"";
-
-// Filter using modern functions
-string ascii_only = filter_non_unicode(unicode_str);
-
-// String width calculation (for display)
-int display_width = String.width(unicode_str);
-//-----------------------------
+write("Original: %s, Reconstructed: %s\n", text, reconstructed);
 ```
 
-## Modern String Processing
+---
+
+## String Trimming and Cleaning
+
+:::tip
+- Use `String.trim_whites()` for basic trimming
+- Use `String.trim_all_whites()` to remove all internal whitespace
+- Use `String.normalize_space()` to normalize multiple spaces to single
+:::
 
 ```pike
-// Recipe 1.7: Advanced String Processing with Pike 8
+//-----------------------------
+// Recipe: Clean up string whitespace
 //-----------------------------
 
-// Using String.pmod functions for efficiency
-string messy = "  Hello   World!  ";
+string messy = "  Hello   World!  \t\n";
 
-// Multiple whitespace trimming options
-string trimmed_basic = trim_whites(messy);           // "Hello   World!"
-string trimmed_all = trim_all_whites(messy);        // "Hello World!"
-string normalized = normalize_space(messy);      // "Hello World!"
+// Basic trim (remove leading/trailing)
+string trimmed = String.trim_whites(messy);
+// Result: "Hello   World!"
 
+// Trim all whitespace (internal too)
+string no_spaces = String.trim_all_whites(messy);
+// Result: "HelloWorld!"
+
+// Normalize multiple spaces to single space
+string normalized = String.normalize_space(messy);
+// Result: "Hello World!"
+```
+
+---
+
+## Case Manipulation
+
+```pike
 //-----------------------------
-// Recipe 1.8: String Building and Buffer Operations
-//-----------------------------
-
-// Using Buffer for efficient string building
-Buffer buffer = Buffer();
-buffer->add("Processing: ");
-buffer->add(trimmed_basic);
-buffer->add("\nResult: ");
-
-string result = buffer->get();
-
-//-----------------------------
-// Recipe 1.9: String Iteration and Processing
-//-----------------------------
-
-// Using String Iterator for character-by-character processing
-string input = "Hello, World!";
-String.Iterator iterator = Iterator(input);
-
-string filtered = "";
-while (iterator->index() < sizeof(iterator->value())) {
-    string c = iterator->value()[iterator->index()];
-    if (c != ',' && c != '!')
-        filtered += c;
-    iterator->next();
-}
-
-//-----------------------------
-// Recipe 1.10: String Comparison and Matching
+// Recipe: Change string case
 //-----------------------------
 
-// Using modern comparison functions
-string s1 = "hello";
-string s2 = "Hello";
+string text = "Hello World 123";
 
-// Case-sensitive comparison
-int compare_result = s1 == s2;  // 0 (false)
+// Convert to uppercase
+string upper = upper_case(text);
+// Result: "HELLO WORLD 123"
+
+// Convert to lowercase
+string lower = lower_case(text);
+// Result: "hello world 123"
+
+// Capitalize first character
+string title = String.capitalize(text);
+// Result: "Hello World 123"
 
 // Case-insensitive comparison
-int case_insensitive = lower_case(s1) == lower_case(s2);  // 1 (true)
+string s1 = "hello";
+string s2 = "Hello";
+bool same = lower_case(s1) == lower_case(s2);  // true
+```
 
-// Using String.pmod functions
-int similarity = String.fuzzymatch(s1, s2);
-int distance = String.levenshtein_distance(s1, s2);
+---
 
-write("Strings: '%s' and '%s'\n", s1, s2);
-write("Similarity: %d%%, Distance: %d\n", similarity, distance);
+## String Searching
 
+```pike
 //-----------------------------
-// Recipe 1.11: Reversing Strings - Pike 8 Modern
-//-----------------------------
-
-// Character-by-character reversal using modern String.pmod
-string text = "Hello, World!";
-string reversed = String.reverse(text);
-
-// Word-by-word reversal with modern split/join
-string sentence = "The quick brown fox";
-array(string) words = sentence/" ";
-array(string) reversed_words = reverse(words);
-string reversed_sentence = reversed_words*" ";
-
-// Using Buffer for efficient reversal
-Buffer buffer = Buffer();
-foreach(reverse(text/""), string char) {
-    buffer->add(char);
-}
-
-write("Original: %s\nReversed: %s\n", text, reversed);
-
-//-----------------------------
-// Recipe 1.12: Case Manipulation - Pike 8 Unicode
+// Recipe: Find text within strings
 //-----------------------------
 
-// Unicode-aware case conversion
-string mixed_case = "Héllo 世界 123";
-
-// Modern String.pmod functions
-string upper = upper_case(mixed_case);        // "HÉLLO 世界 123"
-string lower = lower_case(mixed_case);        // "héllo 世界 123"
-string title = String.capitalize(mixed_case);    // First character uppercase
-
-// Case mapping with locale support
-string upper_locale = String.upper_case(mixed_case, "UTF-8");
-
-write("Original: %s\nUpper: %s\nLower: %s\n",
-           mixed_case, upper, lower);
-
-//-----------------------------
-// Recipe 1.13: Pattern Matching with Regex - Pike 8
-//-----------------------------
-
-// Modern regular expressions with Pike 8
-string email = "user@example.com";
-array matches = Regexp("([a-zA-Z0-9._%+-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})")->match(email);
-
-if (matches) {
-    write("Email: %s\nUsername: %s\nDomain: %s\n",
-               matches[0], matches[1], matches[2]);
-}
-
-// Using sscanf for complex patterns
-string log_entry = "2023-01-15 14:30:25 INFO: User login successful";
-string date, time, level, message;
-
-if (sscanf(log_entry, "%s %s %[^:]: %s", date, time, level, message) == 4) {
-    write("Date: %s, Time: %s, Level: %s\n", date, time, level);
-}
-
-//-----------------------------
-// Recipe 1.14: String Searching and Substitution
-//-----------------------------
-
-// Modern search and replace functions
 string text = "The quick brown fox jumps over the lazy dog";
 
-// Find and replace with modern String.pmod
-string replaced = String.replace(text, "fox", "cat");
+// Find substring (returns index or -1)
+int pos = search(text, "fox");
+write("Found 'fox' at position: %d\n", pos);  // 16
 
-// Multiple replacements with mapping
+// Check if contains (has_value)
+bool has_fox = has_value(text, "fox");  // true
+
+// Find last occurrence
+int last_space = rsearch(text, " ");
+write("Last space at: %d\n", last_space);
+
+// Find all occurrences
+array(int) positions = ({});
+int search_pos = 0;
+string needle = "o";
+while ((search_pos = search(text, needle, search_pos)) != -1) {
+    positions += ({search_pos});
+    search_pos++;
+}
+write("Found '%s' at positions: %s\n", needle, (string)positions);
+```
+
+---
+
+## String Replacement
+
+```pike
+//-----------------------------
+// Recipe: Replace text in strings
+//-----------------------------
+
+string text = "The quick brown fox jumps over the lazy dog";
+
+// Simple replacement
+string replaced = String.replace(text, "fox", "cat");
+// Result: "The quick brown cat jumps over the lazy dog"
+
+// Multiple replacements using mapping
 mapping replacements = ([
     "quick": "fast",
     "brown": "red",
     "lazy": "sleeping"
 ]);
 
-string multi_replaced = text;
-foreach(indices(replacements), string key) {
-    multi_replaced = String.replace(multi_replaced, key, replacements[key]);
+string result = text;
+foreach(indices(replacements);; string key) {
+    result = String.replace(result, key, replacements[key]);
 }
-
-// Pattern-based removal
-string cleaned = String.replace(text, Regexp("\\bthe\\b"), "");
-
-write("Original: %s\nReplaced: %s\nCleaned: %s\n",
-           text, replaced, cleaned);
-
-//-----------------------------
-// Recipe 1.15: String Splitting and Joining
-//-----------------------------
-
-// Advanced splitting with modern functions
-string csv_data = "name,age,city\nJohn,30,New York\nJane,25,London";
-array(string) lines = csv_data/"\n";
-
-array rows = ({});
-foreach(lines, string line) {
-    if (line != "")
-        rows += ({ String.split(line, ",") });
-}
-
-// Join with custom delimiters and formatting
-array(string) data = ({"Alice", "Bob", "Charlie"});
-
-string comma_separated = data*", ";
-string html_list = "<ul>" +
-                     (data/"</li>\n<li>")*"" +
-                     "</li></ul>";
-
-//-----------------------------
-// Recipe 1.16: Unicode and UTF-8 Processing
-//-----------------------------
-
-// Advanced Unicode handling with Pike 8
-string unicode_text = "Café, naïve, résumé, 北京, Москва";
-
-// Unicode normalization
-string nfc_normalized = String.normalize(unicode_text, "NFC");
-string nfd_normalized = String.normalize(unicode_text, "NFD");
-
-// Character properties and classification
-int char_count = String.length(unicode_text);
-int byte_length = sizeof(unicode_text);
-
-// Extract Unicode scripts
-array scripts = String.get_scripts(unicode_text);
-
-write("Unicode text: %s\nCharacters: %d, Bytes: %d\n",
-           unicode_text, char_count, byte_length);
-
-//-----------------------------
-// Recipe 1.17: String Validation and Sanitization
-//-----------------------------
-
-// Modern string validation and security
-string input = "  Hello! <script>alert('xss')</script>  ";
-
-// Sanitize HTML content
-string sanitized = String.html_encode(input);
-
-// Validate email format
-bool is_valid_email = Regexp("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")->match(input);
-
-// Clean and trim input
-string clean_input = normalize_space(input);
-
-//-----------------------------
-// Recipe 1.18: String Interpolation and Formatting
-//-----------------------------
-
-// Advanced string formatting in Pike 8
-mapping context = ([
-    "name": "Alice",
-    "age": 30,
-    "city": "New York",
-    "active": true
-]);
-
-// Modern sprintf with Pike 8 features
-string formatted = sprintf("Name: %s, Age: %d, City: %s, Active: %s",
-                          context->name,
-                          context->age,
-                          context->city,
-                          context->active ? "Yes" : "No");
-
-// Template-based interpolation
-string template = "Welcome @name! You are @age years old in @city.";
-string interpolated = String.template(template, context);
-
-//-----------------------------
-// Recipe 1.19: Performance Optimization with Buffers
-//-----------------------------
-
-// Efficient string building with Buffer objects
-Buffer output_buffer = Buffer();
-
-// Pre-allocate for better performance
-output_buffer->set_preallocate(1024);
-
-// Efficient string building
-for (int i = 0; i < 1000; i++) {
-    output_buffer->add(sprintf("Line %d: %s\n", i, String.random_string(10)));
-}
-
-string large_result = output_buffer->get();
-//-----------------------------
+write("Multiple replacements: %s\n", result);
 ```
 
-## Modern String Iteration with Pike 8
+---
+
+## Pattern Matching with Regex
 
 ```pike
-// Using String Iterator for advanced processing
-string text = "Advanced Pike 8 String Processing";
-String.Iterator iterator = String.Iterator(text);
+//-----------------------------
+// Recipe: Use regular expressions
+//-----------------------------
 
-array chars = ({});
-while (iterator->index() < sizeof(iterator->value())) {
-    chars += ({ iterator->value()[iterator->index()] });
-    iterator->next();
+// Email validation
+string email = "user@example.com";
+object email_re = Regexp.PCRE.Simple("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+
+if (email_re->match(email)) {
+    write("Valid email\n");
 }
 
-// Split Iterator for tokenization
-String.SplitIterator split_iter = String.SplitIterator(text, " ");
-array tokens = ({});
+// Extract with capture groups
+string log_entry = "2023-01-15 14:30:25 INFO: User login successful";
+string date, time, level, message;
 
-while (split_iter->index() < sizeof(split_iter->value())) {
-    tokens += ({ split_iter->value()[split_iter->index()] });
-    split_iter->next();
+if (sscanf(log_entry, "%s %s %[^:]: %s", date, time, level, message) == 4) {
+    write("Date: %s, Level: %s\n", date, level);
 }
 
-//-----------------------------
-// Memory Management and Performance
-//-----------------------------
-
-// String memory optimization in Pike 8
-string large_string = String.repeat("x", 1000000);
-
-// Copy-on-write optimization
-string copy = large_string;
-copy[0] = "y";  // Efficient copy-on-write kick in
-
-// String chunking for memory efficiency
-array chunks = chunk_string(large_string, 4096);
-
-//-----------------------------
-// Error Handling and Validation
-//-----------------------------
-
-// Safe string operations with Pike 8
-mixed safe_index(mixed str, int index) {
-    if (objectp(str) && str->is_string() &&
-        index >= 0 && index < sizeof(str)) {
-        return str[index];
-    }
-    return null;
+// URL extraction
+string html = '<a href="https://example.com">Link</a>';
+object url_re = Regexp.PCRE.Simple("href=\"([^\"]+)\"");
+array(string) urls = url_re->match(html);
+if (urls) {
+    write("URL: %s\n", urls[1]);  // Capture group 1
 }
-
-// String validation with type checking
-bool is_valid_string(mixed value) {
-    return stringp(value) && sizeof(value) > 0;
-}
-
-//-----------------------------
-// Modern String Comparison and Sorting
-//-----------------------------
-
-// Advanced string comparison with Pike 8
-array(string) strings = ({"apple", "Banana", "cherry", "Date", "elderberry"});
-
-// Case-insensitive sorting
-array sorted_case_insensitive = sort(strings);
-
-// Unicode-aware sorting
-array sorted_unicode = String.sort_unicode(strings);
-
-// Custom comparison function
-array sorted_custom = sort(strings,
-    lambda(string a, string b) {
-        return sizeof(a) < sizeof(b);
-    });
-
-write("Original: %s\nSorted (case-insensitive): %s\n",
-           strings*", ", sorted_case_insensitive*", ");
-//-----------------------------
-// String Utilities and Helper Functions
-//-----------------------------
-
-// Common string utility functions
-string utils_demo(string input) {
-    string result = "";
-
-    // Chaining modern functions
-    result = String.trim(input)
-             ->upper_case()
-             ->replace(" ", "_")
-             ->truncate(50);
-
-    return result;
-}
-
-//-----------------------------
-// Conclusion: Modern Pike 8 String Processing
-//-----------------------------
-
-// Summary of modern string features in Pike 8:
-// • String.pmod with comprehensive utilities
-// • Full Unicode and UTF-8 support
-// • Efficient Buffer operations
-// • Modern regex patterns
-// • Safe string operations with type checking
-// • Performance optimizations
-// • Strict type compliance with #pragma strict_types
-//-----------------------------
 ```
+
+:::tip
+Use `sscanf()` for simple patterns and `Regexp.PCRE.Simple()` for complex regex matching.
+:::
+
+---
+
+## String Building with Buffers
+
+:::warning
+- **DON'T**: Build large strings with repeated `+=` in a loop (slow)
+- **DO**: Use `String.Buffer` for efficient string building
+:::
+
+```pike
+//-----------------------------
+// Recipe: Efficient string building
+//-----------------------------
+
+// WRONG: Inefficient
+string result = "";
+for (int i = 0; i < 1000; i++) {
+    result += sprintf("Line %d\n", i);  // Creates new string each time!
+}
+
+// RIGHT: Efficient with Buffer
+String.Buffer buffer = String.Buffer();
+
+// Pre-allocate for better performance (optional)
+buffer->set_preallocate(1024);
+
+for (int i = 0; i < 1000; i++) {
+    buffer->add(sprintf("Line %d\n", i));
+}
+
+string result = buffer->get();  // Get final string
+
+// Add different types
+buffer = String.Buffer();
+buffer->add("Numbers: ");
+buffer->add(42);      // Automatically converted to string
+buffer->add(", ");
+buffer->add(3.14);
+write("%s\n", buffer->get());
+// Output: "Numbers: 42, 3.14"
+```
+
+---
+
+## String Formatting
+
+```pike
+//-----------------------------
+// Recipe: Format strings with sprintf
+//-----------------------------
+
+string name = "Alice";
+int age = 30;
+float pi = 3.14159;
+
+// Basic formatting
+string formatted = sprintf("Name: %s, Age: %d", name, age);
+
+// Float precision
+string pi_str = sprintf("Pi: %.2f", pi);  // "Pi: 3.14"
+
+// Field width
+string padded = sprintf("Name: %-10s | Age: %3d", name, age);
+// Output: "Name: Alice      | Age:  30"
+
+// Multiple values from array
+array(string) fruits = ({"apple", "banana", "cherry"});
+string joined = sprintf("%{%s, %}", fruits);
+// Output: "apple, banana, cherry"
+```
+
+---
+
+## Splitting and Joining
+
+```pike
+//-----------------------------
+// Recipe: Split and join strings
+//-----------------------------
+
+// CSV parsing
+string csv = "name,age,city\nJohn,30,New York\nJane,25,London";
+array(string) lines = csv / "\n";
+
+foreach(lines;; string line) {
+    if (!sizeof(line)) continue;
+    array(string) fields = String.split(line, ",");
+    write("%s is %d years old\n", fields[0], (int)fields[1]);
+}
+
+// Join with custom separator
+array(string) parts = ({"2024", "01", "15"});
+string date = parts * "-";  // "2024-01-15"
+
+// HTML list generation
+array(string) items = ({"Apple", "Banana", "Cherry"});
+string html = "<ul>\n" +
+               ({"  <li>", items[*], "</li>\n"}) * "" +
+               "</ul>";
+```
+
+---
+
+## Reversing Strings
+
+```pike
+//-----------------------------
+// Recipe: Reverse strings
+//-----------------------------
+
+string text = "Hello, World!";
+
+// Character-level reversal
+string reversed = String.reverse(text);
+// Result: "!dlroW ,olleH"
+
+// Word-level reversal
+array(string) words = text / " ";
+array(string) reversed_words = reverse(words);
+string word_reversed = reversed_words * " ";
+// Result: "World! Hello,"
+```
+
+---
+
+## Practical Examples
+
+### Validate Input
+
+```pike
+//-----------------------------
+// Recipe: Validate user input
+//-----------------------------
+
+// Email validation
+bool is_valid_email(string email) {
+    object re = Regexp.PCRE.Simple("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+    return re->match(email);
+}
+
+// Sanitize input (remove HTML)
+string sanitize_html(string text) {
+    text = replace(text, "&", "&amp;");
+    text = replace(text, "<", "&lt;");
+    text = replace(text, ">", "&gt;");
+    return text;
+}
+```
+
+### Generate Slugs
+
+```pike
+//-----------------------------
+// Recipe: Create URL-friendly slugs
+//-----------------------------
+
+string make_slug(string text) {
+    // Convert to lowercase
+    string slug = lower_case(text);
+
+    // Replace non-alphanumeric with hyphens
+    slug = Regexp.PCRE.Simple("[^a-z0-9]+")->replace(slug, "-");
+
+    // Remove leading/trailing hyphens
+    slug = String.trim_whites(slug);
+
+    // Limit length
+    if (sizeof(slug) > 50) {
+        slug = slug[0..49];
+    }
+
+    return slug;
+}
+
+write("%s\n", make_slug("Hello World!"));
+// Output: "hello-world"
+```
+
+### Text Statistics
+
+```pike
+//-----------------------------
+// Recipe: Analyze text
+//-----------------------------
+
+mapping analyze_text(string text) {
+    array(string) words = String.normalize_space(text) / " ";
+    array(string) sentences = text / "." - ({""});
+    array(string) lines = text / "\n";
+
+    return ([
+        "word_count": sizeof(words),
+        "sentence_count": sizeof(sentences),
+        "line_count": sizeof(lines),
+        "char_count": sizeof(text),
+        "avg_word_length": sizeof(text) / sizeof(words)
+    ]);
+}
+```
+
+---
+
+## See Also
+
+- [Arrays](/docs/basics/arrays) - Working with lists
+- [Pattern Matching](/docs/basics/pattern-matching) - Advanced regex patterns
+- [File Access](/docs/files/file-access) - Reading/writing text files
+- [Web Automation](/docs/network/web-automation) - Processing HTML and HTTP
