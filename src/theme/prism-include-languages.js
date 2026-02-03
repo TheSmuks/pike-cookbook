@@ -41,7 +41,7 @@ export default function prismIncludeLanguages(PrismObject) {
       },
       {
         // Generic // comments EXCLUDING //! (which must come first)
-        pattern: /\/\/(?!).*$/,
+        pattern: /\/\/(?!\!).*$/,
         greedy: true
       },
       {
