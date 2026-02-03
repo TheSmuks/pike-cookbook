@@ -4,8 +4,6 @@
 const config = {
   title: 'Pike Cookbook',
   onBrokenLinks: 'ignore',
-  onBrokenMarkdownLinks: 'ignore',
-  tagline: 'Complete Pike 8.0 Cookbook',
   tagline: 'Complete Pike 8.0 Cookbook',
   favicon: 'img/favicon.ico',
 
@@ -15,7 +13,7 @@ const config = {
   baseUrl: '/pike-cookbook/',
 
   // GitHub Pages deployment configuration
-  organizationName: 'smuks',
+  organizationName: 'TheSmuks',
   projectName: 'pike-cookbook',
   deploymentBranch: 'gh-pages',
 
