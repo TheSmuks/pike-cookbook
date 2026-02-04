@@ -334,8 +334,8 @@ blockquote {
   transition: all 0.2s ease-in-out;
 }
 
-/* Search dropdown wrapper - transform to modal overlay */
-.searchBar_RVTs {
+/* Search dropdown wrapper - transform to modal overlay when dropdown is visible */
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -435,7 +435,7 @@ blockquote {
 }
 
 /* Search input when modal is open - large, square, centered */
-.searchBar_RVTs .navbar__search-input {
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .navbar__search-input {
   position: relative !important; /* Changed from absolute */
   top: 0 !important;
   left: 0 !important;
@@ -453,7 +453,7 @@ blockquote {
 }
 
 /* Wrapper for the search input to handle the clear button positioning */
-.searchBar_RVTs .search-input-wrapper {
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-input-wrapper {
   position: relative !important;
   width: 660px !important;
   max-width: 95vw !important;
@@ -462,9 +462,9 @@ blockquote {
 }
 
 /* Close button (X) - positioned precisely inside the search bar */
-.searchBar_RVTs .searchClearButton_qk4g,
-.searchBar_RVTs .search-modal-close-btn,
-.searchBar_RVTs button:not(.navbar__search-input) {
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .searchClearButton_qk4g,
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn,
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) button:not(.navbar__search-input) {
   position: absolute !important;
   top: 50% !important;
   right: 14px !important;
@@ -486,9 +486,9 @@ blockquote {
   z-index: 1002 !important;
 }
 
-.searchBar_RVTs .searchClearButton_qk4g:hover,
-.searchBar_RVTs .search-modal-close-btn:hover,
-.searchBar_RVTs button:not(.navbar__search-input):hover {
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .searchClearButton_qk4g:hover,
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn:hover,
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) button:not(.navbar__search-input):hover {
   background: var(--ifm-color-emphasis-200) !important;
   color: var(--ifm-color-emphasis-900) !important;
   transform: translateY(-50%) scale(1.05) !important;
@@ -512,7 +512,7 @@ blockquote {
 }
 
 /* Dark mode adjustments */
-[data-theme='dark'] .searchBar_RVTs {
+[data-theme='dark'] .searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) {
   background: rgba(20, 20, 20, 0.85) !important;
 }
 
@@ -530,6 +530,11 @@ blockquote {
   background-color: rgba(53, 120, 229, 0.2) !important;
   color: #93c5fd !important;
   border-color: rgba(53, 120, 229, 0.4) !important;
+}
+
+/* Hide search modal - display none removes it completely */
+.searchBar_RVTs.search-modal-hidden {
+  display: none !important;
 }
 
 /* Responsive adjustments */
