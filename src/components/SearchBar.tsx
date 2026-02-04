@@ -31,7 +31,9 @@ export function SearchBar({
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const debouncedSearchRef = useRef<NodeJS.Timeout>();
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
+  const debouncedSearchRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const isClosingRef = useRef(false);
 
   // Load search history from localStorage
   useEffect(() => {
@@ -66,24 +68,34 @@ export function SearchBar({
     [maxHistoryItems]
   );
 
-  // Handle keyboard shortcut (Ctrl/Cmd + F) and Escape
+  // Handle keyboard shortcut (Ctrl/Cmd + K) and Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
         e.preventDefault();
-        inputRef.current?.focus();
+        e.stopPropagation();
+        isClosingRef.current = false;
         setShowHistory(true);
+        // Focus input after state update
+        setTimeout(() => inputRef.current?.focus(), 0);
       }
 
       if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        isClosingRef.current = true;
         setShowHistory(false);
         setFocusedIndex(-1);
         inputRef.current?.blur();
+        // Reset the closing flag after a short delay
+        setTimeout(() => {
+          isClosingRef.current = false;
+        }, 100);
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown, { capture: true });
+    return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
   }, []);
 
   // Auto-focus on mount if requested
@@ -105,8 +117,8 @@ export function SearchBar({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside, { capture: true });
+    return () => document.removeEventListener('mousedown', handleClickOutside, { capture: true });
   }, []);
 
   // Debounced search handler
@@ -133,11 +145,16 @@ export function SearchBar({
   const handleClear = useCallback(() => {
     setQuery('');
     setMatchCount(0);
+    setShowHistory(false);
     if (onSearch) {
       onSearch('');
     }
-    inputRef.current?.focus();
   }, [onSearch]);
+
+  const handleCloseModal = useCallback(() => {
+    setShowHistory(false);
+    setFocusedIndex(-1);
+  }, []);
 
   const handleHistoryClick = useCallback(
     (item: string) => {
@@ -223,46 +240,75 @@ export function SearchBar({
   );
 
   return (
-    <div className={clsx(styles.searchContainer, className)} ref={containerRef}>
-      <div className={styles.searchWrapper}>
-        <svg
-          className={styles.searchIcon}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-          focusable="false"
+    <>
+      <div
+        className={clsx(styles.searchContainer, className)}
+        ref={containerRef}
+        role={showHistory ? "dialog" : undefined}
+        aria-modal={showHistory ? "true" : undefined}
+        aria-label="Search documentation"
+      >
+        <div
+          className={styles.searchWrapper}
+          ref={searchWrapperRef}
+          onClick={() => {
+            if (!showHistory) {
+              setShowHistory(true);
+              setTimeout(() => inputRef.current?.focus(), 0);
+            }
+          }}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          <svg
+            className={styles.searchIcon}
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            ref={inputRef}
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onFocus={(e) => {
+              // Only focus, don't open modal automatically
+              e.target.focus();
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!showHistory && !isClosingRef.current) {
+                setShowHistory(true);
+              }
+            }}
+            placeholder={placeholder}
+            className={styles.searchInput}
+            aria-label="Search documentation"
+            aria-autocomplete="list"
+            aria-controls="search-history-list"
+            aria-expanded={showHistory && filteredHistory.length > 0}
+            role="combobox"
           />
-        </svg>
-        <input
-          ref={inputRef}
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => setShowHistory(true)}
-          placeholder={placeholder}
-          className={styles.searchInput}
-          aria-label="Search documentation"
-          aria-autocomplete="list"
-          aria-controls="search-history-list"
-          aria-expanded={showHistory && filteredHistory.length > 0}
-          role="combobox"
-        />
-        {query && (
-          <>
+          {query && (
             <span className={styles.matchCount} aria-live="polite">
               {matchCount} {matchCount === 1 ? 'match' : 'matches'}
             </span>
+          )}
+          {query ? (
             <button
-              onClick={handleClear}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClear();
+              }}
               className={styles.clearButton}
               aria-label="Clear search"
               type="button"
@@ -283,65 +329,103 @@ export function SearchBar({
                 />
               </svg>
             </button>
-          </>
-        )}
-      </div>
-
-      {showHistory && filteredHistory.length > 0 && (
-        <ul
-          id="search-history-list"
-          className={styles.historyDropdown}
-          role="listbox"
-        >
-          {filteredHistory.map((item, index) => (
-            <li
-              key={item}
-              className={clsx(
-                styles.historyItem,
-                index === focusedIndex && styles.historyItemFocused
-              )}
-              onClick={() => handleHistoryClick(item)}
-              onKeyDown={(e) => handleHistoryKeyDown(e, item)}
-              role="option"
-              aria-selected={index === focusedIndex}
-              tabIndex={0}
+          ) : showHistory ? (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCloseModal();
+              }}
+              className={styles.clearButton}
+              aria-label="Close search"
+              type="button"
             >
               <svg
-                className={styles.historyIcon}
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
                 aria-hidden="true"
+                focusable="false"
               >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M6 18L18 6M6 6l12 12"
                 />
               </svg>
-              <span className={styles.historyText}>{item}</span>
-            </li>
-          ))}
-          {history.length > 0 && (
-            <li className={styles.historyFooter}>
-              <button
-                onClick={clearHistory}
-                className={styles.clearHistoryButton}
-                type="button"
-              >
-                Clear all history
-              </button>
-            </li>
-          )}
-        </ul>
-      )}
+            </button>
+          ) : null}
+        </div>
 
-      <div className={styles.keyboardHint} aria-hidden="true">
-        Press <kbd>Ctrl</kbd> + <kbd>F</kbd> to focus
+        {showHistory && filteredHistory.length > 0 && (
+          <ul
+            id="search-history-list"
+            className={styles.historyDropdown}
+            role="listbox"
+          >
+            {filteredHistory.map((item, index) => (
+              <li
+                key={item}
+                className={clsx(
+                  styles.historyItem,
+                  index === focusedIndex && styles.historyItemFocused
+                )}
+                onClick={() => handleHistoryClick(item)}
+                onKeyDown={(e) => handleHistoryKeyDown(e, item)}
+                role="option"
+                aria-selected={index === focusedIndex}
+                tabIndex={0}
+              >
+                <svg
+                  className={styles.historyIcon}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span className={styles.historyText}>{item}</span>
+              </li>
+            ))}
+            {history.length > 0 && (
+              <li className={styles.historyFooter}>
+                <button
+                  onClick={clearHistory}
+                  className={styles.clearHistoryButton}
+                  type="button"
+                >
+                  Clear all history
+                </button>
+              </li>
+            )}
+          </ul>
+        )}
+
+        <div className={styles.keyboardHint} aria-hidden="true">
+          Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to focus
+        </div>
       </div>
-    </div>
+
+      {/* Backdrop overlay - rendered outside containerRef */}
+      {showHistory && (
+        <div
+          className={styles.backdropOverlay}
+          aria-hidden="true"
+          onClick={() => {
+            setShowHistory(false);
+            setFocusedIndex(-1);
+          }}
+        />
+      )}
+    </>
   );
 }
 
