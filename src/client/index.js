@@ -58,6 +58,20 @@ if (typeof document !== 'undefined') {
 
   // Also run after a short delay to catch dynamically rendered content
   setTimeout(fixAutodocHighlighting, 500);
+
+  // Watch for theme changes and reapply autodoc highlighting
+  const themeObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'data-theme') {
+        fixAutodocHighlighting();
+      }
+    });
+  });
+
+  themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-theme']
+  });
 }
 
 /**
