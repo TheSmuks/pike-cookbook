@@ -26,6 +26,19 @@ function fixAutodocHighlighting() {
     tag.style.setProperty('font-weight', '700', 'important');
     tag.style.setProperty('font-style', 'normal', 'important');
   });
+
+  // Find all autodoc-inline tokens
+  const autodocInlines = document.querySelectorAll('.token.autodoc-inline');
+
+  autodocInlines.forEach((inline) => {
+    // Check if dark mode is active
+    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+
+    // Override inline styles using setProperty with 'important' flag
+    inline.style.setProperty('color', isDarkMode ? '#79c0ff' : '#0550ae', 'important');
+    inline.style.setProperty('font-weight', '600', 'important');
+    inline.style.setProperty('font-style', 'normal', 'important');
+  });
 }
 
 // Run immediately for initial page load
