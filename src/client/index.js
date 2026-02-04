@@ -34,136 +34,280 @@ if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
       fixAutodocHighlighting();
-      initSearchCloseButton();
+      initSearchModal();
     });
   } else {
     // Small delay to ensure Prism has finished tokenizing
     setTimeout(fixAutodocHighlighting, 100);
-    // Initialize search close button
-    setTimeout(initSearchCloseButton, 200);
+    // Initialize search modal
+    setTimeout(initSearchModal, 200);
   }
 
   // Also run after a short delay to catch dynamically rendered content
   setTimeout(fixAutodocHighlighting, 500);
 }
 
-// Search close button functionality
-function initSearchCloseButton() {
-  // Function to inject close button and wrapper
+/**
+ * Search Modal Implementation
+ *
+ * Features:
+ * 1. Opens on click or Ctrl+K (not hover)
+ * 2. Close button (X) inside the input
+ * 3. Closes on backdrop click
+ * 4. Closes on Escape key
+ * 5. Closes on click outside suggestions
+ * 6. Autofocuses input when opened
+ */
+function initSearchModal() {
+  let handlersSetup = false;
+  let containerObserver = null;
+  let dropdownObserver = null;
+
+  // Track intentional vs accidental interactions
+  let mouseDownOnSearch = false;
+  let lastExternalInteraction = Date.now();
+  const GRACE_PERIOD = 300; // ms
+
+  // Close button element reference
+  let closeBtn = null;
+
+  // Check if element is within search container
+  function isSearchElement(element) {
+    if (!element) return false;
+    const searchContainer = element.closest('.navbar__search, .searchBar_RVTs');
+    return searchContainer !== null;
+  }
+
+  // Check if we're in the grace period after an external click
+  function inGracePeriod() {
+    return Date.now() - lastExternalInteraction < GRACE_PERIOD;
+  }
+
+  // Check if dropdown is open
+  function isDropdownOpen() {
+    const dropdown = document.querySelector('.dropdownMenu_qbY6');
+    return dropdown && dropdown.style.display !== 'none';
+  }
+
+  // Close the search modal
+  function closeModal() {
+    const searchInput = document.querySelector('.navbar__search-input');
+    searchInput?.blur();
+  }
+
+  // Inject close button into the search input container
   function injectCloseButton() {
-    const modal = document.querySelector('.searchBar_RVTs');
-    if (!modal) return;
-
-    // Find the search input
-    const searchInput = modal.querySelector('.navbar__search-input');
-    if (!searchInput) return;
-
-    // Check if wrapper already exists, if not create it
-    let wrapper = modal.querySelector('.search-input-wrapper');
-    if (!wrapper) {
-      wrapper = document.createElement('div');
-      wrapper.className = 'search-input-wrapper';
-
-      // Insert wrapper before input, then move input into wrapper
-      searchInput.parentNode.insertBefore(wrapper, searchInput);
-      wrapper.appendChild(searchInput);
+    // Check if button already exists
+    if (document.querySelector('.search-modal-close-btn')) {
+      return true;
     }
 
-    // Check if close button already exists in wrapper
-    if (wrapper.querySelector('.search-modal-close-btn')) return;
+    const searchContainer = document.querySelector('.searchBar_RVTs');
+    if (!searchContainer) return false;
+
+    // Make sure container has position relative for absolute positioning
+    const currentPos = window.getComputedStyle(searchContainer).position;
+    if (currentPos !== 'relative' && currentPos !== 'absolute') {
+      searchContainer.style.position = 'relative';
+    }
 
     // Create close button
-    const closeBtn = document.createElement('button');
+    closeBtn = document.createElement('button');
     closeBtn.className = 'search-modal-close-btn';
-    closeBtn.setAttribute('aria-label', 'Close search');
     closeBtn.innerHTML = '×';
+    closeBtn.setAttribute('aria-label', 'Close search');
     closeBtn.setAttribute('type', 'button');
+    closeBtn.style.cssText = `
+      display: none;
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      margin: 0;
+      background: var(--ifm-color-emphasis-100);
+      border: none;
+      border-radius: 8px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ifm-color-emphasis-700);
+      font-size: 20px;
+      line-height: 1;
+      z-index: 1002;
+      transition: all 0.2s ease;
+      padding: 0;
+    `;
 
-    // Helper to close modal
-    const closeModal = () => {
-      searchInput.blur();
-      searchInput.value = '';
-      searchInput.setAttribute('aria-expanded', 'false');
-      modal.style.display = 'none';
-
-      // Small delay to allow blur to propagate
-      setTimeout(() => {
-        const body = document.querySelector('body');
-        if (body) body.classList.remove('search-modal-open');
-      }, 10);
-    };
-
-    // Add click handler to close button
-    closeBtn.addEventListener('click', function(e) {
+    // Click handler
+    closeBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       closeModal();
     });
 
-    // Close on backdrop click
-    modal.addEventListener('click', function(e) {
-      // Only close if the click was exactly on the modal backdrop, not its children
-      if (e.target === modal) {
-        closeModal();
+    // Append to search container
+    searchContainer.appendChild(closeBtn);
+    return true;
+  }
+
+  // Show/hide close button based on modal state
+  function updateCloseButtonVisibility() {
+    // Try to inject if not exists
+    if (!closeBtn) {
+      if (!injectCloseButton()) return;
+    }
+
+    if (isDropdownOpen()) {
+      closeBtn.style.display = 'flex';
+    } else {
+      closeBtn.style.display = 'none';
+    }
+  }
+
+  // Autofocus search input with double RAF for timing
+  function autofocusInput() {
+    const searchInput = document.querySelector('.navbar__search-input');
+    if (!searchInput) return;
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        searchInput.focus();
+      });
+    });
+  }
+
+  // Monitor dropdown visibility for close button and autofocus
+  function observeDropdown() {
+    if (dropdownObserver) return;
+
+    const dropdown = document.querySelector('.dropdownMenu_qbY6');
+    if (!dropdown) return;
+
+    // Use MutationObserver to detect style changes
+    dropdownObserver = new MutationObserver(() => {
+      updateCloseButtonVisibility();
+
+      // Autofocus when modal opens
+      if (isDropdownOpen()) {
+        autofocusInput();
       }
     });
+
+    dropdownObserver.observe(dropdown, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+  }
+
+  // Wait for search container to be created by the plugin
+  function waitForSearchContainer() {
+    if (containerObserver) return;
+
+    containerObserver = new MutationObserver((mutations) => {
+      // Check if search container was added
+      if (document.querySelector('.searchBar_RVTs')) {
+        // Container exists, inject close button
+        injectCloseButton();
+        observeDropdown();
+      }
+    });
+
+    // Observe the navbar for changes
+    const navbar = document.querySelector('.navbar__search');
+    if (navbar) {
+      containerObserver.observe(navbar, {
+        childList: true,
+        subtree: true
+      });
+    }
+  }
+
+  // Function to set up event handlers
+  function setupHandlers() {
+    if (handlersSetup) return;
+    handlersSetup = true;
+
+    // Try to inject close button immediately
+    injectCloseButton();
+
+    // Start observing for search container creation
+    waitForSearchContainer();
+
+    // Start observing dropdown for visibility changes
+    observeDropdown();
+
+    // Track mousedown to detect intentional search interactions
+    document.addEventListener('mousedown', (e) => {
+      if (isSearchElement(e.target)) {
+        // User intentionally clicked on search
+        mouseDownOnSearch = true;
+        setTimeout(() => { mouseDownOnSearch = false; }, 50);
+      } else {
+        // User clicked elsewhere - start grace period
+        lastExternalInteraction = Date.now();
+        mouseDownOnSearch = false;
+      }
+    }, { capture: true, passive: true });
+
+    // Prevent focus-based opening when in grace period (accidental hover)
+    document.addEventListener('focusin', (e) => {
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (e.target === searchInput && inGracePeriod() && !mouseDownOnSearch) {
+        // This focus is accidental - prevent modal from opening
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        searchInput.blur();
+      }
+    }, { capture: true });
 
     // Close on Escape key
-    const handleEsc = (e) => {
-      if (e.key === 'Escape' && modal.style.display !== 'none') {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (isDropdownOpen()) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeModal();
+        }
+      }
+    }, { capture: true });
+
+    // Close on backdrop click (click outside search container)
+    document.addEventListener('click', (e) => {
+      const searchContainer = document.querySelector('.navbar__search, .searchBar_RVTs');
+
+      if (isDropdownOpen() && !searchContainer?.contains(e.target)) {
         closeModal();
       }
-    };
-    document.addEventListener('keydown', handleEsc);
+    }, { capture: true });
 
-    // Append button to wrapper so it's positioned relative to the input
-    wrapper.appendChild(closeBtn);
-  }
-
-  // Function to observe search modal opening
-  function observeSearchModal() {
-    // Initial check
-    const modal = document.querySelector('.searchBar_RVTs');
-    if (modal && modal.style.display !== 'none') {
-      injectCloseButton();
-    }
-
-    // Observe changes to the search input state
-    const searchInput = document.querySelector('.navbar__search-input');
-    if (searchInput) {
-      const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'aria-expanded') {
-            const isExpanded = searchInput.getAttribute('aria-expanded') === 'true';
-            if (isExpanded) {
-              const modal = document.querySelector('.searchBar_RVTs');
-              if (modal) {
-                modal.style.display = '';
-                setTimeout(injectCloseButton, 50);
-              }
-            }
-          }
-        });
-      });
-      observer.observe(searchInput, { attributes: true });
-    }
-
-    // Also observe the body for when the search modal is added/removed from DOM
-    const bodyObserver = new MutationObserver(function(mutations) {
-      mutations.forEach(function(mutation) {
-        if (mutation.addedNodes.length) {
-          const hasModal = Array.from(mutation.addedNodes).some(node =>
-            node.classList && node.classList.contains('searchBar_RVTs')
-          );
-          if (hasModal) {
-            setTimeout(injectCloseButton, 50);
-          }
+    // Handle Ctrl+K shortcut
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        const searchInput = document.querySelector('.navbar__search-input');
+        if (searchInput) {
+          searchInput.focus();
         }
-      });
-    });
+      }
+    }, { capture: true });
 
-    bodyObserver.observe(document.body, { childList: true, subtree: false });
+    // Handle click on search input to open modal
+    document.addEventListener('click', (e) => {
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (e.target === searchInput && !isDropdownOpen()) {
+        // Input was clicked - let plugin handle opening
+        // The observer will handle autofocus after dropdown opens
+      }
+    }, { capture: true });
   }
 
-  observeSearchModal();
+  // Set up handlers immediately
+  setupHandlers();
+
+  // Re-run setup after a delay in case DOM isn't ready
+  setTimeout(setupHandlers, 500);
 }
