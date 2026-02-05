@@ -160,7 +160,7 @@ function highlightInlineAutodocTags() {
  * Search Modal Implementation
  * Handles modal behavior for @easyops-cn/docusaurus-search-local
  */
-function initSearchModal() {
+export function initSearchModal() {
   if (typeof document === 'undefined') return;
 
   let mouseDownOnSearch = false;
