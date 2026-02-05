@@ -4,7 +4,7 @@
 
 class XPathEngine
 {
-    static Parser.XML.Tree.Node root;
+    protected Parser.XML.Tree.Node root;
 
     void create(Parser.XML.Tree.Node r)
     {
@@ -35,7 +35,7 @@ class XPathEngine
     }
 
     // Evaluate absolute path
-    static array(Parser.XML.Tree.Node) evaluate_absolute(string path)
+    protected array(Parser.XML.Tree.Node) evaluate_absolute(string path)
     {
         array(string) parts = path / "/";
         parts -= ({""});  // Remove empty strings
@@ -96,7 +96,7 @@ class XPathEngine
     }
 
     // Find all elements by tag name recursively
-    static array(Parser.XML.Tree.Node) find_all_by_tag(string tag)
+    protected array(Parser.XML.Tree.Node) find_all_by_tag(string tag)
     {
         array(Parser.XML.Tree.Node) results = ({});
 
@@ -119,20 +119,20 @@ class XPathEngine
     }
 
     // Find by tag name (direct children only)
-    static array(Parser.XML.Tree.Node) find_by_tag(Parser.XML.Tree.Node node, string tag)
+    protected array(Parser.XML.Tree.Node) find_by_tag(Parser.XML.Tree.Node node, string tag)
     {
         return node->get_elements(tag);
     }
 
     // Get parent of element
-    static Parser.XML.Tree.Node get_parent(Parser.XML.Tree.Node node)
+    protected Parser.XML.Tree.Node get_parent(Parser.XML.Tree.Node node)
     {
         // Would need to track parent during traversal
         return 0;
     }
 
     // Get siblings
-    static array(Parser.XML.Tree.Node) get_siblings(Parser.XML.Tree.Node node)
+    protected array(Parser.XML.Tree.Node) get_siblings(Parser.XML.Tree.Node node)
     {
         return ({});
     }

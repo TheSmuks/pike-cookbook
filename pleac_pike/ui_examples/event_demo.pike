@@ -2,163 +2,58 @@
 #pragma strict_types
 // Recipe: Event-Driven Programming with Pike
 
-// Event-driven architecture using Pike's backend
-class EventLoop {
-    mapping handlers = ([]);
-    int running = 0;
-
-    // Add a timer event
-    int add_timer(float delay, function callback) {
-        return Pike.Backend()->call_out(callback, delay);
-    }
-
-    // Remove timer
-    void remove_timer(int id) {
-        Pike.Backend()->remove_call_out(id);
-    }
-
-    // Monitor file descriptor for events
-    void add_io(Stdio.File file, function callback, int|void events) {
-        int ev = events || Pike.POLLIN;
-        file->set_callback(callback);
-        file->set_nonblocking(1, 0, ev);
-    }
-
-    // Run the event loop
-    void run() {
-        running = 1;
-        while (running) {
-            Pike.Backend()->wait(1.0);  // Wait up to 1 second
-        }
-    }
-
-    // Stop the event loop
-    void stop() {
-        running = 0;
-    }
-}
-
-// Simple event-driven application
-class ChatClient {
-    inherit EventLoop;
-
-    Stdio.File socket;
-    string buffer = "";
-
-    void create(string host, int port) {
-        // Connect to server
-        socket = Stdio.File();
-        if (!socket->connect(host, port)) {
-            write("Failed to connect to %s:%d\n", host, port);
-            return;
-        }
-
-        // Set up I/O callback
-        add_io(socket, receive_data);
-
-        // Add keepalive timer
-        add_timer(30.0, keepalive);
-
-        write("Connected to %s:%d\n", host, port);
-    }
-
-    void receive_data(mixed id, string data) {
-        buffer += data;
-
-        // Process complete lines
-        while (has_value(buffer, "\n")) {
-            array(string) parts = buffer / "\n";
-            string line = parts[0];
-            buffer = parts[1..] * "\n";
-
-            handle_message(line);
-        }
-    }
-
-    void handle_message(string line) {
-        write("Received: %s\n", line);
-
-        // Handle special commands
-        if (line == "PING") {
-            send("PONG");
-        } else if (sscanf(line, "MSG %s", string msg)) {
-            // Display message
-            write("\rMessage: %-50s\n> ", msg);
-        }
-    }
-
-    void send(string data) {
-        socket->write(data + "\n");
-    }
-
-    void keepalive() {
-        send("PING");
-        // Reschedule
-        add_timer(30.0, keepalive);
-    }
-}
-
-// Event-driven timer example
+// Event-driven timer example using call_out
 class TimerDemo {
-    inherit EventLoop;
-
     int count = 0;
-    int timer_id;
 
     void create() {
-        // Add repeating timer
-        timer_id = add_timer(1.0, tick);
+        // Add repeating timer using Pike's call_out
+        call_out(tick, 1.0);
     }
 
     void tick() {
         count++;
-        write("Tick %d\n", count);
+        write(sprintf("Tick %d\n", count));
 
         if (count >= 5) {
             write("Stopping after 5 ticks\n");
-            stop();
         } else {
             // Reschedule
-            add_timer(1.0, tick);
+            call_out(tick, 1.0);
         }
     }
 }
 
-// Async file operations
-class AsyncFileProcessor {
-    inherit EventLoop;
+// Simple timeout example
+class TimeoutExample {
+    void create() {
+        write("Starting 3-second countdown...\n");
+        call_out(show_timeout, 3.0);
+    }
 
-    void process_file(string path, function callback) {
-        Stdio.File file = Stdio.File(path, "r");
+    void show_timeout() {
+        write("Timeout occurred after 3 seconds!\n");
+    }
+}
 
-        if (!file) {
-            write("Failed to open file: %s\n", path);
-            return;
+// Periodic task example
+class PeriodicTask {
+    int iterations = 0;
+
+    void create() {
+        write("Starting periodic task (every 0.5 seconds)...\n");
+        call_out(perform_task, 0.5);
+    }
+
+    void perform_task() {
+        iterations++;
+        write(sprintf("Task iteration #%d\n", iterations));
+
+        if (iterations < 10) {
+            call_out(perform_task, 0.5);
+        } else {
+            write("Periodic task completed after 10 iterations\n");
         }
-
-        string content = "";
-        int total = file->stat()->size;
-        int received = 0;
-
-        // Async read callback
-        void read_callback(mixed id, string data) {
-            if (!data || sizeof(data) == 0) {
-                // EOF
-                callback(content);
-                return;
-            }
-
-            content += data;
-            received += sizeof(data);
-            write("\rProgress: %d/%d bytes (%.1f%%)",
-                  received, total,
-                  (100.0 * received) / total);
-
-            // Continue reading
-            file->set_nonblocking(read_callback, 0, 0);
-        }
-
-        file->set_nonblocking(read_callback, 0, 0);
     }
 }
 
@@ -166,21 +61,18 @@ int main(int argc, array(string) argv) {
     // Demonstrate timer-based event loop
     write("=== Timer Demo ===\n");
     TimerDemo timers = TimerDemo();
-    timers->run();
 
-    write("\n=== Async File Processing Demo ===\n");
-    if (argc > 1) {
-        AsyncFileProcessor processor = AsyncFileProcessor();
+    // Wait for timers to complete
+    sleep(6);
 
-        processor->process_file(argv[1], lambda(string content) {
-            write("\nFile processed, size: %d bytes\n", sizeof(content));
-            processor->stop();
-        });
+    write("\n=== Timeout Example ===\n");
+    TimeoutExample timeout = TimeoutExample();
+    sleep(4);
 
-        processor->run();
-    } else {
-        write("Usage: %s <filename>\n", argv[0]);
-    }
+    write("\n=== Periodic Task Example ===\n");
+    PeriodicTask periodic = PeriodicTask();
+    sleep(6);
 
+    write("\nAll demos completed!\n");
     return 0;
 }

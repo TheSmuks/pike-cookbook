@@ -2,6 +2,115 @@
 #pragma strict_types
 // Rate limiting for API requests
 
+// Simple JSON API client
+class JSONAPIClient
+{
+    private string base_url;
+    private string|void token;
+
+    void create(string url, string|void tok)
+    {
+        base_url = url;
+        token = tok;
+    }
+
+    APIResponse get(string endpoint, mapping|void params)
+    {
+        string url = base_url + endpoint;
+        mapping headers = ([
+            "User-Agent": "Pike APIClient/1.0",
+            "Accept": "application/json"
+        ]);
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, headers);
+
+        return APIResponse(q->status == 200, q->data(), q->status);
+    }
+
+    APIResponse post(string endpoint, mapping data)
+    {
+        string url = base_url + endpoint;
+        mapping headers = ([
+            "User-Agent": "Pike APIClient/1.0",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        ]);
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        string body = Standards.JSON.encode(data);
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+
+        return APIResponse(q->status == 200, q->data(), q->status);
+    }
+
+    APIResponse put(string endpoint, mapping data)
+    {
+        string url = base_url + endpoint;
+        mapping headers = ([
+            "User-Agent": "Pike APIClient/1.0",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        ]);
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        string body = Standards.JSON.encode(data);
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("PUT", url, ([]), headers, 0, body);
+
+        return APIResponse(q->status == 200, q->data(), q->status);
+    }
+
+    APIResponse delete(string endpoint)
+    {
+        string url = base_url + endpoint;
+        mapping headers = ([
+            "User-Agent": "Pike APIClient/1.0",
+            "Accept": "application/json"
+        ]);
+
+        if (token) {
+            headers["Authorization"] = "Bearer " + token;
+        }
+
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("DELETE", url, ([]), headers, 0, 0);
+
+        return APIResponse(q->status == 200 || q->status == 204, q->data(), q->status);
+    }
+}
+
+// API response wrapper
+class APIResponse
+{
+    public int success;
+    public mixed data;
+    public int status;
+
+    void create(int succ, mixed d, int stat)
+    {
+        success = succ;
+        data = d;
+        status = stat;
+
+        // Parse JSON if present
+        if (succ && stringp(d) && sizeof(d)) {
+            mixed parsed = Standards.JSON.decode(d);
+            if (mappingp(parsed)) {
+                data = parsed;
+            }
+        }
+    }
+}
+
+
 class RateLimiter
 {
     private int requests_per_second;
@@ -11,19 +120,19 @@ class RateLimiter
     void create(int rps)
     {
         requests_per_second = rps;
-        min_interval = 1.0 / rps;
+        min_interval = 1.0 / (float)rps;
     }
 
     // Wait if necessary to maintain rate limit
     void throttle()
     {
         int current_time = time();
-        float elapsed = current_time - last_request_time;
+        float elapsed = (float)(current_time - last_request_time);
 
         if (elapsed < min_interval) {
             float sleep_time = min_interval - elapsed;
             write("Rate limit: sleeping %.2f seconds\n", sleep_time);
-            usleep((int)(sleep_time * 1000000));  // Convert to microseconds
+            System.usleep((int)(sleep_time * 1000000));  // Convert to microseconds
         }
 
         last_request_time = time();
@@ -84,9 +193,9 @@ int main()
         write("Fetching post %d...\n", i);
         APIResponse resp = client->get("/posts/" + i);
 
-        if (resp->success) {
+        if (resp->success && mappingp(resp->data)) {
             mapping post = resp->data;
-            write("  ✓ %s\n", post->title);
+            write("  ✓ %s\n", post->title || "(no title)");
         }
     }
 

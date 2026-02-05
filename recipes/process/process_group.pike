@@ -33,7 +33,16 @@ int main(int argc, array(string) argv) {
     write("=== Process Group Example ===\n\n");
 
     // Fork to create a child
-    int child_pid = fork();
+    mixed fork_result = fork();
+
+    // In parent, fork_result is an object with pid() method
+    // In child, fork_result is 0
+    int child_pid;
+    if (objectp(fork_result)) {
+        child_pid = fork_result->pid();
+    } else {
+        child_pid = 0;  // We're in the child
+    }
 
     if (child_pid < 0) {
         error("fork() failed: %s\n", strerror(errno()));
@@ -78,8 +87,7 @@ int main(int argc, array(string) argv) {
 #endif
 
         // Wait for child
-        int status;
-        int result = waitpid(child_pid, status);
+        int result = fork_result->wait();
         write("\nChild %d exited. Result: %d\n", child_pid, result);
     }
 

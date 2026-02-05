@@ -21,7 +21,7 @@
 //!   @[signal], @[signum]
 
 // Global flag for signal handling
-private volatile int shutdown_requested = 0;
+private int shutdown_requested = 0;
 
 //! Signal handler for SIGINT (Ctrl+C)
 //!

@@ -16,19 +16,11 @@ int main()
     ]);
 
     // Perform GET request with custom headers
-    Protocols.HTTP.Query q = Protocols.HTTP.Query();
-    q->set_callbacks(
-        lambda() { werror("Connection failed\n"); exit(1); },
-        lambda(Protocols.HTTP.Query r) {
-            write("Status: %d\n", r->status);
-            write("Headers sent:\n");
-            write(r->data());
-            exit(0);
-        }
-    );
+    Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, headers);
 
-    q->async_request(url, "GET", headers);
+    write("Status: %d\n", q->status);
+    write("Headers sent:\n");
+    write(q->data());
 
-    // Wait for async request to complete
-    return -1;
+    return 0;
 }

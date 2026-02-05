@@ -372,11 +372,11 @@ void batch_async_example() {
     // Prepare batch data
     array(mapping) batch_data = ({});
     for (int i = 0; i < 50; i++) {
-        batch_data += ([([
+        batch_data += ([
             "name": sprintf("User%d", i),
             "email": sprintf("user%d@example.com", i),
             "age": 20 + random(40)
-        ])]);
+        ]);
     }
 
     BatchProcessor processor = BatchProcessor("sqlite://example.db", 10);

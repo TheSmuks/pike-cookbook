@@ -41,9 +41,9 @@ int main(int argc, array(string) argv) {
 
     // Example 2: Failed command
     write("Example 2: Failed command (nonexistent)\n");
-    Process.create_process proc2 = Process.create_process((
-        "/nonexistent/command"
-    ));
+    Process.create_process proc2 = Process.create_process(
+        ({"/nonexistent/command"})
+    );
 
     mixed err = catch {
         int exit_code = proc2->wait();

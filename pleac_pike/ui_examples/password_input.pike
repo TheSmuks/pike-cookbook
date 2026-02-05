@@ -11,7 +11,7 @@ string get_password(string|void prompt) {
 
     // Create new settings without echo
     mapping new_settings = copy_value(old_settings);
-    new_settings->c_lflag &= ~Constants.System.ECHO;
+    // Note: ECHO flag handling - in Pike 8, use modern approach below
 
     // Apply new settings
     Stdio.stdin->tcsetattr(new_settings);
@@ -62,7 +62,7 @@ int confirm_password(string prompt) {
 }
 
 int main() {
-    if (!Stdio.isatty(STDIN->fd())) {
+    if (!Stdio.stdin->isatty || !Stdio.stdin->isatty()) {
         write("Password input requires an interactive terminal\n");
         return 1;
     }
@@ -70,7 +70,7 @@ int main() {
     // Simple password
     write("=== Simple Password Input ===\n");
     string password = get_password_modern("Enter your password: ");
-    write("Password entered (length: %d)\n", sizeof(password));
+    write(sprintf("Password entered (length: %d)\n", sizeof(password)));
 
     // Password confirmation
     write("\n=== Password Confirmation ===\n");
@@ -88,10 +88,19 @@ int main() {
     if (sizeof(pw) >= 8) strength++;
     if (sizeof(pw) >= 12) strength++;
     if (has_value(pw, lower_case(pw)) && has_value(pw, upper_case(pw))) strength++;
-    if (has_value(pw, (array(int))pw - (array(int))"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")) strength++;
+    // Check for special characters
+    string special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+    int has_special = 0;
+    for (int i = 0; i < sizeof(special_chars); i++) {
+        if (has_value(pw, special_chars[i..i])) {
+            has_special = 1;
+            break;
+        }
+    }
+    if (has_special) strength++;
 
     array(string) levels = ({"Weak", "Fair", "Good", "Strong"});
-    write("Password strength: %s\n", levels[min(strength, 3)]);
+    write(sprintf("Password strength: %s\n", levels[min(strength, 3)]));
 
     return 0;
 }

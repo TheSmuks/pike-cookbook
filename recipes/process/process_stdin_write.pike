@@ -52,16 +52,14 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    // Close the pipe ends we don't need
-    stdin_pipe->close();
+    // stdin_pipe->pipe(PROP_REVERSE) returned the write end for us
+    // So stdin_pipe IS the write end we need!
 
     // Write data to stdin
-    Stdio.File write_fd = stdin_pipe;
-    write_fd->write("apple\nbanana\ncherry\navocado\n");
-    write_fd->close();  // Signal EOF to the process
+    stdin_pipe->write("apple\nbanana\ncherry\navocado\n");
+    stdin_pipe->close();  // Signal EOF to the process
 
-    // Read output
-    stdout_pipe->close();
+    // stdout_pipe is the read end - don't close it before reading!
     string output = stdout_pipe->read();
     write("Filtered output:\n%s", output);
 

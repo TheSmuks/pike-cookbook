@@ -5,7 +5,7 @@
 // Simple XPath-like navigation helper
 class XPathHelper
 {
-    static Parser.XML.Tree.Node root;
+    protected Parser.XML.Tree.Node root;
 
     void create(Parser.XML.Tree.Node r) {
         root = r;
@@ -59,12 +59,12 @@ class XPathHelper
 
         // Parse "tag.class" or just "tag" or just ".class"
         string tag = "*";
-        string class = "";
+        string class_name = "";
 
-        if (sscanf(selector, "%s.%s", tag, class) == 2) {
+        if (sscanf(selector, "%s.%s", tag, class_name) == 2) {
             // Both tag and class
         } else if (selector[0] == '.') {
-            class = selector[1..];
+            class_name = selector[1..];
         } else {
             tag = selector;
         }
@@ -74,7 +74,7 @@ class XPathHelper
 
         foreach(candidates, Parser.XML.Tree.Node n) {
             mapping attrs = n->get_attributes();
-            if (!class || (attrs && attrs["class"] == class)) {
+            if (!class_name || (attrs && attrs["class"] == class_name)) {
                 results += ({ n });
             }
         }
