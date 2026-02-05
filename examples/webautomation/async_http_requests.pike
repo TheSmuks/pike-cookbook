@@ -14,18 +14,22 @@ int main(int argc, array(string) argv)
     write("Fetching %d URLs concurrently...\n", sizeof(urls));
 
     // Create async requests for all URLs
-    array(function|Concurrent.Future requests = map(urls, lambda(string url) {
+    array(function|Concurrent.Future) requests = map(urls, lambda(string url) {
         Concurrent.Promise p = Concurrent.Promise();
 
-        Protocols.HTTP.Query q = Protocols.HTTP.Query();
-        q->set_callbacks(
-            lambda() { p->fail("Failed to fetch: " + url); },
-            lambda(Protocols.HTTP.Query r) {
-                p->success((["url": url, "status": r->status,
-                            "size": sizeof(r->data()), "data": r->data()]));
+        Thread.Thread(lambda() {
+            Protocols.HTTP.Query q = Protocols.HTTP.get_url(
+                url,
+                (["User-Agent": "Pike AsyncClient/1.0"])
+            );
+
+            if (q && q->status == 200) {
+                p->success((["url": url, "status": q->status,
+                            "size": sizeof(q->data()), "data": q->data()]));
+            } else {
+                p->fail("Failed to fetch: " + url);
             }
-        );
-        q->async_request(url, "GET", ([]));
+        });
 
         return p->future();
     });

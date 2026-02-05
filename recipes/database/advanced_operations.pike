@@ -382,7 +382,8 @@ void performance_monitoring_example() {
 
     werror("\nQuery plan:\n");
     foreach (plan, mapping row) {
-        werror("  %d: %s\n", row->detailno || 0, row->detail || "");
+        // Access fields by string keys for compatibility
+        werror("  %s\n", (string)(row->detail || row[0] || ""));
     }
 }
 

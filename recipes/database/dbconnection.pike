@@ -385,8 +385,8 @@ void connection_pool_example() {
     Sql.Sql conn1 = pool->get_connection();
     Sql.Sql conn2 = pool->get_connection();
 
-    werror("Got connection 1: %s\n", conn1->server_info());
-    werror("Got connection 2: %s\n", conn2->server_info());
+    werror("Got connection 1: %s\n", conn1 ? conn1->server_info() : "null");
+    werror("Got connection 2: %s\n", conn2 ? conn2->server_info() : "null");
 
     pool->close();
 }

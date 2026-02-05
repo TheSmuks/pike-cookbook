@@ -51,9 +51,9 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    // Close write ends
-    stdout_pipe->close();
-    stderr_pipe->close();
+    // The pipe() call returned the write ends for the process
+    // The original stdout_pipe and stderr_pipe are now the read ends
+    // Don't close them - we need them to read!
 
     // Read from pipes
     string stdout_data = stdout_pipe->read();

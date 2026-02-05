@@ -57,12 +57,12 @@ int main(int argc, array(string) argv) {
 
     if (verbose) {
         write("Configuration:\n");
-        write("  Verbose: %d\n", verbose);
-        write("  Output: %s\n", output_file || "stdout");
-        write("  Number: %d\n", number);
-        write("  Feature flag: %d\n", feature_flag);
-        write("  Items: %s\n", items * ", ");
-        write("  Remaining args: %s\n", args * " ");
+        write(sprintf("  Verbose: %d\n", verbose));
+        write(sprintf("  Output: %s\n", output_file || "stdout"));
+        write(sprintf("  Number: %d\n", number));
+        write(sprintf("  Feature flag: %d\n", feature_flag));
+        write(sprintf("  Items: %s\n", items * ", "));
+        write(sprintf("  Remaining args: %s\n", args * " "));
     }
 
     return 0;

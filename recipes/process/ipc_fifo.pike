@@ -41,29 +41,29 @@ int main(int argc, array(string) argv) {
         }
 
         // Create the FIFO
-        Process.create_process mkfifo = Process.create_process((
-            "mkfifo", fifo_path
-        ));
+        Process.create_process mkfifo = Process.create_process(
+            ({"mkfifo", fifo_path})
+        );
         mkfifo->wait();
 
         write("FIFO created successfully.\n\n");
 
         // Example: Writer process
         write("Starting writer process...\n");
-        Process.create_process writer = Process.create_process((
-            "sh", "-c", sprintf(
+        Process.create_process writer = Process.create_process(
+            ({"sh", "-c", sprintf(
                 "echo 'Hello through FIFO' > %s && echo 'Second message' > %s",
                 fifo_path, fifo_path
-            )
-        ));
+            )})
+        );
 
         // Example: Reader process (this program)
         sleep(1);  // Give writer time to start
         write("Reading from FIFO...\n");
 
-        mapping result = Process.run((
-            "cat", fifo_path
-        ));
+        mapping result = Process.run(
+            ({"cat", fifo_path})
+        );
 
         write("Data read from FIFO:\n%s\n", result->stdout);
 
@@ -71,9 +71,9 @@ int main(int argc, array(string) argv) {
 
         // Cleanup
         write("\nCleaning up FIFO...\n");
-        Process.create_process cleanup = Process.create_process((
-            "rm", "-f", fifo_path
-        ));
+        Process.create_process cleanup = Process.create_process(
+            ({"rm", "-f", fifo_path})
+        );
         cleanup->wait();
 
         write("FIFO removed.\n");

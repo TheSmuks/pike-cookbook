@@ -183,9 +183,9 @@ void update_example() {
              (["new_age": 31, "name": "Alice"]));
 
     // Update multiple records
-    int affected = db->query("UPDATE users SET age = age + 1 WHERE age < 30");
+    mixed affected = db->query("UPDATE users SET age = age + 1 WHERE age < 30");
 
-    werror("Updated %d records\n", affected ? sizeof(affected) : 0);
+    werror("Updated %d records\n", intp(affected) ? affected : sizeof(affected));
 
     // Verify update
     array(mapping) result =

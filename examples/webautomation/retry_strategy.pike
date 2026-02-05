@@ -142,7 +142,7 @@ int main()
     // Example 4: Custom retry configuration
     write("\nExample 4: Aggressive retry strategy\n");
 
-    RetryConfig aggressive = RetryConfig(10, 0.5, 10.0, 1.5);
+    RetryConfig aggressive = RetryConfig(10, 0.5, 10.0, 1);
     RetryStrategy aggressive_retry = RetryStrategy(aggressive);
 
     write("  Max retries: %d\n", aggressive->max_retries);

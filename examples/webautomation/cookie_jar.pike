@@ -19,12 +19,12 @@ class CookieJar
         int secure = 0;
 
         foreach(parts, string part) {
-            part = String.trim_whitespace(part);
+            part = (part - " " - "\t" - "\n" - "\r");
             array(string) nv = part / "=";
 
             if (sizeof(nv) == 2) {
-                string key = String.trim_whitespace(nv[0]);
-                string val = String.trim_whitespace(nv[1]);
+                string key = (nv[0] - " " - "\t" - "\n" - "\r");
+                string val = (nv[1] - " " - "\t" - "\n" - "\r");
 
                 switch(lower_case(key))
                 {
@@ -68,7 +68,8 @@ class CookieJar
         mapping(string:string) result = ([]);
 
         // Extract domain from URL
-        string domain = Protocols.HTTP.get_url_host(url);
+        Standards.URI uri = Standards.URI(url);
+        string domain = uri->host;
 
         foreach(cookies; string name; mapping attrs) {
             // Simple domain matching (should be more robust)

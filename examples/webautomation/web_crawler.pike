@@ -7,9 +7,9 @@ class WebCrawler
     private string start_url;
     private int max_depth;
     private int max_pages;
-    private PoliteCrawler crawler;
-    private set(string) visited = (<>);
-    private set(string) queued = (<>);
+    private int requests_per_second;
+    private multiset(string) visited = (<>);
+    private multiset(string) queued = (<>);
     private array(string) url_queue = ({});
     private mapping(string:mixed) results = ([]);
     private int pages_crawled = 0;
@@ -19,7 +19,15 @@ class WebCrawler
         start_url = url;
         max_depth = depth || 3;
         max_pages = max_pg || 100;
-        crawler = PoliteCrawler(rps || 2);
+        requests_per_second = rps || 2;
+    }
+
+    // Simple rate-limited fetch
+    private Protocols.HTTP.Query fetch(string url)
+    {
+        // Simple rate limiting - sleep between requests
+        System.usleep(1000000 / requests_per_second);
+        return Protocols.HTTP.get_url(url);
     }
 
     // Normalize URL for deduplication
@@ -80,8 +88,8 @@ class WebCrawler
 
         int pos = 0;
         while (pos < sizeof(html)) {
-            array(string) match = re->match(html, pos);
-            if (!match) break;
+            array(mixed) match = re->match(html, pos);
+            if (!match || sizeof(match) < 2) break;
 
             string href = match[1];
 
@@ -98,16 +106,17 @@ class WebCrawler
                 }
 
                 // Remove filename from base path
-                int last_slash = rsearch(base_path, "/");
-                if (last_slash != -1) {
-                    base_path = base_path[0..last_slash];
+                array(string) parts = base_path / "/";
+                if (sizeof(parts) > 1) {
+                    parts = parts[0..sizeof(parts)-2];
+                    base_path = parts * "/";
                 }
 
                 href = base_path + href;
             }
 
             links += ({ href });
-            pos = html->search(match[0], pos) + sizeof(match[0]);
+            pos = search(html, match[0], pos) + sizeof(match[0]);
         }
 
         return links;
@@ -132,7 +141,7 @@ class WebCrawler
         write("[%d/%d] Crawling: %s (depth %d)\n",
               pages_crawled, max_pages, url, current_depth);
 
-        Protocols.HTTP.Query q = crawler->fetch(url);
+        Protocols.HTTP.Query q = fetch(url);
 
         if (!q || q->status != 200) {
             return ([

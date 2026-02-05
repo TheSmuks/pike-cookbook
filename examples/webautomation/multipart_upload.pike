@@ -12,7 +12,8 @@ int main(int argc, array(string) argv)
     string filepath = argv[1];
     string filename = basename(filepath);
 
-    if (!Stdio.isFile(filepath)) {
+    Stdio.Stat stat = file_stat(filepath);
+    if (!stat || !stat->isreg) {
         werror("File not found: %s\n", filepath);
         return 1;
     }

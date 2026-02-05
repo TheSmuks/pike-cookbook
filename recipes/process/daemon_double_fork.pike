@@ -36,7 +36,17 @@ int main(int argc, array(string) argv) {
     write("Starting double-fork daemon...\n");
 
     // First fork: create parent-child relationship
-    int pid1 = fork();
+    mixed fork1 = fork();
+
+    // In parent, fork1 is an object with pid() method
+    // In child, fork1 is 0
+    int pid1;
+    if (objectp(fork1)) {
+        pid1 = fork1->pid();
+    } else {
+        pid1 = 0;  // We're in the child
+    }
+
     if (pid1 < 0) {
         error("First fork failed: %s\n", strerror(errno()));
     }
@@ -57,7 +67,17 @@ int main(int argc, array(string) argv) {
 #endif
 
     // Second fork: ensure daemon cannot acquire a controlling terminal
-    int pid2 = fork();
+    mixed fork2 = fork();
+
+    // In parent (first child), fork2 is an object with pid() method
+    // In child (daemon), fork2 is 0
+    int pid2;
+    if (objectp(fork2)) {
+        pid2 = fork2->pid();
+    } else {
+        pid2 = 0;  // We're in the child
+    }
+
     if (pid2 < 0) {
         error("Second fork failed: %s\n", strerror(errno()));
     }

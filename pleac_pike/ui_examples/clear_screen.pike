@@ -32,7 +32,7 @@ void clear_screen() {
 }
 
 void move_cursor(int row, int col) {
-    write("\033[%d;%dH", row, col);
+    write(sprintf("\033[%d;%dH", row, col));
 }
 
 void set_color(string color) {
@@ -45,9 +45,11 @@ void reset_color() {
 
 int main() {
     // Only use ANSI codes if we're in a terminal
-    int use_ansi = Stdio.isatty(STDOUT->fd());
+    int use_ansi = Stdio.stdout->isatty && Stdio.stdout->isatty();
 
     if (use_ansi) {
+        array(string) colors_array = ({"red", "green", "yellow", "blue", "magenta"});
+
         // Clear screen and display header
         clear_screen();
         set_color("cyan");
@@ -65,9 +67,9 @@ int main() {
 
         // Demonstrate different colors
         move_cursor(7, 1);
-        foreach ({"red", "green", "yellow", "blue", "magenta"}, string color) {
-            set_color(color);
-            write("  This text is %s\n", color);
+        for (int i = 0; i < sizeof(colors_array); i++) {
+            set_color(colors_array[i]);
+            write(sprintf("  This text is %s\n", colors_array[i]));
         }
         reset_color();
 

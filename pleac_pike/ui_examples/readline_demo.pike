@@ -60,9 +60,9 @@ class ReadlineUI(string|void prompt) {
 
     // Menu selection
     int menu(string title, array(string) options) {
-        write("\n%s\n", title);
+        write(sprintf("\n%s\n", title));
         for (int i = 0; i < sizeof(options); i++) {
-            write("  %d. %s\n", i + 1, options[i]);
+            write(sprintf("  %d. %s\n", i + 1, options[i]));
         }
 
         while (1) {
@@ -73,14 +73,14 @@ class ReadlineUI(string|void prompt) {
             if (choice > 0 && choice <= sizeof(options)) {
                 return choice - 1;
             }
-            write("Invalid choice. Please enter 1-%d\n", sizeof(options));
+            write(sprintf("Invalid choice. Please enter 1-%d\n", sizeof(options)));
         }
     }
 }
 
 int main() {
     // Check if we have an interactive terminal
-    if (!Stdio.isatty(STDIN->fd())) {
+    if (!Stdio.stdin->isatty || !Stdio.stdin->isatty()) {
         write("This program requires an interactive terminal\n");
         return 1;
     }
@@ -90,12 +90,12 @@ int main() {
     // Simple input
     write("\n=== Simple Input ===\n");
     string name = readline->get_line();
-    write("Hello, %s!\n", name);
+    write(sprintf("Hello, %s!\n", name));
 
     // Password input
     write("\n=== Password Input ===\n");
     string password = readline->get_password("Enter password: ");
-    write("Password received (length: %d)\n", sizeof(password));
+    write(sprintf("Password received (length: %d)\n", sizeof(password)));
 
     // Confirmation
     write("\n=== Confirmation ===\n");
@@ -113,12 +113,12 @@ int main() {
         "Save and exit",
         "Quit without saving",
     }));
-    write("You selected: %d\n", choice);
+    write(sprintf("You selected: %d\n", choice));
 
     // Multiline input
     write("\n=== Multiline Input ===\n");
     array(string) lines = readline->get_multiline();
-    write("You entered %d lines\n", sizeof(lines));
+    write(sprintf("You entered %d lines\n", sizeof(lines)));
 
     return 0;
 }

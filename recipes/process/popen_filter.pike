@@ -76,10 +76,7 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    pipe1->close();
-    pipe2->close();
-
-    // Feed data to filter
+    // Feed data to filter (pipe1 has the write end from PROP_REVERSE)
     pipe1->write("item1\nitem2\nitem_three\nitem4\nitem_five\n");
     pipe1->close();
 

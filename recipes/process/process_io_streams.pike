@@ -46,17 +46,14 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    // Close write end of stdout/stderr, read end of stdin
-    stdin_pipe->close();
+    // stdin_pipe->pipe(PROP_REVERSE) returned the write end for us
+    // So stdin_pipe IS the write end we need!
 
     // Write data to process
-    Stdio.File stdin_write = stdin_pipe;
-    stdin_write->write("Line 1\nLine 2\nLine 3\n");
-    stdin_write->close();
+    stdin_pipe->write("Line 1\nLine 2\nLine 3\n");
+    stdin_pipe->close();
 
-    // Read responses
-    stdout_pipe->close();
-    stderr_pipe->close();
+    // stdout_pipe and stderr_pipe are the read ends - don't close before reading!
 
     string stdout_data = stdout_pipe->read();
     string stderr_data = stderr_pipe->read();

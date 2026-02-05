@@ -748,7 +748,7 @@ class MigrationManager {
         );
 
         foreach (applied, mapping m) {
-            Migration migration = search migrations->name == m->name;
+            Migration migration = search_migration_by_name(m->name);
 
             if (migration) {
                 werror("Rolling back migration: %s\n", m->name);
@@ -770,7 +770,7 @@ class MigrationManager {
         }
     }
 
-    private Migration search migrations->name == string name {
+    private Migration search_migration_by_name(string name) {
         foreach (migrations, Migration m) {
             if (m->name == name) {
                 return m;
