@@ -317,244 +317,6 @@ blockquote {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* ========================================
-   Search Modal Overlay - Centered Modal Style
-   ======================================== */
-
-/* Search container - maintains positioning */
-.navbarSearchContainer_Bca1 {
-  margin-left: auto;
-  margin-right: 1rem;
-  position: relative;
-}
-
-/* Search input styling */
-.navbar__search-input.searchInput_YFbd.input_FOTf {
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Search dropdown wrapper - transform to modal overlay when dropdown is visible */
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  padding-top: 15vh !important; /* Brought up slightly for better visibility */
-  background: rgba(50, 50, 50, 0.7) !important; /* Neutral greyish overlay */
-  backdrop-filter: blur(6px) !important; /* Slightly reduced blur for better performance */
-  z-index: 1000 !important;
-  animation: modalFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Dropdown menu - modal appearance */
-.dropdownMenu_qbY6.with-1 {
-  position: relative !important; /* Changed from absolute to flow naturally below input */
-  top: 0 !important;
-  left: 0 !important;
-  transform: none !important;
-  width: 660px !important;
-  max-width: 95vw !important;
-  max-height: 60vh !important;
-  margin: 12px 0 0 0 !important; /* Consistent gap from input */
-  padding: 8px !important;
-  background: var(--ifm-background-color) !important;
-  border: 1px solid var(--ifm-color-emphasis-200) !important;
-  border-radius: 12px !important;
-  box-shadow:
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  z-index: 1001 !important;
-  display: block !important;
-  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* Ensure suggestions are visible */
-.dropdownMenu_qbY6.with-1 .dataset_QiCy-1 {
-  display: block !important;
-}
-
-/* Dropdown options styling */
-.dropdownMenu_qbY6.with-1 [role="option"] {
-  padding: 14px 18px !important;
-  margin: 4px 0 !important;
-  border-radius: 10px !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  font-size: 15px !important;
-  display: flex !important;
-  align-items: center !important;
-  border: 1px solid transparent !important;
-}
-
-.dropdownMenu_qbY6.with-1 [role="option"]:hover {
-  background-color: var(--ifm-color-emphasis-100) !important;
-  border-color: var(--ifm-color-emphasis-200) !important;
-}
-
-.dropdownMenu_qbY6.with-1 [role="option"][aria-selected="true"] {
-  background-color: var(--ifm-color-primary-lightest) !important;
-  color: var(--ifm-color-primary-darkest) !important;
-  border-color: var(--ifm-color-primary-lighter) !important;
-}
-
-/* "See all results" link */
-.dropdownMenu_qbY6.with-1 a {
-  margin-top: 8px !important;
-  padding: 12px !important;
-  border-radius: 8px !important;
-  text-align: center !important;
-  background-color: var(--ifm-color-emphasis-50) !important;
-  color: var(--ifm-color-primary) !important;
-  font-weight: 600 !important;
-  display: block !important;
-  border: 1px solid var(--ifm-color-emphasis-200) !important;
-}
-
-.dropdownMenu_qbY6.with-1 a:hover {
-  background-color: var(--ifm-color-emphasis-100) !important;
-  text-decoration: none !important;
-}
-
-/* Highlighted search terms */
-.dropdownMenu_qbY6.with-1 mark {
-  background-color: rgba(53, 120, 229, 0.15) !important;
-  color: var(--ifm-color-primary) !important;
-  font-weight: 700 !important;
-  padding: 1px 4px !important;
-  border-radius: 4px !important;
-}
-
-/* Search input when modal is open - large, square, centered */
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .navbar__search-input {
-  position: relative !important; /* Changed from absolute */
-  top: 0 !important;
-  left: 0 !important;
-  transform: none !important;
-  width: 660px !important;
-  max-width: 95vw !important;
-  height: 64px !important; /* Slightly taller */
-  padding: 0 64px 0 56px !important;
-  font-size: 20px !important;
-  border: 2px solid var(--ifm-color-primary) !important;
-  border-radius: 16px !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
-  background: var(--ifm-background-color) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%233578e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") no-repeat 20px center !important;
-  outline: none !important;
-}
-
-/* Wrapper for the search input to handle the clear button positioning */
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-input-wrapper {
-  position: relative !important;
-  width: 660px !important;
-  max-width: 95vw !important;
-  display: flex !important;
-  justify-content: center !important;
-}
-
-/* Close button (X) - positioned precisely inside the search bar */
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .searchClearButton_qk4g,
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn,
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) button:not(.navbar__search-input) {
-  position: absolute !important;
-  top: 50% !important;
-  right: 14px !important;
-  transform: translateY(-50%) !important;
-  width: 36px !important;
-  height: 36px !important;
-  margin: 0 !important;
-  background: var(--ifm-color-emphasis-100) !important;
-  border: none !important;
-  border-radius: 10px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  color: var(--ifm-color-emphasis-700) !important;
-  font-size: 22px !important;
-  line-height: 1 !important;
-  z-index: 1002 !important;
-}
-
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .searchClearButton_qk4g:hover,
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn:hover,
-.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) button:not(.navbar__search-input):hover {
-  background: var(--ifm-color-emphasis-200) !important;
-  color: var(--ifm-color-emphasis-900) !important;
-  transform: translateY(-50%) scale(1.05) !important;
-}
-
-/* Animations */
-@keyframes modalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Dark mode adjustments */
-[data-theme='dark'] .searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) {
-  background: rgba(20, 20, 20, 0.85) !important;
-}
-
-[data-theme='dark'] .dropdownMenu_qbY6.with-1 {
-  background: #1e293b !important;
-  border-color: #334155 !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7) !important;
-}
-
-[data-theme='dark'] .dropdownMenu_qbY6.with-1 [role="option"]:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-}
-
-[data-theme='dark'] .dropdownMenu_qbY6.with-1 [role="option"][aria-selected="true"] {
-  background-color: rgba(53, 120, 229, 0.2) !important;
-  color: #93c5fd !important;
-  border-color: rgba(53, 120, 229, 0.4) !important;
-}
-
-/* Hide search modal - display none removes it completely */
-.searchBar_RVTs.search-modal-hidden {
-  display: none !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .searchBar_RVTs {
-    padding-top: 5vh !important;
-  }
-
-  .dropdownMenu_qbY6.with-1 {
-    width: 95vw !important;
-    max-height: 70vh !important;
-  }
-
-  .searchBar_RVTs .navbar__search-input {
-    width: 95vw !important;
-    height: 56px !important;
-    font-size: 18px !important;
-  }
-}
-
 /* Scrollbar styling for webkit browsers */
 ::-webkit-scrollbar {
   width: 8px;
@@ -814,4 +576,149 @@ blockquote {
   color: #79c0ff !important;
   font-weight: 600 !important;
   font-style: normal !important;
+}
+
+/* ========================================
+   Search Modal Overlay Styles
+   ======================================== */
+
+/* Backdrop and Modal Container */
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding-top: 15vh !important;
+  background: rgba(15, 23, 42, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  z-index: 1000 !important;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Search Input inside Modal */
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .navbar__search-input {
+  position: relative !important;
+  width: 660px !important;
+  max-width: 95vw !important;
+  height: 64px !important;
+  padding: 0 64px 0 56px !important;
+  font-size: 20px !important;
+  border: 2px solid var(--ifm-color-primary) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  background: var(--ifm-background-color) !important;
+  color: var(--ifm-font-color-base) !important;
+  transition: all 0.2s ease;
+}
+
+/* Search Icon Positioning in Modal */
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"]))::before {
+  content: "🔍";
+  position: absolute;
+  top: 15vh;
+  margin-top: 18px;
+  left: calc(50% - 310px);
+  font-size: 20px;
+  z-index: 1001;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+@media (max-width: 700px) {
+  .searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"]))::before {
+    left: 20px;
+  }
+}
+
+/* Dropdown Menu inside Modal */
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .dropdownMenu_qbY6 {
+  position: relative !important;
+  top: 0 !important;
+  left: 0 !important;
+  transform: none !important;
+  width: 660px !important;
+  max-width: 95vw !important;
+  max-height: 60vh !important;
+  margin: 12px 0 0 0 !important;
+  padding: 12px !important;
+  background: var(--ifm-background-surface-color) !important;
+  border: 1px solid var(--ifm-navbar-border-color) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+  overflow-y: auto !important;
+  z-index: 1001 !important;
+}
+
+/* Close Button (X) */
+.search-modal-close-btn {
+  display: none; /* Controlled by JS */
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  background: var(--ifm-color-emphasis-100);
+  border: none;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ifm-color-emphasis-700);
+  font-size: 24px;
+  line-height: 1;
+  z-index: 1002;
+  transition: all 0.2s ease;
+}
+
+.searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn {
+  top: 15vh;
+  margin-top: 32px;
+  right: calc(50% - 316px);
+}
+
+@media (max-width: 700px) {
+  .searchBar_RVTs:has(.dropdownMenu_qbY6:not([style*="display: none"])) .search-modal-close-btn {
+    right: 20px;
+  }
+}
+
+.search-modal-close-btn:hover {
+  background: var(--ifm-color-emphasis-200);
+  color: var(--ifm-color-emphasis-900);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.search-modal-close-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Suggestions Styling */
+.searchBar_RVTs .suggestion_W9_W {
+  border-radius: 8px !important;
+  margin-bottom: 4px !important;
+  padding: 10px !important;
+}
+
+.searchBar_RVTs .suggestion_W9_W:last-child {
+  margin-bottom: 0 !important;
+}
+
+.searchBar_RVTs .suggestion_W9_W[aria-selected="true"] {
+  background-color: var(--ifm-color-primary-lightest) !important;
+  color: var(--ifm-color-primary-darker) !important;
+}
+
+[data-theme='dark'] .searchBar_RVTs .suggestion_W9_W[aria-selected="true"] {
+  background-color: var(--ifm-color-primary-darker) !important;
+  color: white !important;
 }
