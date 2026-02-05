@@ -14,7 +14,6 @@ import AutoDocHighlighter from '@site/src/components/AutoDocHighlighter';
 
 - **AutoDoc Tag Highlighting**: Color-coded tags for `@param`, `@returns`, `@throws`, `@seealso`, `@example`, `@note`, `@deprecated`, `@bugs`, etc.
 - **Inline Markup**: Supports `@i{...@}`, `@b{...@}`, `@tt{...@}`, `@ref{...@}`, `@xml{...@}`
-- **Automatic Integration**: Works seamlessly with DocPageWithSearch component
 - **TypeScript**: Fully typed with TypeScript
 - **CSS Modules**: Scoped styling for easy customization
 - **Performance**: Memoized parsing for efficient re-renders
@@ -64,18 +63,6 @@ function MyComponent() {
 
   return <AutoDocHighlighter content={doc} />;
 }
-```
-
-### With Search Integration
-
-The component is automatically integrated with `DocPageWithSearch`:
-
-```tsx
-import DocPageWithSearch from '@site/src/components/DocPageWithSearch';
-
-<DocPageWithSearch>
-  <YourDocumentationContent />
-</DocPageWithSearch>
 ```
 
 ## Customization

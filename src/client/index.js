@@ -7,12 +7,14 @@ export function onRouteDidUpdate() {
   // Fix autodoc-tag colors after page navigation
   fixAutodocHighlighting();
   highlightInlineAutodocTags();
+  initSearchModal();
 }
 
 export function onRouteUpdate() {
   // Fix autodoc-tag colors on initial load
   fixAutodocHighlighting();
   highlightInlineAutodocTags();
+  initSearchModal();
 }
 
 function escapeHTML(str) {
@@ -154,6 +156,162 @@ function highlightInlineAutodocTags() {
   });
 }
 
+/**
+ * Search Modal Implementation
+ * Handles modal behavior for @easyops-cn/docusaurus-search-local
+ */
+function initSearchModal() {
+  if (typeof document === 'undefined') return;
+
+  let mouseDownOnSearch = false;
+  let lastExternalInteraction = Date.now();
+  const GRACE_PERIOD = 300;
+
+  function isSearchElement(element) {
+    if (!element) return false;
+    return !!element.closest('.navbar__search, .searchBar_RVTs, .dropdownMenu_qbY6');
+  }
+
+  function inGracePeriod() {
+    return Date.now() - lastExternalInteraction < GRACE_PERIOD;
+  }
+
+  function isDropdownOpen() {
+    const dropdown = document.querySelector('.dropdownMenu_qbY6');
+    return dropdown && dropdown.style.display !== 'none';
+  }
+
+  function autofocusInput() {
+    const searchInput = document.querySelector('.navbar__search-input');
+    if (!searchInput) return;
+
+    // Double requestAnimationFrame ensures the element is visible and ready
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        searchInput.focus();
+      });
+    });
+  }
+
+  function updateCloseButtonVisibility() {
+    const closeBtn = document.querySelector('.search-modal-close-btn');
+    if (!closeBtn) return;
+
+    if (isDropdownOpen()) {
+      closeBtn.style.display = 'flex';
+      // Ensure body scroll is locked if needed (Docusaurus usually handles this)
+    } else {
+      closeBtn.style.display = 'none';
+    }
+  }
+
+  function injectCloseButton() {
+    const searchContainer = document.querySelector('.searchBar_RVTs');
+    if (!searchContainer || searchContainer.querySelector('.search-modal-close-btn')) return;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'search-modal-close-btn';
+    closeBtn.innerHTML = '×';
+    closeBtn.setAttribute('aria-label', 'Close search');
+    closeBtn.setAttribute('type', 'button');
+
+    closeBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.blur();
+        // Force dropdown to close by triggering an input event or similar if needed
+        // but blur usually works for the plugin
+      }
+      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      if (dropdown) dropdown.style.display = 'none';
+      updateCloseButtonVisibility();
+    });
+
+    searchContainer.appendChild(closeBtn);
+  }
+
+  // Initial setup
+  injectCloseButton();
+
+  // Track mousedown to distinguish intentional clicks from accidental focus
+  document.addEventListener('mousedown', (e) => {
+    if (isSearchElement(e.target)) {
+      mouseDownOnSearch = true;
+      // Reset after a short delay
+      setTimeout(() => { mouseDownOnSearch = false; }, 50);
+    } else {
+      lastExternalInteraction = Date.now();
+      mouseDownOnSearch = false;
+    }
+  }, { capture: true, passive: true });
+
+  // Prevent opening on accidental hover/focus during grace period
+  document.addEventListener('focusin', (e) => {
+    const searchInput = document.querySelector('.navbar__search-input');
+    if (e.target === searchInput && inGracePeriod() && !mouseDownOnSearch) {
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      searchInput.blur();
+    }
+  }, { capture: true });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isDropdownOpen()) {
+      e.preventDefault();
+      e.stopPropagation();
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (searchInput) searchInput.blur();
+      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      if (dropdown) dropdown.style.display = 'none';
+      updateCloseButtonVisibility();
+    }
+  }, { capture: true });
+
+  // Close on backdrop click (click outside search container)
+  document.addEventListener('click', (e) => {
+    if (isDropdownOpen() && !isSearchElement(e.target)) {
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (searchInput) searchInput.blur();
+      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      if (dropdown) dropdown.style.display = 'none';
+      updateCloseButtonVisibility();
+    }
+  }, { capture: true });
+
+  // Ctrl+K shortcut
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      const searchInput = document.querySelector('.navbar__search-input');
+      if (searchInput) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        searchInput.focus();
+        // The plugin will open the dropdown on focus
+      }
+    }
+  }, { capture: true });
+
+  // Observe the dropdown for visibility changes
+  const dropdown = document.querySelector('.dropdownMenu_qbY6');
+  if (dropdown) {
+    const observer = new MutationObserver(() => {
+      updateCloseButtonVisibility();
+      if (isDropdownOpen()) {
+        autofocusInput();
+      }
+    });
+    observer.observe(dropdown, {
+      attributes: true,
+      attributeFilter: ['style']
+    });
+  }
+}
+
 // Run immediately for initial page load
 if (typeof document !== 'undefined') {
   // Wait for DOM to be ready
@@ -168,15 +326,15 @@ if (typeof document !== 'undefined') {
     setTimeout(() => {
       fixAutodocHighlighting();
       highlightInlineAutodocTags();
+      initSearchModal();
     }, 100);
-    // Initialize search modal
-    setTimeout(initSearchModal, 200);
   }
 
   // Also run after a short delay to catch dynamically rendered content
   setTimeout(() => {
     fixAutodocHighlighting();
     highlightInlineAutodocTags();
+    initSearchModal();
   }, 500);
 
   // Watch for theme changes and reapply autodoc highlighting
@@ -193,269 +351,4 @@ if (typeof document !== 'undefined') {
     attributes: true,
     attributeFilter: ['data-theme']
   });
-}
-
-/**
- * Search Modal Implementation
- *
- * Features:
- * 1. Opens on click or Ctrl+K (not hover)
- * 2. Close button (X) inside the input
- * 3. Closes on backdrop click
- * 4. Closes on Escape key
- * 5. Closes on click outside suggestions
- * 6. Autofocuses input when opened
- */
-function initSearchModal() {
-  let handlersSetup = false;
-  let containerObserver = null;
-  let dropdownObserver = null;
-
-  // Track intentional vs accidental interactions
-  let mouseDownOnSearch = false;
-  let lastExternalInteraction = Date.now();
-  const GRACE_PERIOD = 300; // ms
-
-  // Close button element reference
-  let closeBtn = null;
-
-  // Check if element is within search container
-  function isSearchElement(element) {
-    if (!element) return false;
-    const searchContainer = element.closest('.navbar__search, .searchBar_RVTs');
-    return searchContainer !== null;
-  }
-
-  // Check if we're in the grace period after an external click
-  function inGracePeriod() {
-    return Date.now() - lastExternalInteraction < GRACE_PERIOD;
-  }
-
-  // Check if dropdown is open
-  function isDropdownOpen() {
-    const dropdown = document.querySelector('.dropdownMenu_qbY6');
-    return dropdown && dropdown.style.display !== 'none';
-  }
-
-  // Close the search modal
-  function closeModal() {
-    const searchInput = document.querySelector('.navbar__search-input');
-    searchInput?.blur();
-  }
-
-  // Inject close button into the search input container
-  function injectCloseButton() {
-    // Check if button already exists
-    if (document.querySelector('.search-modal-close-btn')) {
-      return true;
-    }
-
-    const searchContainer = document.querySelector('.searchBar_RVTs');
-    if (!searchContainer) return false;
-
-    // Make sure container has position relative for absolute positioning
-    const currentPos = window.getComputedStyle(searchContainer).position;
-    if (currentPos !== 'relative' && currentPos !== 'absolute') {
-      searchContainer.style.position = 'relative';
-    }
-
-    // Create close button
-    closeBtn = document.createElement('button');
-    closeBtn.className = 'search-modal-close-btn';
-    closeBtn.innerHTML = '×';
-    closeBtn.setAttribute('aria-label', 'Close search');
-    closeBtn.setAttribute('type', 'button');
-    closeBtn.style.cssText = `
-      display: none;
-      position: absolute;
-      top: 50%;
-      right: 8px;
-      transform: translateY(-50%);
-      width: 32px;
-      height: 32px;
-      margin: 0;
-      background: var(--ifm-color-emphasis-100);
-      border: none;
-      border-radius: 8px;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--ifm-color-emphasis-700);
-      font-size: 20px;
-      line-height: 1;
-      z-index: 1002;
-      transition: all 0.2s ease;
-      padding: 0;
-    `;
-
-    // Click handler
-    closeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      closeModal();
-    });
-
-    // Append to search container
-    searchContainer.appendChild(closeBtn);
-    return true;
-  }
-
-  // Show/hide close button based on modal state
-  function updateCloseButtonVisibility() {
-    // Try to inject if not exists
-    if (!closeBtn) {
-      if (!injectCloseButton()) return;
-    }
-
-    if (isDropdownOpen()) {
-      closeBtn.style.display = 'flex';
-    } else {
-      closeBtn.style.display = 'none';
-    }
-  }
-
-  // Autofocus search input with double RAF for timing
-  function autofocusInput() {
-    const searchInput = document.querySelector('.navbar__search-input');
-    if (!searchInput) return;
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        searchInput.focus();
-      });
-    });
-  }
-
-  // Monitor dropdown visibility for close button and autofocus
-  function observeDropdown() {
-    if (dropdownObserver) return;
-
-    const dropdown = document.querySelector('.dropdownMenu_qbY6');
-    if (!dropdown) return;
-
-    // Use MutationObserver to detect style changes
-    dropdownObserver = new MutationObserver(() => {
-      updateCloseButtonVisibility();
-
-      // Autofocus when modal opens
-      if (isDropdownOpen()) {
-        autofocusInput();
-      }
-    });
-
-    dropdownObserver.observe(dropdown, {
-      attributes: true,
-      attributeFilter: ['style', 'class']
-    });
-  }
-
-  // Wait for search container to be created by the plugin
-  function waitForSearchContainer() {
-    if (containerObserver) return;
-
-    containerObserver = new MutationObserver((mutations) => {
-      // Check if search container was added
-      if (document.querySelector('.searchBar_RVTs')) {
-        // Container exists, inject close button
-        injectCloseButton();
-        observeDropdown();
-      }
-    });
-
-    // Observe the navbar for changes
-    const navbar = document.querySelector('.navbar__search');
-    if (navbar) {
-      containerObserver.observe(navbar, {
-        childList: true,
-        subtree: true
-      });
-    }
-  }
-
-  // Function to set up event handlers
-  function setupHandlers() {
-    if (handlersSetup) return;
-    handlersSetup = true;
-
-    // Try to inject close button immediately
-    injectCloseButton();
-
-    // Start observing for search container creation
-    waitForSearchContainer();
-
-    // Start observing dropdown for visibility changes
-    observeDropdown();
-
-    // Track mousedown to detect intentional search interactions
-    document.addEventListener('mousedown', (e) => {
-      if (isSearchElement(e.target)) {
-        // User intentionally clicked on search
-        mouseDownOnSearch = true;
-        setTimeout(() => { mouseDownOnSearch = false; }, 50);
-      } else {
-        // User clicked elsewhere - start grace period
-        lastExternalInteraction = Date.now();
-        mouseDownOnSearch = false;
-      }
-    }, { capture: true, passive: true });
-
-    // Prevent focus-based opening when in grace period (accidental hover)
-    document.addEventListener('focusin', (e) => {
-      const searchInput = document.querySelector('.navbar__search-input');
-      if (e.target === searchInput && inGracePeriod() && !mouseDownOnSearch) {
-        // This focus is accidental - prevent modal from opening
-        e.stopImmediatePropagation();
-        e.preventDefault();
-        searchInput.blur();
-      }
-    }, { capture: true });
-
-    // Close on Escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        if (isDropdownOpen()) {
-          e.preventDefault();
-          e.stopPropagation();
-          closeModal();
-        }
-      }
-    }, { capture: true });
-
-    // Close on backdrop click (click outside search container)
-    document.addEventListener('click', (e) => {
-      const searchContainer = document.querySelector('.navbar__search, .searchBar_RVTs');
-
-      if (isDropdownOpen() && !searchContainer?.contains(e.target)) {
-        closeModal();
-      }
-    }, { capture: true });
-
-    // Handle Ctrl+K shortcut
-    document.addEventListener('keydown', (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        const searchInput = document.querySelector('.navbar__search-input');
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }
-    }, { capture: true });
-
-    // Handle click on search input to open modal
-    document.addEventListener('click', (e) => {
-      const searchInput = document.querySelector('.navbar__search-input');
-      if (e.target === searchInput && !isDropdownOpen()) {
-        // Input was clicked - let plugin handle opening
-        // The observer will handle autofocus after dropdown opens
-      }
-    }, { capture: true });
-  }
-
-  // Set up handlers immediately
-  setupHandlers();
-
-  // Re-run setup after a delay in case DOM isn't ready
-  setTimeout(setupHandlers, 500);
 }

@@ -56,10 +56,6 @@ import AutoDocHighlighter from '@site/src/components/AutoDocHighlighter';
 <AutoDocHighlighter content="//! @param x The x coordinate" />
 ```
 
-### Integration with DocPageWithSearch
-
-The component is automatically integrated into the `DocPageWithSearch` component, so all documentation pages will have AutoDoc syntax highlighting applied automatically.
-
 ### Standalone Usage
 
 You can also use the utility function to highlight AutoDoc content:
@@ -203,4 +199,3 @@ Potential improvements:
 ## See Also
 
 - [AutoDoc Format Guide](/docs/autodoc-format) - Complete reference for AutoDoc syntax
-- [DocPageWithSearch Component](/docs/doc-page-search) - Integration with search functionality
