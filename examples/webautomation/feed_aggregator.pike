@@ -16,26 +16,26 @@ class FeedAggregator
     {
         array(mapping) items = ({});
 
-        Standards.XML.Node root = Standards.XML.parse(xml);
+        Parser.XML.Tree.Node root = Parser.XML.Tree.parse_input(xml);
 
         // Get channel
-        array(Standards.XML.Node) channels = root->get_elements("channel");
+        array(Parser.XML.Tree.Node) channels = root->get_elements("channel");
         if (!sizeof(channels)) {
             werror("No channel found in RSS feed\n");
             return items;
         }
 
         // Get items
-        array(Standards.XML.Node) item_nodes = channels[0]->get_elements("item");
+        array(Parser.XML.Tree.Node) item_nodes = channels[0]->get_elements("item");
 
-        foreach(item_nodes, Standards.XML.Node item) {
+        foreach(item_nodes, Parser.XML.Tree.Node item) {
             mapping data = ([]);
 
-            array(Standards.XML.Node) titles = item->get_elements("title");
-            array(Standards.XML.Node) links = item->get_elements("link");
-            array(Standards.XML.Node) descriptions = item->get_elements("description");
-            array(Standards.XML.Node) pubs = item->get_elements("pubDate");
-            array(Standards.XML.Node) guids = item->get_elements("guid");
+            array(Parser.XML.Tree.Node) titles = item->get_elements("title");
+            array(Parser.XML.Tree.Node) links = item->get_elements("link");
+            array(Parser.XML.Tree.Node) descriptions = item->get_elements("description");
+            array(Parser.XML.Tree.Node) pubs = item->get_elements("pubDate");
+            array(Parser.XML.Tree.Node) guids = item->get_elements("guid");
 
             if (sizeof(titles)) data->title = titles[0]->get_text();
             if (sizeof(links)) data->link = links[0]->get_text();
@@ -54,21 +54,21 @@ class FeedAggregator
     {
         array(mapping) items = ({});
 
-        Standards.XML.Node root = Standards.XML.parse(xml);
+        Parser.XML.Tree.Node root = Parser.XML.Tree.parse_input(xml);
 
         // Get entries
-        array(Standards.XML.Node) entries = root->get_elements("entry");
+        array(Parser.XML.Tree.Node) entries = root->get_elements("entry");
 
-        foreach(entries, Standards.XML.Node entry) {
+        foreach(entries, Parser.XML.Tree.Node entry) {
             mapping data = ([]);
 
-            array(Standards.XML.Node) titles = entry->get_elements("title");
-            array(Standards.XML.Node) links = entry->get_elements("link");
-            array(Standards.XML.Node) contents = entry->get_elements("content");
-            array(Standards.XML.Node) summaries = entry->get_elements("summary");
-            array(Standards.XML.Node) published = entry->get_elements("published");
-            array(Standards.XML.Node) updated = entry->get_elements("updated");
-            array(Standards.XML.Node) ids = entry->get_elements("id");
+            array(Parser.XML.Tree.Node) titles = entry->get_elements("title");
+            array(Parser.XML.Tree.Node) links = entry->get_elements("link");
+            array(Parser.XML.Tree.Node) contents = entry->get_elements("content");
+            array(Parser.XML.Tree.Node) summaries = entry->get_elements("summary");
+            array(Parser.XML.Tree.Node) published = entry->get_elements("published");
+            array(Parser.XML.Tree.Node) updated = entry->get_elements("updated");
+            array(Parser.XML.Tree.Node) ids = entry->get_elements("id");
 
             if (sizeof(titles)) data->title = titles[0]->get_text();
             if (sizeof(links)) {
@@ -163,7 +163,7 @@ class FeedAggregator
     // Export to JSON
     string export_json(array(mapping) items)
     {
-        return Standards.JSON.encode_pretty(items);
+        return Standards.JSON.encode(items, Standards.JSON.PIKE_CANONICAL);
     }
 
     // Generate HTML summary
@@ -187,7 +187,7 @@ class FeedAggregator
             string source = item->source_url || "";
 
             // Strip HTML from description
-            desc = Regexp.PCRE.Simple("<[^>]+>")->replace(desc, "");
+            desc = Regexp.SimpleRegexp("<[^>]+>")->replace(desc, "");
 
             if (sizeof(desc) > 200) {
                 desc = desc[0..200] + "...";

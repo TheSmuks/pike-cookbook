@@ -330,7 +330,7 @@ write("Multiple replacements: %s\n", result);
 
 // Email validation
 string email = "user@example.com";
-object email_re = Regexp.PCRE.Simple("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+object email_re = Regexp.SimpleRegexp("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
 
 if (email_re->match(email)) {
     write("Valid email\n");
@@ -346,7 +346,7 @@ if (sscanf(log_entry, "%s %s %[^:]: %s", date, time, level, message) == 4) {
 
 // URL extraction
 string html = '<a href="https://example.com">Link</a>';
-object url_re = Regexp.PCRE.Simple("href=\"([^\"]+)\"");
+object url_re = Regexp.SimpleRegexp("href=\"([^\"]+)\"");
 array(string) urls = url_re->match(html);
 if (urls) {
     write("URL: %s\n", urls[1]);  // Capture group 1
@@ -354,7 +354,7 @@ if (urls) {
 ```
 
 :::tip
-Use `sscanf()` for simple patterns and `Regexp.PCRE.Simple()` for complex regex matching.
+Use `sscanf()` for simple patterns and `Regexp.SimpleRegexp()` for complex regex matching.
 :::
 
 ---
@@ -493,7 +493,7 @@ string word_reversed = reversed_words * " ";
 
 // Email validation
 bool is_valid_email(string email) {
-    object re = Regexp.PCRE.Simple("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
+    object re = Regexp.SimpleRegexp("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Z|a-z]{2,}$");
     return re->match(email);
 }
 
@@ -518,7 +518,7 @@ string make_slug(string text) {
     string slug = lower_case(text);
 
     // Replace non-alphanumeric with hyphens
-    slug = Regexp.PCRE.Simple("[^a-z0-9]+")->replace(slug, "-");
+    slug = Regexp.SimpleRegexp("[^a-z0-9]+")->replace(slug, "-");
 
     // Remove leading/trailing hyphens
     slug = String.trim_whites(slug);

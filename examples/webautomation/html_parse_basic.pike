@@ -21,7 +21,7 @@ int main()
     array(string) titles = ({});
     string pattern = "<title>([^<]*)</title>";
 
-    object re = Regexp.PCRE.Simple(pattern);
+    object re = Regexp.SimpleRegexp(pattern);
     array(string) matches = re->split(html);
 
     if (sizeof(matches) > 1) {
@@ -31,7 +31,7 @@ int main()
     // Extract all links
     write("\n--- Links Found ---\n");
     pattern = "<a\\s+href=\"([^\"]+)\"[^>]*>([^<]*)</a>";
-    re = Regexp.PCRE.Simple(pattern);
+    re = Regexp.SimpleRegexp(pattern);
     int match_count;
 
     void scan_links(string s) {

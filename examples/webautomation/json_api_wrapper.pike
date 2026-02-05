@@ -2,6 +2,181 @@
 #pragma strict_types
 // High-level JSON API wrapper with error handling
 
+// RESTClient class (from rest_api_client.pike)
+class RESTClient
+{
+    private string base_url;
+    private string|void auth_token;
+    private mapping(string:string) default_headers = ([
+        "User-Agent": "Pike RESTClient/1.0",
+        "Accept": "application/json"
+    ]);
+
+    void create(string url, string|void token)
+    {
+        base_url = url;
+        auth_token = token;
+    }
+
+    // Build headers with auth
+    private mapping get_headers(mapping|void extra_headers)
+    {
+        mapping headers = copy_value(default_headers);
+
+        if (auth_token) {
+            headers["Authorization"] = "Bearer " + auth_token;
+        }
+
+        if (extra_headers) {
+            headers |= extra_headers;
+        }
+
+        return headers;
+    }
+
+    // Generic request method
+    private Protocols.HTTP.Query request(string method, string endpoint,
+                                          mapping|void data,
+                                          mapping|void extra_headers)
+    {
+        string url = base_url + endpoint;
+        mapping headers = get_headers(extra_headers);
+
+        Protocols.HTTP.Query q;
+
+        if (method == "GET") {
+            if (data && sizeof(data)) {
+                array(string) params = map(indices(data), lambda(string key) {
+                    return Protocols.HTTP.uri_encode(key) + "=" +
+                           Protocols.HTTP.uri_encode(data[key]);
+                });
+                url += "?" + (params * "&");
+            }
+            q = Protocols.HTTP.get_url(url, headers);
+        }
+        else if (method == "POST") {
+            headers["Content-Type"] = "application/json";
+            string body = data ? Standards.JSON.encode(data) : "{}";
+            q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+        }
+        else if (method == "PUT") {
+            headers["Content-Type"] = "application/json";
+            string body = data ? Standards.JSON.encode(data) : "{}";
+            q = Protocols.HTTP.do_method("PUT", url, ([]), headers, 0, body);
+        }
+        else if (method == "DELETE") {
+            q = Protocols.HTTP.do_method("DELETE", url, ([]), headers);
+        }
+        else if (method == "PATCH") {
+            headers["Content-Type"] = "application/json";
+            string body = data ? Standards.JSON.encode(data) : "{}";
+            q = Protocols.HTTP.do_method("PATCH", url, ([]), headers, 0, body);
+        }
+
+        return q;
+    }
+
+    // GET request
+    mapping get(string endpoint, mapping|void params)
+    {
+        Protocols.HTTP.Query q = request("GET", endpoint, params);
+
+        if (q->status >= 200 && q->status < 300) {
+            return ([
+                "success": 1,
+                "status": q->status,
+                "data": Standards.JSON.decode(q->data())
+            ]);
+        } else {
+            return ([
+                "success": 0,
+                "status": q->status,
+                "error": q->status_desc
+            ]);
+        }
+    }
+
+    // POST request
+    mapping post(string endpoint, mapping data)
+    {
+        Protocols.HTTP.Query q = request("POST", endpoint, data);
+
+        if (q->status >= 200 && q->status < 300) {
+            return ([
+                "success": 1,
+                "status": q->status,
+                "data": Standards.JSON.decode(q->data())
+            ]);
+        } else {
+            return ([
+                "success": 0,
+                "status": q->status,
+                "error": q->status_desc
+            ]);
+        }
+    }
+
+    // PUT request
+    mapping put(string endpoint, mapping data)
+    {
+        Protocols.HTTP.Query q = request("PUT", endpoint, data);
+
+        if (q->status >= 200 && q->status < 300) {
+            return ([
+                "success": 1,
+                "status": q->status,
+                "data": Standards.JSON.decode(q->data())
+            ]);
+        } else {
+            return ([
+                "success": 0,
+                "status": q->status,
+                "error": q->status_desc
+            ]);
+        }
+    }
+
+    // DELETE request
+    mapping delete(string endpoint)
+    {
+        Protocols.HTTP.Query q = request("DELETE", endpoint);
+
+        if (q->status >= 200 && q->status < 300) {
+            return ([
+                "success": 1,
+                "status": q->status,
+                "data": Standards.JSON.decode(q->data() || "{}")
+            ]);
+        } else {
+            return ([
+                "success": 0,
+                "status": q->status,
+                "error": q->status_desc
+            ]);
+        }
+    }
+
+    // PATCH request
+    mapping patch(string endpoint, mapping data)
+    {
+        Protocols.HTTP.Query q = request("PATCH", endpoint, data);
+
+        if (q->status >= 200 && q->status < 300) {
+            return ([
+                "success": 1,
+                "status": q->status,
+                "data": Standards.JSON.decode(q->data())
+            ]);
+        } else {
+            return ([
+                "success": 0,
+                "status": q->status,
+                "error": q->status_desc
+            ]);
+        }
+    }
+}
+
 class APIResponse
 {
     int success;
@@ -57,8 +232,14 @@ class JSONAPIClient
                 break;
             }
 
-            array items = resp->data;
-            if (!arrayp(items) || !sizeof(items)) {
+            // Check if data is an array (could be mapping for single items)
+            mixed data = resp->data;
+            if (!arrayp(data)) {
+                break;
+            }
+
+            array items = data;
+            if (!sizeof(items)) {
                 break;
             }
 

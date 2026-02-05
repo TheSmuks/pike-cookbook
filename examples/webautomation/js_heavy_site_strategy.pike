@@ -58,7 +58,7 @@ void discover_api_endpoints()
     write("Searching for API endpoints in JavaScript...\n");
 
     foreach(patterns, string pattern) {
-        object re = Regexp.PCRE.Simple(pattern);
+        object re = Regexp.SimpleRegexp(pattern);
         array(string) matches = re->split(html);
 
         if (sizeof(matches) > 1) {

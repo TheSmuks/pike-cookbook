@@ -28,10 +28,11 @@ int main()
     </table>
     ";
 
-    Standards.XML.Node root = Standards.XML.parse(html);
+    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(html);
+    Parser.XML.Tree.Node root = xml_root->get_children()[0];
 
     // Find table
-    array(Standards.XML.Node) tables = root->get_elements("table");
+    array(Parser.XML.Tree.Node) tables = root->get_elements("table");
     if (!sizeof(tables)) {
         werror("No tables found\n");
         return 1;
@@ -40,10 +41,10 @@ int main()
     // Extract table data
     array(array(string)) rows = ({});
 
-    void process_tr(Standards.XML.Node tr) {
+    void process_tr(Parser.XML.Tree.Node tr) {
         array(string) cells = ({});
         foreach(tr->get_elements("td") + tr->get_elements("th"),
-                Standards.XML.Node cell) {
+                Parser.XML.Tree.Node cell) {
             cells += ({ cell->get_text() });
         }
         if (sizeof(cells)) {
@@ -52,7 +53,7 @@ int main()
     };
 
     // Process all rows
-    foreach(tables[0]->get_elements("tr"), Standards.XML.Node tr) {
+    foreach(tables[0]->get_elements("tr"), Parser.XML.Tree.Node tr) {
         process_tr(tr);
     }
 

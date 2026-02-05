@@ -25,7 +25,8 @@ class WebhookSender
 
         // Add signature if secret provided
         if (secret) {
-            string sig = Crypto.SHA256.hmac(secret, body);
+            object hmac = Crypto.HMAC(Crypto.SHA256)(secret);
+            string sig = hmac(body);
             string sig_hex = String.string2hex(sig);
             headers["X-Webhook-Signature"] = "sha256=" + sig_hex;
         }

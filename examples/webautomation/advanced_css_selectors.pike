@@ -5,9 +5,9 @@
 class CSSSelector
 {
     // Parse selector and match elements
-    static array(Standards.XML.Node) select(string selector, Standards.XML.Node root)
+    static array(Parser.XML.Tree.Node) select(string selector, Parser.XML.Tree.Node root)
     {
-        array(Standards.XML.Node) results = ({});
+        array(Parser.XML.Tree.Node) results = ({});
 
         // Parse selector: tag.class#id, multiple selectors
         array(string) parts = selector / ",";
@@ -46,7 +46,7 @@ class CSSSelector
             }
 
             // Find matching elements
-            array(Standards.XML.Node) matched = find_elements(root, tag, class_name, id);
+            array(Parser.XML.Tree.Node) matched = find_elements(root, tag, class_name, id);
             results += matched;
         }
 
@@ -54,12 +54,12 @@ class CSSSelector
     }
 
     // Find elements by tag, class, and ID
-    static array(Standards.XML.Node) find_elements(Standards.XML.Node node,
+    static array(Parser.XML.Tree.Node) find_elements(Parser.XML.Tree.Node node,
                                                      string tag, string class_name, string id)
     {
-        array(Standards.XML.Node) results = ({});
+        array(Parser.XML.Tree.Node) results = ({});
 
-        void check(Standards.XML.Node n) {
+        void check(Parser.XML.Tree.Node n) {
             if (!objectp(n)) return;
 
             // Check tag name
@@ -92,23 +92,23 @@ class CSSSelector
     }
 
     // Get element by ID
-    static Standards.XML.Node get_by_id(Standards.XML.Node root, string id)
+    static Parser.XML.Tree.Node get_by_id(Parser.XML.Tree.Node root, string id)
     {
-        array(Standards.XML.Node) results = select("#" + id, root);
+        array(Parser.XML.Tree.Node) results = select("#" + id, root);
         return sizeof(results) ? results[0] : 0;
     }
 
     // Get elements by class
-    static array(Standards.XML.Node) get_by_class(Standards.XML.Node root, string class_name)
+    static array(Parser.XML.Tree.Node) get_by_class(Parser.XML.Tree.Node root, string class_name)
     {
         return select("." + class_name, root);
     }
 
     // Get text content of matched elements
-    static array(string) get_text(string selector, Standards.XML.Node root)
+    static array(string) get_text(string selector, Parser.XML.Tree.Node root)
     {
-        array(Standards.XML.Node) elements = select(selector, root);
-        return map(elements, lambda(Standards.XML.Node n) {
+        array(Parser.XML.Tree.Node) elements = select(selector, root);
+        return map(elements, lambda(Parser.XML.Tree.Node n) {
             return n->get_text();
         });
     }
@@ -143,13 +143,14 @@ int main()
     </html>
     ";
 
-    Standards.XML.Node root = Standards.XML.parse(html);
+    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(html);
+    Parser.XML.Tree.Node root = xml_root->get_children()[0];
 
     write("=== CSS Selector Examples ===\n\n");
 
     // Example 1: Select by ID
     write("1. Select by ID (#header)\n");
-    array(Standards.XML.Node) results = CSSSelector->select("#header", root);
+    array(Parser.XML.Tree.Node) results = CSSSelector->select("#header", root);
     write("   Found: %d element(s)\n", sizeof(results));
 
     // Example 2: Select by class
@@ -161,7 +162,7 @@ int main()
     write("\n3. Select by tag (h2)\n");
     results = CSSSelector->select("h2", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         write("   - %s\n", n->get_text());
     }
 
@@ -169,7 +170,7 @@ int main()
     write("\n4. Select by tag.class (p.text)\n");
     results = CSSSelector->select("p.text", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         write("   - %s\n", n->get_text());
     }
 
@@ -182,7 +183,7 @@ int main()
     write("\n6. Multiple selectors (h1, h2)\n");
     results = CSSSelector->select("h1, h2", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         write("   - %s: %s\n", n->get_tag_name(), n->get_text());
     }
 

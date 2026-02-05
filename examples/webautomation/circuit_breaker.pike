@@ -2,11 +2,14 @@
 #pragma strict_types
 // Circuit breaker pattern for failing services
 
+// Circuit breaker states
+constant STATE_CLOSED = 0;
+constant STATE_OPEN = 1;
+constant STATE_HALF_OPEN = 2;
+
 class CircuitBreaker
 {
-    enum State { CLOSED, OPEN, HALF_OPEN };
-
-    private State state = State::CLOSED;
+    private int state = STATE_CLOSED;
     private int failure_count = 0;
     private int failure_threshold = 5;
     private int success_count = 0;
@@ -27,11 +30,11 @@ class CircuitBreaker
     mixed execute(function operation)
     {
         // Check if circuit should transition to half-open
-        if (state == State::OPEN) {
+        if (state == STATE_OPEN) {
             float elapsed = time() - last_failure_time;
             if (elapsed >= timeout) {
                 write("[%s] Circuit breaker transitioning to HALF_OPEN\n", service_name);
-                state = State::HALF_OPEN;
+                state = STATE_HALF_OPEN;
                 success_count = 0;
             } else {
                 werror("[%s] Circuit breaker OPEN - rejecting request (%.1fs remaining)\n",
@@ -55,17 +58,17 @@ class CircuitBreaker
     // Handle success
     void on_success()
     {
-        if (state == State::HALF_OPEN) {
+        if (state == STATE_HALF_OPEN) {
             success_count++;
             write("[%s] Success in HALF_OPEN (%d/%d)\n",
                   service_name, success_count, success_threshold);
 
             if (success_count >= success_threshold) {
                 write("[%s] Circuit breaker closing\n", service_name);
-                state = State::CLOSED;
+                state = STATE_CLOSED;
                 failure_count = 0;
             }
-        } else if (state == State::CLOSED) {
+        } else if (state == STATE_CLOSED) {
             // Reset failure count on success
             failure_count = max(0, failure_count - 1);
         }
@@ -75,22 +78,22 @@ class CircuitBreaker
     void on_failure()
     {
         failure_count++;
-        last_failure_time = time();
+        last_failure_time = (float)time();
 
         write("[%s] Failure recorded (%d/%d)\n",
               service_name, failure_count, failure_threshold);
 
         if (failure_count >= failure_threshold) {
-            if (state != State::OPEN) {
+            if (state != STATE_OPEN) {
                 write("[%s] Circuit breaker opening after %d failures\n",
                       service_name, failure_count);
             }
-            state = State::OPEN;
+            state = STATE_OPEN;
         }
     }
 
     // Get current state
-    State get_state()
+    int get_state()
     {
         return state;
     }
@@ -99,16 +102,16 @@ class CircuitBreaker
     string get_state_name()
     {
         switch(state) {
-            case State::CLOSED: return "CLOSED";
-            case State::OPEN: return "OPEN";
-            case State::HALF_OPEN: return "HALF_OPEN";
+            case STATE_CLOSED: return "CLOSED";
+            case STATE_OPEN: return "OPEN";
+            case STATE_HALF_OPEN: return "HALF_OPEN";
         }
     }
 
     // Reset circuit breaker
     void reset()
     {
-        state = State::CLOSED;
+        state = STATE_CLOSED;
         failure_count = 0;
         success_count = 0;
         write("[%s] Circuit breaker reset\n", service_name);

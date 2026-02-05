@@ -23,7 +23,7 @@ class RateLimiter
         if (elapsed < min_interval) {
             float sleep_time = min_interval - elapsed;
             write("Rate limit: sleeping %.2f seconds\n", sleep_time);
-            sleep((int)(sleep_time * 1000000) / 1000);  // Convert to microseconds
+            usleep((int)(sleep_time * 1000000));  // Convert to microseconds
         }
 
         last_request_time = time();
