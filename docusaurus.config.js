@@ -127,6 +127,11 @@ const config = {
         additionalLanguages: ['pike', 'bash', 'css', 'javascript', 'typescript'],
         defaultLanguage: 'pike',
       },
+      docs: {
+        sidebar: {
+          hideable: true,
+        },
+      },
     }),
 };
 
