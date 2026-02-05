@@ -24,23 +24,23 @@ class PoliteCrawler
     // Respect rate limiting
     void throttle()
     {
-        float current_time = (float)time(1) + ((float)time(time(time()) - (int)time())) / 1000000.0;
+        float current_time = (float)gethrtime() / 1000000.0;
         float elapsed = current_time - last_request_time;
 
         if (elapsed < request_delay) {
             float sleep_time = request_delay - elapsed;
             int usecs = (int)(sleep_time * 1000000);
-            usleep(usecs);
+            System.usleep(usecs);
         }
 
-        last_request_time = (float)time(1) + ((float)time(time(time()) - (int)time())) / 1000000.0;
+        last_request_time = (float)gethrtime() / 1000000.0;
     }
 
     // Fetch and parse robots.txt
     mapping fetch_robots_txt(string base_url)
     {
         if (robots_cache[base_url]) {
-            return robots_cache[base_url];
+            return [mapping]robots_cache[base_url];
         }
 
         Standards.URI uri = Standards.URI(base_url);
@@ -57,7 +57,7 @@ class PoliteCrawler
 
         if (q->status == 200) {
             foreach(q->data() / "\n", string line) {
-                line = String.trim_whitespace(line);
+                line = String.trim_all_whites(line);
 
                 // Skip comments and empty lines
                 if (has_prefix(line, "#") || sizeof(line) == 0) {
@@ -69,13 +69,13 @@ class PoliteCrawler
                     // Multiple user-agents supported
                 }
                 else if (has_prefix(lower_case(line), "disallow:")) {
-                    string path = String.trim_whitespace(line[9..]);
+                    string path = String.trim_all_whites(line[9..]);
                     if (sizeof(path) > 0) {
                         rules->disallowed += ({ path });
                     }
                 }
                 else if (has_prefix(lower_case(line), "crawl-delay:")) {
-                    string delay_str = String.trim_whitespace(line[12..]);
+                    string delay_str = String.trim_all_whites(line[12..]);
                     float delay = (float)delay_str;
                     if (delay > 0) {
                         rules->crawl_delay = delay;
@@ -83,7 +83,7 @@ class PoliteCrawler
                 }
                 else if (has_prefix(lower_case(line), "request-rate:")) {
                     // Parse request-rate format (e.g., "1/5")
-                    string rate = String.trim_whitespace(line[13..]);
+                    string rate = String.trim_all_whites(line[13..]);
                     array parts = rate / "/";
                     if (sizeof(parts) == 2) {
                         rules->request_rate = (int)parts[0];
@@ -116,9 +116,13 @@ class PoliteCrawler
 
         string path = uri->path;
 
-        foreach(rules->disallowed || ({}), string disallowed) {
-            if (has_prefix(path, disallowed)) {
-                return 0;
+        mixed disallowed_mixed = rules->disallowed;
+        if (disallowed_mixed && arrayp(disallowed_mixed)) {
+            array(string) disallowed_paths = [array(string)]disallowed_mixed;
+            foreach(disallowed_paths, string disallowed) {
+                if (has_prefix(path, disallowed)) {
+                    return 0;
+                }
             }
         }
 
@@ -153,7 +157,7 @@ class PoliteCrawler
         array(Protocols.HTTP.Query) results = ({});
         int completed = 0;
 
-        foreach(urls; int i; string url) {
+        foreach(urls, string url) {
             // Wait for available slot
             while (completed - sizeof(results) >= max_concurrent) {
                 sleep(1);
@@ -200,8 +204,12 @@ int main(int argc, array(string) argv)
 
     if (rules->disallowed) {
         write("Disallowed paths:\n");
-        foreach(rules->disallowed, string path) {
-            write("  - %s\n", path);
+        mixed paths_mixed = rules->disallowed;
+        if (arrayp(paths_mixed)) {
+            array(string) paths = [array(string)]paths_mixed;
+            foreach(paths, string path) {
+                write("  - %s\n", path);
+            }
         }
     } else {
         write("  No restrictions found\n");
@@ -223,7 +231,7 @@ int main(int argc, array(string) argv)
     if (argc > 3) {
         array(string) urls = argv[3..];
         write("\nFetching %d URLs...\n", sizeof(urls));
-        array results = crawler->fetch_multiple(urls, 2);
+        array(Protocols.HTTP.Query) results = crawler->fetch_multiple(urls, 2);
         write("Completed: %d URLs\n", sizeof(results));
     }
 

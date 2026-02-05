@@ -275,7 +275,7 @@ int is_valid_email(string email) {
     if (!email || sizeof(email) < 3 || sizeof(email) > 254)
         return 0;
 
-    return Regexp.PCRE.Simple("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")->match(email);
+    return Regexp.SimpleRegexp("^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")->match(email);
 }
 
 // Rate limiting

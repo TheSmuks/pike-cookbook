@@ -546,7 +546,7 @@ write("Your website received %s accesses last month.\n", commify_series(hits));
 string commify(string s)
 {
   function t = lambda(string m) { return reverse((reverse(m) / 3.0) * ","); };
-  return Regexp.PCRE("([0-9]+)")->replace(s, t);
+  return Regexp.SimpleRegexp("([0-9]+)")->replace(s, t);
 }
 
 // ----

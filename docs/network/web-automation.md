@@ -234,7 +234,7 @@ void main() {
     string html = q->data();
 
     // Extract all href attributes
-    object re = Regexp.PCRE.Simple("<a\\s+href=\"([^\"]+)\"[^>]*>([^<]*)</a>");
+    object re = Regexp.SimpleRegexp("<a\\s+href=\"([^\"]+)\"[^>]*>([^<]*)</a>");
     array(string) links = ({});
     int pos = 0;
 
@@ -260,13 +260,13 @@ void main() {
 
 ---
 
-## HTML Parsing with Standards.XML
+## HTML Parsing with Parser.XML.Tree
 
 ### Parse Structured HTML
 
 ```pike
 //-----------------------------
-// Recipe: Parse XHTML with Standards.XML
+// Recipe: Parse XHTML with Parser.XML.Tree
 //-----------------------------
 
 #pragma strict_types
@@ -286,17 +286,18 @@ void main() {
     </html>";
 
     // Parse XHTML
-    Standards.XML.Node root = Standards.XML.parse(html);
+    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(html);
+    Parser.XML.Tree.Node root = xml_root->get_children()[0];
 
     // Extract title
-    array(Standards.XML.Node) titles = root->get_elements("title");
+    array(Parser.XML.Tree.Node) titles = root->get_elements("title");
     if (sizeof(titles)) {
         write("Title: %s\n", titles[0]->get_text());
     }
 
     // Extract paragraph by ID
-    array(Standards.XML.Node) paras = root->get_elements("p");
-    foreach(paras; Standards.XML.Node p) {
+    array(Parser.XML.Tree.Node) paras = root->get_elements("p");
+    foreach(paras; Parser.XML.Tree.Node p) {
         mapping attrs = p->get_attributes();
         if (attrs && attrs->id == "intro") {
             write("Intro paragraph: %s\n", p->get_text());
@@ -304,10 +305,10 @@ void main() {
     }
 
     // Extract list items
-    array(Standards.XML.Node) lists = root->get_elements("ul");
+    array(Parser.XML.Tree.Node) lists = root->get_elements("ul");
     if (sizeof(lists)) {
-        array(Standards.XML.Node) items = lists[0]->get_elements("li");
-        foreach(items; Standards.XML.Node item) {
+        array(Parser.XML.Tree.Node) items = lists[0]->get_elements("li");
+        foreach(items; Parser.XML.Tree.Node item) {
             write("- %s\n", item->get_text());
         }
     }
@@ -637,7 +638,7 @@ class WebCrawler {
 
     array(string) extract_links(string html) {
         array(string) links = ({});
-        object re = Regexp.PCRE.Simple("<a\\s+href=['\"]([^'\"]+)['\"]");
+        object re = Regexp.SimpleRegexp("<a\\s+href=['\"]([^'\"]+)['\"]");
 
         int pos = 0;
         while (pos < sizeof(html)) {

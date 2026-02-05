@@ -4,7 +4,7 @@
 
 class WebhookHandler
 {
-    private mapping(string:mixed) event_log = ({});
+    private array(mapping(string:mixed)) event_log = ({});
     private string secret;
 
     void create(string|void sec)
@@ -13,7 +13,7 @@ class WebhookHandler
     }
 
     // Handle incoming webhook
-    string handle_webhook(mapping headers, string body, string path)
+    mapping(string:mixed) handle_webhook(mapping(string:mixed) headers, string body, string path)
     {
         write("Received webhook on %s\n", path);
 
@@ -35,15 +35,36 @@ class WebhookHandler
         }
 
         // Parse JSON body if present
-        if (has_prefix((headers["content-type"] || ""), "application/json")) {
+        string content_type;
+        if (headers["content-type"]) {
+            content_type = (string)headers["content-type"];
+        }
+
+        if (content_type && has_prefix(content_type, "application/json")) {
             mixed data = Standards.JSON.decode(body);
 
             if (mappingp(data)) {
-                write("  Event type: %s\n", data->event || data->type || "unknown");
-                write("  Event ID: %s\n", data->id || "N/A");
+                mapping(string:mixed) event_data = data;
+                string event_type;
+                if (event_data["event"]) {
+                    event_type = (string)event_data["event"];
+                } else if (event_data["type"]) {
+                    event_type = (string)event_data["type"];
+                } else {
+                    event_type = "unknown";
+                }
+                write("  Event type: %s\n", event_type);
+
+                string event_id;
+                if (event_data["id"]) {
+                    event_id = (string)event_data["id"];
+                } else {
+                    event_id = "N/A";
+                }
+                write("  Event ID: %s\n", event_id);
 
                 // Process specific event types
-                process_event(data);
+                process_event(event_data);
             }
         }
 
@@ -51,10 +72,16 @@ class WebhookHandler
     }
 
     // Verify webhook signature
-    int verify_signature(mapping headers, string body)
+    int verify_signature(mapping(string:mixed) headers, string body)
     {
-        string sig_header = headers["x-hub-signature"] ||
-                           headers["x-webhook-signature"];
+        string sig_header;
+        if (headers["x-hub-signature"]) {
+            sig_header = (string)headers["x-hub-signature"];
+        } else if (headers["x-webhook-signature"]) {
+            sig_header = (string)headers["x-webhook-signature"];
+        } else {
+            return 0;  // No signature to verify
+        }
 
         if (!sig_header) {
             return 0;  // No signature to verify
@@ -68,8 +95,9 @@ class WebhookHandler
 
         string expected_sig = parts[1];
 
-        // Compute HMAC
-        string computed = Crypto.SHA256.hmac(secret, body);
+        // Compute HMAC using Crypto.HMAC
+        object hmac = Crypto.HMAC(Crypto.SHA256);
+        string computed = hmac(secret, body);
         string computed_hex = String.string2hex(computed);
 
         return constant_time_compare(computed_hex, expected_sig);
@@ -92,27 +120,62 @@ class WebhookHandler
     }
 
     // Process webhook event
-    void process_event(mapping data)
+    void process_event(mapping(string:mixed) data)
     {
-        string event_type = data->event || data->type;
+        string event_type;
+        if (data["event"]) {
+            event_type = (string)data["event"];
+        } else if (data["type"]) {
+            event_type = (string)data["type"];
+        } else {
+            event_type = "unknown";
+        }
 
         switch(event_type)
         {
             case "push":
                 write("  Processing push event\n");
-                write("    Repository: %s\n", data->repository->name || "unknown");
-                write("    Ref: %s\n", data->ref || "unknown");
+                string repo_name = "unknown";
+                if (data["repository"] && mappingp(data["repository"])) {
+                    mapping repo = data["repository"];
+                    if (repo["name"]) {
+                        repo_name = (string)repo["name"];
+                    }
+                }
+                write("    Repository: %s\n", repo_name);
+
+                string ref = "unknown";
+                if (data["ref"]) {
+                    ref = (string)data["ref"];
+                }
+                write("    Ref: %s\n", ref);
                 break;
 
             case "pull_request":
                 write("  Processing pull request event\n");
-                write("    Action: %s\n", data->action || "unknown");
-                write("    PR #%d\n", data->number || 0);
+                string action = "unknown";
+                if (data["action"]) {
+                    action = (string)data["action"];
+                }
+                write("    Action: %s\n", action);
+
+                int number = 0;
+                if (data["number"]) {
+                    number = (int)data["number"];
+                }
+                write("    PR #%d\n", number);
                 break;
 
             case "deployment":
                 write("  Processing deployment event\n");
-                write("    Environment: %s\n", data->deployment->environment || "unknown");
+                string env = "unknown";
+                if (data["deployment"] && mappingp(data["deployment"])) {
+                    mapping deployment = data["deployment"];
+                    if (deployment["environment"]) {
+                        env = (string)deployment["environment"];
+                    }
+                }
+                write("    Environment: %s\n", env);
                 break;
 
             default:
@@ -121,28 +184,30 @@ class WebhookHandler
         }
     }
 
-    // Generate HTTP response
-    string generate_response(int status, string message)
+    // Generate HTTP response mapping
+    mapping(string:mixed) generate_response(int status, string message)
     {
-        mapping response = ([
+        mapping response_body = ([
             "status": status,
             "message": message,
             "timestamp": Calendar.now()->format_time()
         ]);
 
-        string body = Standards.JSON.encode(response);
+        string body = Standards.JSON.encode(response_body);
 
-        return sprintf("HTTP/1.1 %d OK\r\n"
-                      "Content-Type: application/json\r\n"
-                      "Content-Length: %d\r\n"
-                      "Connection: close\r\n"
-                      "\r\n"
-                      "%s",
-                      status, sizeof(body), body);
+        return ([
+            "data": body,
+            "type": "application/json",
+            "error": status,
+            "size": sizeof(body),
+            "extra_heads": ([
+                "Connection": "close"
+            ])
+        ]);
     }
 
     // Get event log
-    array(mapping) get_events()
+    array(mapping(string:mixed)) get_events()
     {
         return event_log;
     }
@@ -166,15 +231,14 @@ class WebhookServer
         server_port = port_num;
         handler = WebhookHandler(secret);
 
-        port = Protocols.HTTP.Server.Port();
-        port->bind(server_port, handle_request);
+        port = Protocols.HTTP.Server.Port(handle_request, server_port);
     }
 
     // Handle incoming HTTP request
     void handle_request(Protocols.HTTP.Server.Request req)
     {
         string path = req->not_query;
-        method method = req->request_type;
+        string method = req->request_type;
 
         write("%s: %s\n", upper_case(method), path);
 
@@ -183,35 +247,43 @@ class WebhookServer
             string body = req->body_raw || "";
 
             // Handle webhook
-            string response = handler->handle_webhook(req->headers, body, path);
+            mapping(string:mixed) response = handler->handle_webhook(req->headers, body, path);
             req->response_and_finish(response);
         } else if (method == "GET") {
             // Provide status information
             if (path == "/status") {
-                mapping status = ([
+                mapping(string:mixed) status = ([
                     "status": "running",
                     "webhooks_received": sizeof(handler->get_events()),
                     "timestamp": Calendar.now()->format_time()
                 ]);
 
-                string body = Standards.JSON.encode_pretty(status);
-                string resp = sprintf("HTTP/1.1 200 OK\r\n"
-                                     "Content-Type: application/json\r\n"
-                                     "Content-Length: %d\r\n"
-                                     "\r\n%s",
-                                     sizeof(body), body);
+                string body = Standards.JSON.encode(status, Standards.JSON.PIKE_CANONICAL);
+                mapping(string:mixed) resp = ([
+                    "data": body,
+                    "type": "application/json",
+                    "error": 200,
+                    "size": sizeof(body)
+                ]);
                 req->response_and_finish(resp);
             } else {
                 string body = "Webhook Server is running. GET /status for info.";
-                string resp = sprintf("HTTP/1.1 200 OK\r\n"
-                                     "Content-Type: text/plain\r\n"
-                                     "Content-Length: %d\r\n"
-                                     "\r\n%s",
-                                     sizeof(body), body);
+                mapping(string:mixed) resp = ([
+                    "data": body,
+                    "type": "text/plain",
+                    "error": 200,
+                    "size": sizeof(body)
+                ]);
                 req->response_and_finish(resp);
             }
         } else {
-            req->response_and_finish("HTTP/1.1 405 Method Not Allowed\r\n\r\n");
+            mapping(string:mixed) resp = ([
+                "data": "",
+                "type": "text/plain",
+                "error": 405,
+                "size": 0
+            ]);
+            req->response_and_finish(resp);
         }
     }
 
@@ -224,8 +296,8 @@ class WebhookServer
         write("  GET /status - Server status\n");
         write("\nWaiting for webhooks...\n\n");
 
-        // Keep server running
-        return -1;
+        // Keep server running - wait indefinitely
+        sleep(-1);
     }
 }
 

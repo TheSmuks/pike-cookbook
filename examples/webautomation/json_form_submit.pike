@@ -43,7 +43,7 @@ int main()
         write("JSON submitted successfully!\n");
         mapping response = Standards.JSON.decode(q->data());
         write("\nEchoed JSON data:\n");
-        write("%s\n", Standards.JSON.encode_pretty(response->json));
+        write("%s\n", Standards.JSON.encode(response->json, Standards.JSON.HUMAN_READABLE));
         return 0;
     } else {
         werror("Request failed: %d\n", q->status);

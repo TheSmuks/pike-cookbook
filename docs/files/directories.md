@@ -431,7 +431,7 @@ array(string) find_files_by_pattern(string path, string pattern) {
 
     // Create regex from glob pattern
     string regex = replace(pattern, ({"*", "."}), ({"[^/]*", "\\."}));
-    object re = Regexp.PCRE.Simple("^" + regex + "$");
+    object re = Regexp.SimpleRegexp("^" + regex + "$");
 
     foreach(items;; string item) {
         if (re->match(item)) {

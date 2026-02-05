@@ -4,18 +4,18 @@
 
 class XPathEngine
 {
-    static Standards.XML.Node root;
+    static Parser.XML.Tree.Node root;
 
-    void create(Standards.XML.Node r)
+    void create(Parser.XML.Tree.Node r)
     {
         root = r;
     }
 
     // Execute XPath-like query
-    array(Standards.XML.Node) query(string xpath)
+    array(Parser.XML.Tree.Node) query(string xpath)
     {
         // Support basic XPath: //tag, /root/tag, tag[@attr='value'], tag[text()='value']
-        array(Standards.XML.Node) results = ({});
+        array(Parser.XML.Tree.Node) results = ({});
 
         // Absolute path
         if (has_prefix(xpath, "/")) {
@@ -35,15 +35,15 @@ class XPathEngine
     }
 
     // Evaluate absolute path
-    static array(Standards.XML.Node) evaluate_absolute(string path)
+    static array(Parser.XML.Tree.Node) evaluate_absolute(string path)
     {
         array(string) parts = path / "/";
         parts -= ({""});  // Remove empty strings
 
-        array(Standards.XML.Node) current = ({ root });
+        array(Parser.XML.Tree.Node) current = ({ root });
 
         foreach(parts, string part) {
-            array(Standards.XML.Node) next = ({});
+            array(Parser.XML.Tree.Node) next = ({});
 
             // Parse predicate: tag[@attr='value'] or tag[text()='value']
             string tag = part;
@@ -67,10 +67,10 @@ class XPathEngine
                 }
             }
 
-            foreach(current, Standards.XML.Node node) {
-                array(Standards.XML.Node) children = node->get_elements(tag);
+            foreach(current, Parser.XML.Tree.Node node) {
+                array(Parser.XML.Tree.Node) children = node->get_elements(tag);
 
-                foreach(children, Standards.XML.Node child) {
+                foreach(children, Parser.XML.Tree.Node child) {
                     if (sizeof(attr_name)) {
                         if (attr_name == "text()") {
                             if (child->get_text() == attr_value) {
@@ -96,11 +96,11 @@ class XPathEngine
     }
 
     // Find all elements by tag name recursively
-    static array(Standards.XML.Node) find_all_by_tag(string tag)
+    static array(Parser.XML.Tree.Node) find_all_by_tag(string tag)
     {
-        array(Standards.XML.Node) results = ({});
+        array(Parser.XML.Tree.Node) results = ({});
 
-        void recurse(Standards.XML.Node node) {
+        void recurse(Parser.XML.Tree.Node node) {
             if (!objectp(node)) return;
 
             if (node->get_tag_name() == tag) {
@@ -119,20 +119,20 @@ class XPathEngine
     }
 
     // Find by tag name (direct children only)
-    static array(Standards.XML.Node) find_by_tag(Standards.XML.Node node, string tag)
+    static array(Parser.XML.Tree.Node) find_by_tag(Parser.XML.Tree.Node node, string tag)
     {
         return node->get_elements(tag);
     }
 
     // Get parent of element
-    static Standards.XML.Node get_parent(Standards.XML.Node node)
+    static Parser.XML.Tree.Node get_parent(Parser.XML.Tree.Node node)
     {
         // Would need to track parent during traversal
         return 0;
     }
 
     // Get siblings
-    static array(Standards.XML.Node) get_siblings(Standards.XML.Node node)
+    static array(Parser.XML.Tree.Node) get_siblings(Parser.XML.Tree.Node node)
     {
         return ({});
     }
@@ -159,16 +159,17 @@ int main()
     </html>
     ";
 
-    Standards.XML.Node root = Standards.XML.parse(html);
+    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(html);
+    Parser.XML.Tree.Node root = xml_root->get_children()[0];
     XPathEngine xpath = XPathEngine(root);
 
     write("=== XPath Examples ===\n\n");
 
     // Example 1: //p - all paragraphs
     write("1. Query: //p (all paragraphs)\n");
-    array(Standards.XML.Node) results = xpath->query("//p");
+    array(Parser.XML.Tree.Node) results = xpath->query("//p");
     write("   Results: %d\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         write("   - %s\n", n->get_text());
     }
 
@@ -176,7 +177,7 @@ int main()
     write("\n2. Query: //p[@class='highlight']\n");
     results = xpath->query("//p[@class='highlight']");
     write("   Results: %d\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         write("   - %s\n", n->get_text());
     }
 
@@ -184,7 +185,7 @@ int main()
     write("\n3. Query: /html/body/div\n");
     results = xpath->query("/html/body/div");
     write("   Results: %d\n", sizeof(results));
-    foreach(results, Standards.XML.Node n) {
+    foreach(results, Parser.XML.Tree.Node n) {
         mapping attrs = n->get_attributes();
         write("   - div id=%s\n", attrs->id || "none");
     }

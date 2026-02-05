@@ -76,7 +76,7 @@ class WebCrawler
         array(string) links = ({});
 
         // Extract href attributes from <a> tags
-        object re = Regexp.PCRE.Simple("<a\\s+[^>]*href=['\"]([^'\"]+)['\"]");
+        object re = Regexp.SimpleRegexp("<a\\s+[^>]*href=['\"]([^'\"]+)['\"]");
 
         int pos = 0;
         while (pos < sizeof(html)) {
@@ -179,19 +179,34 @@ class WebCrawler
         write("Max pages: %d\n", max_pages);
         write("\n");
 
-        // Add start URL to queue
+        // Add start URL to queue with depth
         url_queue += ({ start_url });
         queued[normalize_url(start_url)] = 1;
+
+        // Track depth for each URL
+        mapping(string:int) url_depth = ([]);
+        url_depth[start_url] = 0;
 
         // Crawl pages
         while (sizeof(url_queue) && pages_crawled < max_pages) {
             string url = url_queue[0];
             url_queue = url_queue[1..];
 
-            mapping result = crawl_page(url, 0);
+            int current_depth = url_depth[url] || 0;
+            mapping result = crawl_page(url, current_depth);
 
             if (result) {
                 results[url] = result;
+
+                // Track depth for discovered links
+                if (current_depth < max_depth && arrayp(result->links)) {
+                    foreach(result->links, string link) {
+                        string norm_link = normalize_url(link);
+                        if (!url_depth[norm_link]) {
+                            url_depth[norm_link] = current_depth + 1;
+                        }
+                    }
+                }
             }
         }
 

@@ -21,7 +21,7 @@ class APIDiscovery
 
         string html = q->data();
         array(string) endpoints = ({});
-        set(string) seen = (<>);  // Deduplicate
+        multiset(string) seen = (<>);  // Deduplicate
 
         // Patterns for API endpoints
         array(string) patterns = ({
@@ -36,19 +36,28 @@ class APIDiscovery
         });
 
         foreach(patterns, string pattern) {
-            object re = Regexp.PCRE.Simple(pattern, ["DOTALL"]);
+            object re = Regexp.SimpleRegexp(pattern);
             int pos = 0;
 
             while (pos < sizeof(html)) {
-                array(string) match = re->match(html, pos);
-                if (!match) break;
+                mixed match_result = re->match(html, pos);
+                if (!arrayp(match_result)) break;
 
-                string endpoint = match[sizeof(match) - 1];
+                array(mixed) match = [array(mixed)]match_result;
+                if (sizeof(match) == 0) break;
+
+                // Get the last captured group (the endpoint)
+                mixed endpoint_mixed = match[sizeof(match) - 1];
+                if (!stringp(endpoint_mixed)) break;
+                string endpoint = [string]endpoint_mixed;
 
                 // Convert relative URLs to absolute
                 if (has_prefix(endpoint, "/")) {
-                    string base = Standards.URI(base_url)->get_base_url();
-                    endpoint = base + endpoint;
+                    Standards.URI uri = Standards.URI(base_url);
+                    mixed base_mixed = uri->get_base_url();
+                    if (stringp(base_mixed)) {
+                        endpoint = [string]base_mixed + endpoint;
+                    }
                 }
 
                 if (!seen[endpoint]) {
@@ -56,7 +65,19 @@ class APIDiscovery
                     endpoints += ({ endpoint });
                 }
 
-                pos = html->search(match[0], pos) + sizeof(match[0]);
+                // Find the matched text to advance position
+                mixed matched_text = match[0];
+                if (stringp(matched_text)) {
+                    string search_str = [string]matched_text;
+                    int found_pos = search(html, search_str, pos);
+                    if (found_pos >= 0) {
+                        pos = found_pos + sizeof(search_str);
+                    } else {
+                        break;
+                    }
+                } else {
+                    break;
+                }
             }
         }
 
@@ -84,7 +105,7 @@ class APIDiscovery
                 mixed data = Standards.JSON.decode(q->data());
                 if (mappingp(data)) {
                     write("  ✓ JSON response - valid API endpoint!\n");
-                    write("  Keys: %s\n", String.imode(indices(data)));
+                    write("  Keys: %s\n", sprintf("%O", indices([mapping(string:mixed)]data)));
                 }
             } else if (q->status == 401) {
                 write("  ⚠ Requires authentication\n");
