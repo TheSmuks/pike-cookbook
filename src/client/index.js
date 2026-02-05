@@ -169,7 +169,7 @@ function initSearchModal() {
 
   function isSearchElement(element) {
     if (!element) return false;
-    return !!element.closest('.navbar__search, .searchBar_RVTs, .dropdownMenu_qbY6');
+    return !!element.closest('.navbar__search, [class*="searchBar_"], [class*="dropdownMenu_"]');
   }
 
   function inGracePeriod() {
@@ -177,7 +177,7 @@ function initSearchModal() {
   }
 
   function isDropdownOpen() {
-    const dropdown = document.querySelector('.dropdownMenu_qbY6');
+    const dropdown = document.querySelector('[class*="dropdownMenu_"]');
     return dropdown && dropdown.style.display !== 'none';
   }
 
@@ -206,7 +206,7 @@ function initSearchModal() {
   }
 
   function injectCloseButton() {
-    const searchContainer = document.querySelector('.searchBar_RVTs');
+    const searchContainer = document.querySelector('[class*="searchBar_"]');
     if (!searchContainer || searchContainer.querySelector('.search-modal-close-btn')) return;
 
     const closeBtn = document.createElement('button');
@@ -225,7 +225,7 @@ function initSearchModal() {
         // Force dropdown to close by triggering an input event or similar if needed
         // but blur usually works for the plugin
       }
-      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      const dropdown = document.querySelector('[class*="dropdownMenu_"]');
       if (dropdown) dropdown.style.display = 'none';
       updateCloseButtonVisibility();
     });
@@ -265,7 +265,7 @@ function initSearchModal() {
       e.stopPropagation();
       const searchInput = document.querySelector('.navbar__search-input');
       if (searchInput) searchInput.blur();
-      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      const dropdown = document.querySelector('[class*="dropdownMenu_"]');
       if (dropdown) dropdown.style.display = 'none';
       updateCloseButtonVisibility();
     }
@@ -276,7 +276,7 @@ function initSearchModal() {
     if (isDropdownOpen() && !isSearchElement(e.target)) {
       const searchInput = document.querySelector('.navbar__search-input');
       if (searchInput) searchInput.blur();
-      const dropdown = document.querySelector('.dropdownMenu_qbY6');
+      const dropdown = document.querySelector('[class*="dropdownMenu_"]');
       if (dropdown) dropdown.style.display = 'none';
       updateCloseButtonVisibility();
     }
@@ -297,7 +297,7 @@ function initSearchModal() {
   }, { capture: true });
 
   // Observe the dropdown for visibility changes
-  const dropdown = document.querySelector('.dropdownMenu_qbY6');
+  const dropdown = document.querySelector('[class*="dropdownMenu_"]');
   if (dropdown) {
     const observer = new MutationObserver(() => {
       updateCloseButtonVisibility();
