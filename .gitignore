@@ -1,3 +1,10 @@
+# Playwright logs
+.playwright-mcp/
+.agents/
+.claude/
+.codex/
+.opencode/
+
 # Dependencies
 node_modules/
 bun.lock
