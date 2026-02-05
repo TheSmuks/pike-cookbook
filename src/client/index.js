@@ -9,7 +9,6 @@ export function onRouteDidUpdate() {
   highlightInlineAutodocTags();
   initSearchModal();
   initScrollSpy();
-  initToggleButtons();
 }
 
 export function onRouteUpdate() {
@@ -18,7 +17,6 @@ export function onRouteUpdate() {
   highlightInlineAutodocTags();
   initSearchModal();
   initScrollSpy();
-  initToggleButtons();
 }
 
 function escapeHTML(str) {
@@ -460,87 +458,6 @@ export function initScrollSpy() {
   };
 }
 
-/**
- * Toggle functionality for sidebar and TOC
- */
-let toggleButtonsCleanup = null;
-
-export function initToggleButtons() {
-  if (typeof document === 'undefined') return;
-
-  // Clean up previous instance
-  if (toggleButtonsCleanup) {
-    toggleButtonsCleanup();
-    toggleButtonsCleanup = null;
-  }
-
-  // Create sidebar toggle button
-  const sidebarToggle = document.createElement('button');
-  sidebarToggle.className = 'sidebar-toggle-btn';
-  sidebarToggle.innerHTML = '◀'; // Left arrow to hide
-  sidebarToggle.setAttribute('aria-label', 'Toggle sidebar');
-  sidebarToggle.setAttribute('type', 'button');
-
-  // Create TOC toggle button
-  const tocToggle = document.createElement('button');
-  tocToggle.className = 'toc-toggle-btn';
-  tocToggle.innerHTML = '▶'; // Right arrow to hide
-  tocToggle.setAttribute('aria-label', 'Toggle table of contents');
-  tocToggle.setAttribute('type', 'button');
-
-  let sidebarVisible = true;
-  let tocVisible = true;
-
-  // Sidebar toggle handler
-  sidebarToggle.addEventListener('click', () => {
-    const sidebar = document.querySelector('.sidebar, [class*="sidebar"]');
-    const mainContent = document.querySelector('main[class*="docMainContainer"]');
-
-    if (sidebarVisible) {
-      if (sidebar) sidebar.classList.add('sidebar-hidden');
-      if (mainContent) mainContent.style.marginLeft = '0';
-      sidebarToggle.innerHTML = '▶';
-    } else {
-      if (sidebar) sidebar.classList.remove('sidebar-hidden');
-      if (mainContent) mainContent.style.marginLeft = '';
-      sidebarToggle.innerHTML = '◀';
-    }
-    sidebarVisible = !sidebarVisible;
-  });
-
-  // TOC toggle handler
-  tocToggle.addEventListener('click', () => {
-    const tocContainer = document.querySelector('.theme-doc-toc-desktop, [class*="tableOfContents"]');
-
-    if (tocVisible) {
-      if (tocContainer) tocContainer.classList.add('toc-hidden');
-      tocToggle.innerHTML = '◀';
-    } else {
-      if (tocContainer) tocContainer.classList.remove('toc-hidden');
-      tocToggle.innerHTML = '▶';
-    }
-    tocVisible = !tocVisible;
-  });
-
-  // Add buttons to page
-  document.body.appendChild(sidebarToggle);
-  document.body.appendChild(tocToggle);
-
-  // Hide TOC toggle on pages without TOC
-  setTimeout(() => {
-    const tocContainer = document.querySelector('.theme-doc-toc-desktop, [class*="tableOfContents"]');
-    if (!tocContainer || tocContainer.children.length === 0) {
-      tocToggle.style.display = 'none';
-    }
-  }, 100);
-
-  // Cleanup function
-  toggleButtonsCleanup = () => {
-    sidebarToggle.remove();
-    tocToggle.remove();
-  };
-}
-
 // Run immediately for initial page load
 if (typeof document !== 'undefined') {
   // Wait for DOM to be ready
@@ -550,7 +467,6 @@ if (typeof document !== 'undefined') {
       highlightInlineAutodocTags();
       initSearchModal();
       initScrollSpy();
-      initToggleButtons();
     });
   } else {
     // Small delay to ensure Prism has finished tokenizing
@@ -559,7 +475,6 @@ if (typeof document !== 'undefined') {
       highlightInlineAutodocTags();
       initSearchModal();
       initScrollSpy();
-      initToggleButtons();
     }, 100);
   }
 
@@ -569,7 +484,6 @@ if (typeof document !== 'undefined') {
     highlightInlineAutodocTags();
     initSearchModal();
     initScrollSpy();
-    initToggleButtons();
   }, 500);
 
   // Watch for theme changes and reapply autodoc highlighting
