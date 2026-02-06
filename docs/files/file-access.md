@@ -54,10 +54,10 @@ foreach(content / "\n";; string line) {
 // Recipe: Read file with more control
 //-----------------------------
 
-Stdio.File file = Stdio.File("/usr/local/widgets/data", "r");
+Stdio.File file = Stdio.File();
 
-if (!file) {
-    werror("Couldn't open file for reading\n");
+if (!file->open("/usr/local/widgets/data", "r")) {
+    werror("Cannot open /usr/local/widgets/data: %s\n", strerror(file->errno()));
     exit(1);
 }
 
@@ -86,28 +86,35 @@ string path = "/path/to/file.txt";
 
 // Read existing file
 string content = Stdio.read_file(path);
-Stdio.File file = Stdio.File(path, "r");
+Stdio.File file = Stdio.File();
+file->open(path, "r");
 
 // Write new file (create or truncate)
 Stdio.write_file(path, "content");
-Stdio.File file = Stdio.File(path, "wc");
+Stdio.File file = Stdio.File();
+file->open(path, "wc");
 
 // Write with permissions (octal)
 Stdio.write_file(path, "content", 0600);
-Stdio.File file = Stdio.File(path, "wc", 0600);
+Stdio.File file = Stdio.File();
+file->open(path, "wc", 0600);
 
 // Append to file
 Stdio.append_file(path, "new content\n");
-Stdio.File file = Stdio.File(path, "wac");
+Stdio.File file = Stdio.File();
+file->open(path, "wac");
 
 // Read and write (update mode)
-Stdio.File file = Stdio.File(path, "rw");
+Stdio.File file = Stdio.File();
+file->open(path, "rw");
 
 // Create new file (must not exist)
-Stdio.File file = Stdio.File(path, "wcx");
+Stdio.File file = Stdio.File();
+file->open(path, "wcx");
 
 // Append (file must exist)
-Stdio.File file = Stdio.File(path, "wacx");
+Stdio.File file = Stdio.File();
+file->open(path, "wacx");
 ```
 
 ### Mode Quick Reference
@@ -167,7 +174,8 @@ werror("This goes to stderr\n");
 //-----------------------------
 
 // Create log file
-Stdio.File logfile = Stdio.File("/tmp/log", "wc");
+Stdio.File logfile = Stdio.File();
+logfile->open("/tmp/log", "wc");
 
 // Make write() point to log file
 function write_orig = write;
@@ -238,10 +246,10 @@ file->close();
 // Recipe: Process file line by line
 //-----------------------------
 
-Stdio.File file = Stdio.File("data.txt", "r");
+Stdio.File file = Stdio.File();
 
-if (!file) {
-    werror("Cannot open file\n");
+if (!file->open("data.txt", "r")) {
+    werror("Cannot open data.txt: %s\n", strerror(file->errno()));
     exit(1);
 }
 
@@ -300,10 +308,10 @@ file->close();
 // Recipe: Jump to specific file position
 //-----------------------------
 
-Stdio.File file = Stdio.File("data.bin", "r");
+Stdio.File file = Stdio.File();
 
-if (!file) {
-    werror("Cannot open file\n");
+if (!file->open("data.bin", "r")) {
+    werror("Cannot open data.bin: %s\n", strerror(file->errno()));
     exit(1);
 }
 
@@ -340,10 +348,10 @@ file->close();
 // Recipe: Read binary file
 //-----------------------------
 
-Stdio.File file = Stdio.File("image.png", "r");
+Stdio.File file = Stdio.File();
 
-if (!file) {
-    werror("Cannot open file\n");
+if (!file->open("image.png", "r")) {
+    werror("Cannot open image.png: %s\n", strerror(file->errno()));
     exit(1);
 }
 
@@ -375,10 +383,10 @@ string binary_data = "\x89PNG\r\n\x1a\n";
 binary_data += sprintf("%4c", 13, 14, 15, 16);  // Write 4 bytes
 
 // Write to file
-Stdio.File file = Stdio.File("output.bin", "wc");
+Stdio.File file = Stdio.File();
 
-if (!file) {
-    werror("Cannot create file\n");
+if (!file->open("output.bin", "wc")) {
+    werror("Cannot create output.bin: %s\n", strerror(file->errno()));
     exit(1);
 }
 
@@ -403,8 +411,8 @@ string name;
 // Try until we find an unused name
 do {
     name = "/tmp/" + MIME.encode_base64(random_string(10));
-    fh = Stdio.File(name, "rwcx");
-} while (!fh);
+    fh = Stdio.File();
+} while (!fh->open(name, "rwcx"));
 
 write("Created temp file: %s\n", name);
 
@@ -491,9 +499,9 @@ if (!content) {
 
 // Method 2: Use catch()
 mixed error = catch {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) {
-        error("Failed to open file\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) {
+        error("Failed to open %s: %s\n", path, strerror(file->errno()));
     }
 
     // ... process file ...
@@ -507,9 +515,9 @@ if (error) {
 }
 
 // Method 3: Detailed error with errno
-Stdio.File file = Stdio.File(path, "r");
-if (!file) {
-    werror("Cannot open %s: %s\n", path, strerror(errno()));
+Stdio.File file = Stdio.File();
+if (!file->open(path, "r")) {
+    werror("Cannot open %s: %s\n", path, strerror(file->errno()));
     exit(1);
 }
 ```
@@ -526,8 +534,8 @@ if (!file) {
 //-----------------------------
 
 int count_lines(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return 0;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return 0;
 
     int count = 0;
     foreach(file->line_iterator();; string line) {
@@ -548,7 +556,7 @@ write("Lines: %d\n", count_lines("/etc/passwd"));
 // Recipe: Replace text in file
 //-----------------------------
 
-void replace_in_file(string path, string search, string replace) {
+void replace_in_file(string path, string search, string replace_str) {
     string content = Stdio.read_file(path);
     if (!content) {
         werror("Cannot read file\n");
@@ -556,7 +564,7 @@ void replace_in_file(string path, string search, string replace) {
     }
 
     // Replace all occurrences
-    string new_content = String.replace(content, search, replace);
+    string new_content = replace(content, search, replace_str);
 
     // Write back
     Stdio.write_file(path, new_content);
@@ -574,9 +582,9 @@ replace_in_file("config.txt", "old_value", "new_value");
 //----------------------------/
 
 void process_csv(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) {
-        werror("Cannot open CSV\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) {
+        werror("Cannot open %s: %s\n", path, strerror(file->errno()));
         return;
     }
 
@@ -589,7 +597,7 @@ void process_csv(string path) {
         row_num++;
 
         // Split by comma
-        array(string) fields = String.split(line, ",");
+        array(string) fields = line / ",";
 
         if (sizeof(fields) >= 3) {
             string name = String.trim_whites(fields[0]);
@@ -615,15 +623,15 @@ void process_csv(string path) {
 //----------------------------/
 
 int copy_file(string src, string dst) {
-    Stdio.File source = Stdio.File(src, "r");
-    if (!source) {
-        werror("Cannot open source\n");
+    Stdio.File source = Stdio.File();
+    if (!source->open(src, "r")) {
+        werror("Cannot open source %s: %s\n", src, strerror(source->errno()));
         return 0;
     }
 
-    Stdio.File dest = Stdio.File(dst, "wc");
-    if (!dest) {
-        werror("Cannot create destination\n");
+    Stdio.File dest = Stdio.File();
+    if (!dest->open(dst, "wc")) {
+        werror("Cannot create destination %s: %s\n", dst, strerror(dest->errno()));
         source->close();
         return 0;
     }

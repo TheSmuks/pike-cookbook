@@ -40,9 +40,9 @@ For basic file operations, see [File Access](/docs/files/file-access). This sect
 
 // Read file and merge continuation lines
 array(string) read_continued_lines(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) {
-        werror("Cannot open file\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) {
+        werror("Cannot open %s: %s\n", path, strerror(file->errno()));
         return ({});
     }
 
@@ -88,8 +88,8 @@ foreach(lines; int i; string line) {
 //-----------------------------
 
 int count_lines(string path, void|bool count_paragraphs) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return 0;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return 0;
 
     int count = 0;
 
@@ -142,8 +142,8 @@ Using `line_iterator()` automatically handles different line ending styles (\n, 
 //-----------------------------
 
 void process_words(string path, function(string:void) callback) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     foreach(file->line_iterator();; string line) {
         // Split line into words (whitespace-separated)
@@ -205,8 +205,8 @@ array(string) read_file_backwards(string path) {
 
 // Memory-efficient version for large files
 void process_backwards_efficient(string path, function(string:void) callback) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     // Store lines in array (for memory efficiency, use temp file)
     array(string) lines = ({});
@@ -245,9 +245,9 @@ void tail_file(string path, void|function(string:void) callback) {
         callback = lambda(string line) { write("%s\n", line); };
     }
 
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) {
-        werror("Cannot open file\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) {
+        werror("Cannot open %s: %s\n", path, strerror(file->errno()));
         return;
     }
 
@@ -271,8 +271,8 @@ void tail_file(string path, void|function(string:void) callback) {
 
 // Enhanced version with line count limit
 void tail_file_n(string path, int n_lines) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     array(string) last_n = ({});
 
@@ -304,8 +304,8 @@ void tail_file_n(string path, int n_lines) {
 //-----------------------------
 
 string random_line(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return 0;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return 0;
 
     string selected = 0;
     int count = 0;
@@ -325,8 +325,8 @@ string random_line(string path) {
 
 // Select N random lines without duplicates
 array(string) random_lines(string path, int n) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return ({});
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return ({});
 
     array(string) reservoir = ({});
     int count = 0;
@@ -408,8 +408,8 @@ void shuffle_file(string input_path, string output_path) {
 //-----------------------------
 
 string|zero read_line_number(string path, int line_num) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return 0;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return 0;
 
     int current = 0;
     string result = 0;
@@ -428,8 +428,8 @@ string|zero read_line_number(string path, int line_num) {
 
 // Read multiple lines by range
 array(string) read_line_range(string path, int start, int end) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return ({});
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return ({});
 
     array(string) result = ({});
     int current = 0;
@@ -485,8 +485,8 @@ void process_fixed_width_file(string path) {
     // Define column widths
     array(int) widths = ({10, 20, 15, 10});  // Name, Email, Phone, City
 
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     // Skip header
     file->gets();
@@ -527,8 +527,8 @@ void remove_last_line(string path) {
 
 // Memory-efficient version for large files
 void remove_last_line_efficient(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     array(string) all_but_last = ({});
     string prev_line = "";
@@ -562,9 +562,9 @@ void remove_last_line_efficient(string path) {
 
 // Read binary data with specific structure
 void process_binary_file(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) {
-        werror("Cannot open binary file\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) {
+        werror("Cannot open %s: %s\n", path, strerror(file->errno()));
         return;
     }
 
@@ -594,11 +594,17 @@ void process_binary_file(string path) {
 
 // Copy file with progress
 void copy_file_with_progress(string src, string dst) {
-    Stdio.File input = Stdio.File(src, "r");
-    Stdio.File output = Stdio.File(dst, "wc");
+    Stdio.File input = Stdio.File();
+    Stdio.File output = Stdio.File();
 
-    if (!input || !output) {
-        werror("Cannot open files\n");
+    if (!input->open(src, "r")) {
+        werror("Cannot open source %s: %s\n", src, strerror(input->errno()));
+        return;
+    }
+
+    if (!output->open(dst, "wc")) {
+        werror("Cannot open destination %s: %s\n", dst, strerror(output->errno()));
+        input->close();
         return;
     }
 
@@ -634,8 +640,8 @@ void copy_file_with_progress(string src, string dst) {
 //-----------------------------
 
 void demo_random_access(string path) {
-    Stdio.File file = Stdio.File(path, "r");
-    if (!file) return;
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "r")) return;
 
     // Get file size
     file->seek(0, SEEK_END);
@@ -662,9 +668,9 @@ void demo_random_access(string path) {
 
 // Replace bytes at specific position
 void patch_binary(string path, int pos, string new_data) {
-    Stdio.File file = Stdio.File(path, "rw");
-    if (!file) {
-        werror("Cannot open file\n");
+    Stdio.File file = Stdio.File();
+    if (!file->open(path, "rw")) {
+        werror("Cannot open %s: %s\n", path, strerror(file->errno()));
         return;
     }
 

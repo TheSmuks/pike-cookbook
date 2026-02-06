@@ -20,6 +20,7 @@ module.exports = {
       collapsible: true,
       collapsed: false,
       items: [
+        'basics/idioms',
         'basics/strings',
         'basics/numbers',
         'basics/arrays',
@@ -60,6 +61,7 @@ module.exports = {
       collapsed: false,
       items: [
         'advanced/classes',
+        'advanced/visibility',
         'advanced/references',
         'advanced/modules',
         'advanced/processes',

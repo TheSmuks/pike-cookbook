@@ -154,7 +154,11 @@ void main() {
     // Download file
     string data = ftp->get("remote_file.txt");
     if (data) {
-        Stdio.File f = Stdio.File("local_file.txt", "wct");
+        Stdio.File f = Stdio.File();
+        if (!f->open("local_file.txt", "wct")) {
+            werror("Failed to open local_file.txt: %s\n", strerror(f->errno()));
+            return;
+        }
         f->write(data);
         f->close();
         write("Downloaded remote_file.txt to local_file.txt\n");

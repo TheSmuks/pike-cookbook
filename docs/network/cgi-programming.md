@@ -149,7 +149,7 @@ void install_error_handler() {
     });
 
     // Redirect stderr to file
-    Stdio.File(ERROR_LOG_FILE, "wac")->dup2(stderr);
+    catch { Stdio.File(ERROR_LOG_FILE, "wac")->dup2(stderr); };
 }
 
 void send_error_page(string title, string message, string|void backtrace) {
@@ -176,8 +176,8 @@ void log_error(string message) {
     string timestamp = Calendar.ISO.now()->format_time();
     string remote = getenv("REMOTE_ADDR") || "unknown";
     string log_entry = sprintf("[%s] %s: %s\n", timestamp, remote, message);
-    Stdio.File f = Stdio.File(ERROR_LOG_FILE, "wac");
-    if (f) {
+    Stdio.File f = Stdio.File();
+    if (f->open(ERROR_LOG_FILE, "wac")) {
         f->write(log_entry);
         f->close();
     }
@@ -620,8 +620,8 @@ constant DEBUG_LOG = "/tmp/http_debug.log";
 
 void debug_log(string message) {
     string timestamp = Calendar.ISO.now()->format_time();
-    Stdio.File f = Stdio.File(DEBUG_LOG, "wac");
-    if (f) {
+    Stdio.File f = Stdio.File();
+    if (f->open(DEBUG_LOG, "wac")) {
         f->write(sprintf("[%s] %s\n", timestamp, message));
         f->close();
     }

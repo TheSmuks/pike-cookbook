@@ -606,7 +606,7 @@ constant DATA_FILE = "records.txt";
 // Write records as simple key-value pairs
 void write_records(array(mapping(string:string)) records, string filename) {
     Stdio.File file = Stdio.File();
-    if (!file->open(filename, "wct")) {
+    if (!file->open(filename, "wc")) {
         error("Cannot open file for writing: " + strerror(file->errno()));
     }
 
@@ -865,9 +865,9 @@ constant DATA_FILE = "datastore.dat";
 // Save data structure to disk
 void save_data(mixed data, string filename) {
     string encoded = encode_value(data);
-    Stdio.File file = Stdio.File(filename, "wct");
-    if (!file) {
-        error("Cannot open file for writing");
+    Stdio.File file = Stdio.File();
+    if (!file->open(filename, "wc")) {
+        error("Cannot open %s for writing: %s", filename, strerror(file->errno()));
     }
     file->write(encoded);
     file->close();
@@ -876,9 +876,9 @@ void save_data(mixed data, string filename) {
 
 // Load data structure from disk
 mixed load_data(string filename) {
-    Stdio.File file = Stdio.File(filename, "r");
-    if (!file) {
-        error("Cannot open file for reading");
+    Stdio.File file = Stdio.File();
+    if (!file->open(filename, "r")) {
+        error("Cannot open %s for reading: %s", filename, strerror(file->errno()));
     }
     string encoded = file->read();
     file->close();
