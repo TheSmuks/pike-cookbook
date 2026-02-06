@@ -19,9 +19,9 @@ class BearerAuthSession
     }
 
     // Make authenticated GET request
-    Protocols.HTTP.Query get(string url, mapping|void extra_headers)
+    Protocols.HTTP.Query get(string url, mapping(string:mixed)|void extra_headers)
     {
-        mapping headers = ([
+        mapping(string:mixed) headers = ([
             "Authorization": get_auth_header(),
             "User-Agent": "Pike BearerAuth/1.0"
         ]);
@@ -30,13 +30,13 @@ class BearerAuthSession
             headers |= extra_headers;
         }
 
-        return Protocols.HTTP.get_url(url, headers);
+        return Protocols.HTTP.get_url(url, (mapping(string:string))headers);
     }
 
     // Make authenticated POST request
     Protocols.HTTP.Query post(string url, mapping data, mapping|void extra_headers)
     {
-        mapping headers = ([
+        mapping(string:string) headers = ([
             "Authorization": get_auth_header(),
             "Content-Type": "application/json",
             "User-Agent": "Pike BearerAuth/1.0"
@@ -47,7 +47,7 @@ class BearerAuthSession
         }
 
         string body = Standards.JSON.encode(data);
-        return Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+        return Protocols.HTTP.do_method("POST", url, ([]), (mapping(string:string))headers, 0, body);
     }
 
     // Set new token
@@ -85,9 +85,12 @@ int main()
     write("Status: %d\n", q->status);
 
     if (q->status == 200) {
-        mapping response = Standards.JSON.decode(q->data());
-        write("Authenticated: %d\n", response->authenticated || 0);
-        write("Token: %s\n", response->token || "not echoed");
+        mixed decoded = Standards.JSON.decode(q->data());
+        if (mappingp(decoded)) {
+            mapping response = (mapping)decoded;
+            write("Authenticated: %d\n", (int)(response->authenticated || 0));
+            write("Token: %s\n", (string)(response->token || "not echoed"));
+        }
     } else if (q->status == 401) {
         werror("Unauthorized - token may be invalid\n");
     }

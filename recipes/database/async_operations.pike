@@ -4,100 +4,106 @@
 
 //! Asynchronous database operations for Pike 8
 //!
-//! Demonstrates async queries with Future/Promise and PostgreSQL
+//! Demonstrates async queries with threads and big_query for streaming
 //!
 //! @example
-//!   // Create async database wrapper
-//!   AsyncDatabase async_db = AsyncDatabase("sqlite://test.db");
-//!
-//!   // Execute query asynchronously
-//!   Promise p = async_db->query_async("SELECT * FROM users");
-//!   mixed result = p->future()->get();
+//!   // Use big_query for large result sets
+//!   object result = db->big_query("SELECT * FROM large_table");
+//!   array(mixed) row;
+//!   while ((row = result->fetch_row())) {
+//!     // Process row
+//!   }
 //!
 //! @note
 //!   Async operations use threads internally. Ensure thread safety when
 //!   sharing connections between async operations
 //!
 //! @seealso
-//!   @[Promise], @[Future], @[Thread.Thread]
+//!   @[Thread.Thread], @[big_query]
 
-//! Example: Basic async query with PostgreSQL
+//! Example: Basic async query with streaming results
 //!
 //! @note
-//!   PostgreSQL has native async query support through its protocol
+//!   big_query provides memory-efficient streaming for large result sets
 //!
 //! @seealso
-//!   @[future_promise_example], @[parallel_queries_example]
+//!   @[streaming_results_example], @[batch_async_example]
 
 void async_query_example() {
     werror("\n=== Async Query Example ===\n");
 
-    Sql.Sql db = Sql.Sql("pgsql://localhost/testdb");
+    // Create database connection
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
-    // PostgreSQL supports async queries through callbacks
-    // Note: This is PostgreSQL-specific functionality
+    // Create test table and data
+    db->query("CREATE TABLE IF NOT EXISTS users ("
+              "id INTEGER PRIMARY KEY, "
+              "name TEXT, "
+              "age INTEGER)");
 
-    // Create a simple async query
-    object result = db->big_query(
+    db->query("INSERT INTO users (name, age) VALUES "
+              "('Alice', 30), "
+              "('Bob', 25), "
+              "('Charlie', 35)");
+
+    // Use big_query for streaming results (memory-efficient)
+    mixed big_result = db->big_query(
         "SELECT * FROM users WHERE age > :min_age",
         (["min_age": 25])
     );
 
     // Process results when available
-    if (result) {
-        array(mixed) row;
-        while ((row = result->fetch_row())) {
-            werror("Row: %s\n", row * ", ");
+    if (objectp(big_result)) {
+        object result = [object]big_result;
+        mixed row_data;
+        while ((row_data = result->fetch_row())) {
+            if (arrayp(row_data)) {
+                werror("Row: %s\n", (array(mixed))row_data * ", ");
+            }
         }
     }
 }
 
-//! Example: Using Future/Promise for async operations
+//! Example: Thread-based async query execution
 //!
-//! Provides async wrapper around Sql.Sql using threads and Promise/Future
+//! Demonstrates using threads for background query execution
 //!
 //! @seealso
-//!   @[QueryWithTimeout], @[AsyncConnectionPool]
+//!   @[streaming_results_example], @[batch_async_example]
 
-class AsyncDatabase {
+class ThreadedQuery {
     private Sql.Sql db;
-    private Thread.Queue queue;
+    private Thread.Queue result_queue;
+    private Thread.Mutex lock = Thread.Mutex();
 
-    //! Create async database wrapper
+    //! Create threaded query wrapper
     //!
     //! @param db_url
     //!   Database connection URL
     //!
     //! @seealso
-    //!   @[query_async], @[typed_query_async]
+    //!   @[query_async]
 
     void create(string db_url) {
         db = Sql.Sql(db_url);
-        queue = Thread.Queue();
+        result_queue = Thread.Queue();
     }
 
-    //! Execute query asynchronously
+    //! Execute query in background thread
     //!
     //! @param query
-    //!   SQL query string with optional parameter binding
+    //!   SQL query string
     //! @param bindings
-    //!   Optional mapping of parameter names to values
-    //! @returns
-    //!   Promise that resolves to query results
+    //!   Optional parameter bindings
     //!
     //! @seealso
-    //!   @[typed_query_async]
+    //!   @[get_result]
 
-    Promise query_async(string query, mapping|void bindings) {
-        Promise promise = Promise();
-
-        Thread.Thread(do_query, promise, query, bindings);
-
-        return promise;
+    void query_async(string query, mapping|void bindings) {
+        Thread.Thread(do_query, query, bindings);
     }
 
-    //! Worker thread for query execution
-    private void do_query(Promise promise, string query, mapping|void bindings) {
+    private void do_query(string query, mapping|void bindings) {
         mixed err = catch {
             array(mapping) result;
 
@@ -107,137 +113,64 @@ class AsyncDatabase {
                 result = db->query(query);
             }
 
-            promise->success(result);
+            result_queue->write(result);
         };
 
         if (err) {
-            promise->failure(err);
+            result_queue->write(err);
         }
     }
 
-    //! Execute typed query asynchronously
+    //! Get result from async query (blocks until ready)
     //!
-    //! @param query
-    //!   SQL query string with optional parameter binding
-    //! @param bindings
-    //!   Optional mapping of parameter names to values
     //! @returns
-    //!   Promise that resolves to typed query results
+    //!   Query result or error
     //!
     //! @seealso
     //!   @[query_async]
 
-    Promise typed_query_async(string query, mapping|void bindings) {
-        Promise promise = Promise();
-
-        Thread.Thread(do_typed_query, promise, query, bindings);
-
-        return promise;
-    }
-
-    private void do_typed_query(Promise promise, string query, mapping|void bindings) {
-        mixed err = catch {
-            array(mapping) result;
-
-            if (bindings) {
-                result = db->typed_query(query, bindings);
-            } else {
-                result = db->typed_query(query);
-            }
-
-            promise->success(result);
-        };
-
-        if (err) {
-            promise->failure(err);
-        }
+    mixed get_result() {
+        return result_queue->read();
     }
 }
 
-//! Example: Future/Promise usage
+//! Example: Thread-based async query
 //!
 //! @seealso
-//!   @[parallel_queries_example], @[streaming_results_example]
+//!   @[streaming_results_example], @[batch_async_example]
 
-void future_promise_example() {
-    werror("\n=== Future/Promise Example ===\n");
+void threaded_query_example() {
+    werror("\n=== Threaded Query Example ===\n");
 
-    AsyncDatabase async_db = AsyncDatabase("sqlite://example.db");
+    ThreadedQuery tq = ThreadedQuery("sqlite://:memory:");
 
-    // Query with Future/Promise
-    Promise query_promise = async_db->query_async(
-        "SELECT * FROM users LIMIT 5"
-    );
+    // Create test table
+    tq->query_async("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT, age INTEGER)");
+    mixed result = tq->get_result();
 
-    // Use the Future
-    Future query_future = query_promise->future();
+    // Insert data
+    tq->query_async("INSERT INTO users (name, age) VALUES ('Alice', 30), ('Bob', 25)");
+    result = tq->get_result();
 
-    // Wait for result (in real app, you'd do other work here)
-    mixed result = query_future->get();
+    // Query asynchronously
+    tq->query_async("SELECT * FROM users WHERE age > :min_age", (["min_age": 25]));
+
+    // Do other work while query runs...
+
+    // Get result
+    result = tq->get_result();
 
     if (arrayp(result)) {
-        werror("Got %d rows\n", sizeof(result));
-    } else {
-        werror("Query failed: %O\n", result);
-    }
-
-    // Multiple async queries
-    array(Future) futures = ({
-        async_db->query_async("SELECT COUNT(*) as count FROM users")->future(),
-        async_db->typed_query_async("SELECT AVG(age) as avg_age FROM users")->future(),
-    });
-
-    // Wait for all to complete
-    foreach (futures, Future f) {
-        mixed res = f->get();
-        if (arrayp(res) && sizeof(res)) {
-            werror("Result: %O\n", res[0]);
+        array(mapping) result_array = (array(mapping))result;
+        werror("Got %d rows\n", sizeof(result_array));
+        foreach (result_array, mapping row) {
+            mixed name_val = row->name;
+            mixed age_val = row->age;
+            if (stringp(name_val) && intp(age_val)) {
+                werror("  %s: %d\n", [string]name_val, [int]age_val);
+            }
         }
     }
-}
-
-//! Example: Parallel query execution
-//!
-//! @note
-//!   Execute multiple queries concurrently using threads
-//!
-//! @seealso
-//!   @[future_promise_example], @[streaming_results_example]
-
-void parallel_queries_example() {
-    werror("\n=== Parallel Queries Example ===\n");
-
-    AsyncDatabase async_db = AsyncDatabase("sqlite://example.db");
-
-    // Execute multiple queries in parallel
-    array(Promise) promises = ({
-        async_db->query_async("SELECT * FROM users WHERE age > 30"),
-        async_db->query_async("SELECT * FROM users WHERE age <= 30"),
-        async_db->typed_query_async("SELECT AVG(age) as avg FROM users"),
-    });
-
-    // Process results as they complete
-    foreach (promises, Promise p) {
-        Future f = p->future();
-
-        // Add callback for when result is ready
-        f->on_success(lambda(mixed result) {
-            if (arrayp(result)) {
-                werror("Query returned %d rows\n", sizeof(result));
-            }
-        });
-
-        f->on_failure(lambda(mixed error) {
-            werror("Query failed: %O\n", error);
-        });
-    }
-
-    // Wait for all to complete
-    foreach (promises, Promise p) {
-        p->future()->get();
-    }
-
-    werror("All parallel queries completed\n");
 }
 
 //! Example: Streaming large results
@@ -266,17 +199,24 @@ void streaming_results_example() {
     db->query("COMMIT");
 
     // Stream results using big_query
-    object result = db->big_query("SELECT * FROM large_data");
+    mixed big_result = db->big_query("SELECT * FROM large_data");
 
-    if (result) {
+    if (objectp(big_result)) {
+        object result = [object]big_result;
         int count = 0;
-        array(mixed) row;
+        mixed row_data;
 
         // Process rows one at a time (memory efficient)
-        while ((row = result->fetch_row())) {
-            count++;
-            if (count <= 5) {
-                werror("Row %d: %s\n", count, row[1]);
+        while ((row_data = result->fetch_row())) {
+            if (arrayp(row_data)) {
+                array(mixed) row = (array(mixed))row_data;
+                count++;
+                if (count <= 5 && sizeof(row) > 1) {
+                    mixed data_val = row[1];
+                    if (stringp(data_val)) {
+                        werror("Row %d: %s\n", count, [string]data_val);
+                    }
+                }
             }
         }
 
@@ -284,15 +224,15 @@ void streaming_results_example() {
     }
 }
 
-//! Example: Batch async operations
+//! Example: Batch operations with threading
 //!
-//! Process data in batches with async operations
+//! Process data in batches using multiple threads
 //!
 //! @seealso
-//!   @[AsyncDatabase], @[AsyncConnectionPool]
+//!   @[ThreadedQuery], @[batch_async_example]
 
 class BatchProcessor {
-    private AsyncDatabase db;
+    private string db_url;
     private int batch_size;
 
     //! Create batch processor
@@ -306,7 +246,7 @@ class BatchProcessor {
     //!   @[process_batch]
 
     void create(string db_url, int batch_size) {
-        db = AsyncDatabase(db_url);
+        this::db_url = db_url;
         this::batch_size = batch_size;
     }
 
@@ -316,31 +256,21 @@ class BatchProcessor {
     //!   Array of data mappings to process
     //! @param query_template
     //!   sprintf-style query template
-    //! @returns
-    //!   Array of Futures for batch operations
     //!
     //! @seealso
     //!   @[create]
 
-    array(Future) process_batch(array(mapping) data, string query_template) {
-        array(Future) results = ({});
-
+    void process_batch(array(mapping) data, string query_template) {
         for (int i = 0; i < sizeof(data); i += batch_size) {
             array(mapping) batch = data[i..i + batch_size - 1];
 
-            Promise p = Promise();
-            results += ({p->future()});
-
-            Thread.Thread(do_batch, p, batch, query_template);
+            Thread.Thread(do_batch, batch, query_template);
         }
-
-        return results;
     }
 
-    private void do_batch(Promise promise, array(mapping) batch,
-                         string query_template) {
+    private void do_batch(array(mapping) batch, string query_template) {
         mixed err = catch {
-            Sql.Sql db = Sql.Sql("sqlite://example.db");
+            Sql.Sql db = Sql.Sql(db_url);
 
             db->query("BEGIN TRANSACTION");
 
@@ -352,22 +282,31 @@ class BatchProcessor {
 
             db->query("COMMIT");
 
-            promise->success(sizeof(batch));
+            werror("Batch completed: %d records\n", sizeof(batch));
         };
 
         if (err) {
-            promise->failure(err);
+            if (arrayp(err)) {
+                array(mixed) err_arr = (array(mixed))err;
+                if (sizeof(err_arr) > 0 && stringp(err_arr[0])) {
+                    werror("Batch error: %s\n", [string]err_arr[0]);
+                } else {
+                    werror("Batch error: %O\n", err);
+                }
+            } else {
+                werror("Batch error: %s\n", describe_error(err));
+            }
         }
     }
 }
 
-//! Example: Batch async operations
+//! Example: Batch operations
 //!
 //! @seealso
-//!   @[streaming_results_example], @[async_pool_example]
+//!   @[streaming_results_example], *[async_pool_example]
 
 void batch_async_example() {
-    werror("\n=== Batch Async Operations Example ===\n");
+    werror("\n=== Batch Operations Example ===\n");
 
     // Prepare batch data
     array(mapping) batch_data = ({});
@@ -379,41 +318,35 @@ void batch_async_example() {
         ]);
     }
 
-    BatchProcessor processor = BatchProcessor("sqlite://example.db", 10);
+    BatchProcessor processor = BatchProcessor("sqlite://:memory:", 10);
 
     // Process in batches of 10
-    array(Future) futures = processor->process_batch(
+    processor->process_batch(
         batch_data,
         "INSERT INTO users (name, email, age) VALUES ('%s', '%s', %d)"
     );
 
-    // Wait for all batches
-    int total_inserted = 0;
-    foreach (futures, Future f) {
-        mixed result = f->get();
-        if (intp(result)) {
-            total_inserted += result;
-        }
-    }
+    // Wait for threads to complete
+    sleep(1);
 
-    werror("Total inserted: %d\n", total_inserted);
+    werror("Batch processing initiated\n");
 }
 
-//! Example: Connection pool with async support
+//! Example: Connection pool
 //!
-//! Thread-safe connection pool with async query support
+//! Thread-safe connection pool for database operations
 //!
 //! @seealso
-//!   @[AsyncDatabase], @[BatchProcessor]
+//!   @[ThreadedQuery], @[BatchProcessor]
 
-class AsyncConnectionPool {
+class ConnectionPool {
     private string db_url;
     private int max_connections;
     private array(Sql.Sql) connections;
     private Thread.Queue available;
     private Thread.Mutex lock = Thread.Mutex();
 
-    //! Create async connection pool
+    //! Create connection pool
     //!
     //! @param db_url
     //!   Database connection URL
@@ -437,7 +370,7 @@ class AsyncConnectionPool {
         }
     }
 
-    //! Get connection from pool (async-friendly)
+    //! Get connection from pool
     //!
     //! @returns
     //!   Valid database connection from the pool
@@ -449,7 +382,11 @@ class AsyncConnectionPool {
     //!   @[release_connection]
 
     Sql.Sql get_connection() {
-        int idx = available->read();
+        mixed idx_data = available->read();
+        if (!intp(idx_data)) {
+            error("Invalid connection index from queue");
+        }
+        int idx = (int)idx_data;
         Sql.Sql conn = connections[idx];
 
         // Verify connection
@@ -471,7 +408,6 @@ class AsyncConnectionPool {
     //!   @[get_connection]
 
     void release_connection(Sql.Sql conn) {
-        // Find connection index
         Thread.MutexKey key = lock->lock();
         int idx = search(connections, conn);
         if (idx >= 0) {
@@ -479,172 +415,25 @@ class AsyncConnectionPool {
         }
         destruct(key);
     }
-
-    //! Execute query with pooled connection
-    //!
-    //! @param query
-    //!   SQL query string
-    //! @param bindings
-    //!   Optional parameter bindings
-    //! @returns
-    //!   Promise resolving to query results
-    //!
-    //! @seealso
-    //!   @[get_connection]
-
-    Promise pooled_query(string query, mapping|void bindings) {
-        Promise promise = Promise();
-
-        Thread.Thread(do_pooled_query, promise, query, bindings);
-
-        return promise;
-    }
-
-    private void do_pooled_query(Promise promise, string query,
-                                 mapping|void bindings) {
-        Sql.Sql conn = get_connection();
-
-        mixed err = catch {
-            array(mapping) result;
-
-            if (bindings) {
-                result = conn->query(query, bindings);
-            } else {
-                result = conn->query(query);
-            }
-
-            release_connection(conn);
-            promise->success(result);
-        };
-
-        if (err) {
-            release_connection(conn);
-            promise->failure(err);
-        }
-    }
 }
 
-//! Example: Async connection pool
+//! Example: Connection pool
 //!
 //! @seealso
-//!   @[batch_async_example], @[timeout_example]
+//!   @[batch_async_example]
 
-void async_pool_example() {
-    werror("\n=== Async Connection Pool Example ===\n");
+void pool_example() {
+    werror("\n=== Connection Pool Example ===\n");
 
-    AsyncConnectionPool pool = AsyncConnectionPool("sqlite://example.db", 5);
+    ConnectionPool pool = ConnectionPool("sqlite://:memory:", 5);
 
-    // Execute multiple queries using pool
-    array(Promise) promises = ({
-        pool->pooled_query("SELECT COUNT(*) as count FROM users"),
-        pool->pooled_query("SELECT AVG(age) as avg_age FROM users"),
-        pool->pooled_query("SELECT * FROM users LIMIT 5"),
-    });
+    // Get connection and execute query
+    Sql.Sql conn = pool->get_connection();
+    array(mapping) result = conn->query("SELECT 1 as test");
 
-    // Process results
-    foreach (promises, Promise p) {
-        mixed result = p->future()->get();
-        if (arrayp(result)) {
-            werror("Query completed: %d rows\n", sizeof(result));
-        }
-    }
-}
+    werror("Query result: %O\n", result);
 
-//! Example: Async query with timeout
-//!
-//! Execute async queries with automatic timeout
-//!
-//! @seealso
-//!   @[AsyncDatabase], @[AsyncConnectionPool]
-
-class QueryWithTimeout {
-    private AsyncDatabase db;
-
-    //! Create query timeout wrapper
-    //!
-    //! @param db_url
-    //!   Database connection URL
-    //!
-    //! @seealso
-    //!   @[query_with_timeout]
-
-    void create(string db_url) {
-        db = AsyncDatabase(db_url);
-    }
-
-    //! Execute query with timeout
-    //!
-    //! @param query
-    //!   SQL query string
-    //! @param bindings
-    //!   Optional parameter bindings
-    //! @param timeout_seconds
-    //!   Timeout in seconds before query is cancelled
-    //! @returns
-    //!   Promise that fails if timeout occurs
-    //!
-    //! @seealso
-    //!   @[create]
-
-    Promise query_with_timeout(string query, void|mapping bindings,
-                               int timeout_seconds) {
-        Promise promise = Promise();
-        Future query_future = db->query_async(query, bindings)->future();
-
-        // Create timeout thread
-        Thread.Thread(timeout_thread, promise, query_future, timeout_seconds);
-
-        return promise;
-    }
-
-    private void timeout_thread(Promise promise, Future query_future,
-                               int timeout_seconds) {
-        int start = time();
-
-        while ((time() - start) < timeout_seconds) {
-            if (query_future->ready()) {
-                // Query completed
-                mixed result = query_future->get();
-                if (arrayp(result)) {
-                    promise->success(result);
-                } else {
-                    promise->failure(result);
-                }
-                return;
-            }
-            sleep(0.1);
-        }
-
-        // Timeout reached
-        promise->failure(("Query timeout after %d seconds\n", timeout_seconds));
-    }
-}
-
-//! Example: Query timeout
-//!
-//! @seealso
-//!   @[async_pool_example]
-
-void timeout_example() {
-    werror("\n=== Query Timeout Example ===\n");
-
-    QueryWithTimeout db = QueryWithTimeout("sqlite://example.db");
-
-    // Query with 5 second timeout
-    Promise p = db->query_with_timeout(
-        "SELECT * FROM users",
-        0,
-        5
-    );
-
-    Future f = p->future();
-
-    mixed result = f->get();
-    if (arrayp(result)) {
-        werror("Query completed: %d rows\n", sizeof(result));
-    } else {
-        werror("Query failed or timed out: %O\n", result);
-    }
+    pool->release_connection(conn);
 }
 
 int main(int argc, array(string) argv) {
@@ -656,12 +445,10 @@ int main(int argc, array(string) argv) {
     //!   Exit code (0 for success)
     // Run examples
     async_query_example();
-    future_promise_example();
-    parallel_queries_example();
+    threaded_query_example();
     streaming_results_example();
     batch_async_example();
-    async_pool_example();
-    timeout_example();
+    pool_example();
 
     return 0;
 }

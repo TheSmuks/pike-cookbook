@@ -65,7 +65,7 @@ int main(int argc, array(string) argv) {
             ({"cat", fifo_path})
         );
 
-        write("Data read from FIFO:\n%s\n", result->stdout);
+        write("Data read from FIFO:\n%s\n", (string)result->stdout);
 
         writer->wait();
 

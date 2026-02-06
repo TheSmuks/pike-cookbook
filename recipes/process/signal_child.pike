@@ -44,7 +44,7 @@ int main(int argc, array(string) argv) {
     foreach (children; int i; Process.create_process proc) {
         int exit_code = proc->wait();
         write("Child %d (PID %d) exited with code: %d\n",
-              i + 1, proc->pid(), exit_code);
+              i + 1, proc->pid(), (int)exit_code);
     }
 
     write("\nAll children reaped successfully. No zombies!\n");
@@ -53,7 +53,7 @@ int main(int argc, array(string) argv) {
     write("\n=== Using Process.run (automatic cleanup) ===\n");
 
     mapping result = Process.run(({"sleep", "1"}));
-    write("Process completed with exit code: %d\n", result->exitcode);
+    write("Process completed with exit code: %d\n", (int)result->exitcode);
 
     return 0;
 }

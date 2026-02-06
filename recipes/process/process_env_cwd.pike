@@ -62,7 +62,7 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    write("%s\n", result->stdout);
+    write("%s\n", (string)result->stdout);
 
     return 0;
 }

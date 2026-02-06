@@ -155,7 +155,7 @@ int main()
         mixed result = breaker->execute(unreliable_operation);
 
         if (result) {
-            write("  ✓ Result: %s\n", result);
+            write("  ✓ Result: %s\n", (string)result);
         } else {
             write("  ✗ Circuit blocked or operation failed\n");
         }

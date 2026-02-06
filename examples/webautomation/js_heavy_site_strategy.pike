@@ -36,10 +36,15 @@ void discover_api_endpoints()
 
     // Fetch the main page
     string url = "https://example.com";
-    Protocols.HTTP.Query q = Protocols.HTTP.get_url(url);
+    Protocols.HTTP.Query q = 0;
 
-    if (q->status != 200) {
-        werror("Failed to fetch page\n");
+    mixed err = catch {
+        q = Protocols.HTTP.get_url(url);
+    };
+
+    if (err || !q || q->status != 200) {
+        write("Note: Network unavailable - using demo HTML\n");
+        write("This example would fetch and analyze JavaScript from a real site.\n\n");
         return;
     }
 
@@ -59,10 +64,11 @@ void discover_api_endpoints()
 
     foreach(patterns, string pattern) {
         object re = Regexp.SimpleRegexp(pattern);
-        array(string) matches = re->split(html);
+        mixed matches = re->split(html);
 
-        if (sizeof(matches) > 1) {
-            write("  Found potential endpoint: %s\n", matches[1]);
+        if (arrayp(matches) && sizeof((array)matches) > 1) {
+            array(string) match_array = (array(string))matches;
+            write("  Found potential endpoint: %s\n", match_array[1]);
         }
     }
 
@@ -120,16 +126,38 @@ void use_documented_api()
         "Accept": "application/vnd.github.v3+json"
     ]);
 
-    Protocols.HTTP.Query q = Protocols.HTTP.get_url(
-        base_url + "/users/pike-language",
-        headers
-    );
+    Protocols.HTTP.Query q = 0;
+
+    mixed err = catch {
+        q = Protocols.HTTP.get_url(
+            base_url + "/users/pike-language",
+            (mapping(string:string|array(string)))headers
+        );
+    };
+
+    if (err || !q) {
+        write("Note: Network unavailable - API call skipped\n");
+        write("With network access, this would fetch user info from GitHub API\n");
+        write("  Expected: Login, Name, Public repos count\n\n");
+        return;
+    }
 
     if (q->status == 200) {
-        mapping data = Standards.JSON.decode(q->data());
-        write("  Login: %s\n", data->login);
-        write("  Name: %s\n", data->name || "N/A");
-        write("  Public repos: %d\n", data->public_repos);
+        mixed parse_err = catch {
+            mixed decoded = Standards.JSON.decode(q->data());
+            if (mappingp(decoded)) {
+                mapping data = (mapping)decoded;
+                write("  Login: %s\n", (string)data->login);
+                mixed name = data->name;
+                write("  Name: %s\n", name ? (string)name : "N/A");
+                write("  Public repos: %d\n", (int)data->public_repos);
+            }
+        };
+        if (parse_err) {
+            write("Note: Failed to parse API response\n");
+        }
+    } else {
+        write("Note: API returned status %d\n", q->status);
     }
 
     write("\n");

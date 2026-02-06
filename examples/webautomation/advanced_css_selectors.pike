@@ -5,9 +5,9 @@
 class CSSSelector
 {
     // Parse selector and match elements
-    public array(Parser.XML.Tree.Node) select(string selector, Parser.XML.Tree.Node root)
+    public array(object) select(string selector, object root)
     {
-        array(Parser.XML.Tree.Node) results = ({});
+        array(object) results = ({});
 
         // Parse selector: tag.class#id, multiple selectors
         array(string) parts = selector / ",";
@@ -46,7 +46,7 @@ class CSSSelector
             }
 
             // Find matching elements
-            array(Parser.XML.Tree.Node) matched = find_elements(root, tag, class_name, id);
+            array(object) matched = find_elements(root, tag, class_name, id);
             results += matched;
         }
 
@@ -54,25 +54,24 @@ class CSSSelector
     }
 
     // Find elements by tag, class, and ID
-    private array(Parser.XML.Tree.Node) find_elements(Parser.XML.Tree.Node node,
-                                                     string tag, string class_name, string id)
+    private array(object) find_elements(object node,
+                                       string tag, string class_name, string id)
     {
-        array(Parser.XML.Tree.Node) results = ({});
+        array(object) results = ({});
 
-        void check(Parser.XML.Tree.Node n) {
-            if (!objectp(n)) return 0;
-
+        void check(object n) {
             // Check tag name
-            if (tag != "*" && n->get_tag_name() != tag) {
-                // Recurse anyway for children
-            }
+            mixed tag_name_result = n->get_tag_name();
 
             // Check attributes
-            mapping attrs = n->get_attributes();
-            if (attrs) {
-                int matches_tag = (tag == "*") || (n->get_tag_name() == tag);
-                int matches_id = !sizeof(id) || (attrs->id == id);
-                int matches_class = !sizeof(class_name) || (attrs->class == class_name);
+            mixed attrs_result = n->get_attributes();
+            if (mappingp(attrs_result)) {
+                mapping attrs = (mapping)attrs_result;
+                int matches_tag = (tag == "*") || (stringp(tag_name_result) && tag_name_result == tag);
+                mixed id_val = attrs->id;
+                mixed class_val = attrs->class;
+                int matches_id = !sizeof(id) || (stringp(id_val) && id_val == id);
+                int matches_class = !sizeof(class_name) || (stringp(class_val) && class_val == class_name);
 
                 if (matches_tag && matches_id && matches_class) {
                     results += ({ n });
@@ -80,9 +79,12 @@ class CSSSelector
             }
 
             // Recurse into children
-            foreach(n->get_children(), mixed child) {
-                if (objectp(child)) {
-                    check(child);
+            mixed children_result = n->get_children();
+            if (arrayp(children_result)) {
+                foreach((array)children_result, mixed child) {
+                    if (objectp(child)) {
+                        check((object)child);
+                    }
                 }
             }
         };
@@ -92,25 +94,28 @@ class CSSSelector
     }
 
     // Get element by ID
-    public Parser.XML.Tree.Node get_by_id(Parser.XML.Tree.Node root, string id)
+    public object get_by_id(object root, string id)
     {
-        array(Parser.XML.Tree.Node) results = select("#" + id, root);
+        array(object) results = select("#" + id, root);
         return sizeof(results) ? results[0] : 0;
     }
 
     // Get elements by class
-    public array(Parser.XML.Tree.Node) get_by_class(Parser.XML.Tree.Node root, string class_name)
+    public array(object) get_by_class(object root, string class_name)
     {
         return select("." + class_name, root);
     }
 
     // Get text content of matched elements
-    public array(string) get_text(string selector, Parser.XML.Tree.Node root)
+    public array(string) get_text(string selector, object root)
     {
-        array(Parser.XML.Tree.Node) elements = select(selector, root);
-        return map(elements, lambda(Parser.XML.Tree.Node n) {
-            return n->get_text();
-        });
+        array(object) elements = select(selector, root);
+        array(string) texts = ({});
+        foreach(elements, object n) {
+            mixed text = n->get_text();
+            texts += ({ stringp(text) ? (string)text : "" });
+        }
+        return texts;
     }
 }
 
@@ -143,8 +148,13 @@ int main()
     </html>
     ";
 
-    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(html);
-    Parser.XML.Tree.Node root = xml_root->get_children()[0];
+    object xml_root = Parser.XML.Tree.parse_input(html);
+    mixed root_mixed = xml_root->get_children();
+    if (!arrayp(root_mixed) || !sizeof((array)root_mixed)) {
+        werror("No root element\n");
+        return 1;
+    }
+    object root = (object)((array)root_mixed)[0];
 
     CSSSelector selector = CSSSelector();
 
@@ -152,7 +162,7 @@ int main()
 
     // Example 1: Select by ID
     write("1. Select by ID (#header)\n");
-    array(Parser.XML.Tree.Node) results = selector->select("#header", root);
+    array(object) results = selector->select("#header", root);
     write("   Found: %d element(s)\n", sizeof(results));
 
     // Example 2: Select by class
@@ -164,16 +174,18 @@ int main()
     write("\n3. Select by tag (h2)\n");
     results = selector->select("h2", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Parser.XML.Tree.Node n) {
-        write("   - %s\n", n->get_text());
+    foreach(results, object n) {
+        mixed text = n->get_text();
+        write("   - %s\n", stringp(text) ? (string)text : "");
     }
 
     // Example 4: Select by tag.class
     write("\n4. Select by tag.class (p.text)\n");
     results = selector->select("p.text", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Parser.XML.Tree.Node n) {
-        write("   - %s\n", n->get_text());
+    foreach(results, object n) {
+        mixed text = n->get_text();
+        write("   - %s\n", stringp(text) ? (string)text : "");
     }
 
     // Example 5: Select by tag#id
@@ -185,8 +197,11 @@ int main()
     write("\n6. Multiple selectors (h1, h2)\n");
     results = selector->select("h1, h2", root);
     write("   Found: %d element(s)\n", sizeof(results));
-    foreach(results, Parser.XML.Tree.Node n) {
-        write("   - %s: %s\n", n->get_tag_name(), n->get_text());
+    foreach(results, object n) {
+        mixed tag = n->get_tag_name();
+        mixed text = n->get_text();
+        write("   - %s: %s\n", stringp(tag) ? (string)tag : "?",
+                            stringp(text) ? (string)text : "");
     }
 
     // Example 7: Get text content

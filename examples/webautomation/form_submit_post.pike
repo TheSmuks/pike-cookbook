@@ -28,10 +28,18 @@ int main()
         write("Status: %d\n", q->status);
 
         // Parse JSON response if applicable
-        mapping response = Standards.JSON.decode(q->data());
-        write("\nForm data received:\n");
-        foreach(form_data; string key; string value) {
-            write("  %s: %s\n", key, response->form[key] || "not found");
+        mixed decoded = Standards.JSON.decode(q->data());
+        if (mappingp(decoded)) {
+            mapping response = (mapping)decoded;
+            mixed form = response->form;
+            if (mappingp(form)) {
+                mapping form_map = (mapping)form;
+                write("\nForm data received:\n");
+                foreach(form_data; string key; string|void value) {
+                    mixed val = form_map[key];
+                    write("  %s: %s\n", key, stringp(val) ? (string)val : "not found");
+                }
+            }
         }
         return 0;
     } else {

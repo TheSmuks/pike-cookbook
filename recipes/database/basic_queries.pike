@@ -27,7 +27,7 @@
 void simple_select_example() {
     werror("\n=== Simple SELECT Query ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Create test table
     db->query("CREATE TABLE IF NOT EXISTS users ("
@@ -48,7 +48,7 @@ void simple_select_example() {
     werror("Found %d users:\n", sizeof(result));
     foreach (result, mapping(string:mixed) row) {
         werror("  %s: %s (age %d)\n",
-               row->name, row->email, (int)row->age);
+               (string)row->name, (string)row->email, (int)row->age);
     }
 }
 
@@ -64,7 +64,7 @@ void simple_select_example() {
 void typed_query_example() {
     werror("\n=== Typed Query Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // typed_query returns properly typed values
     array(mapping(string:mixed)) result =
@@ -75,7 +75,7 @@ void typed_query_example() {
     foreach (result, mapping(string:mixed) row) {
         // age is returned as int, not string
         werror("  %s: %d (type: %s)\n",
-               row->name, row->age, sprintf("%t", row->age));
+               (string)row->name, (int)row->age, sprintf("%t", row->age));
     }
 }
 
@@ -90,22 +90,34 @@ void typed_query_example() {
 void big_query_example() {
     werror("\n=== Big Query Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // big_query returns a result object for streaming
-    object res = db->big_query("SELECT * FROM users");
+    object|int res = db->big_query("SELECT * FROM users");
 
-    if (res) {
-        werror("Field names: %s\n", res->fetch_fields()->name * ", ");
+    if (objectp(res)) {
+        mixed fields_mixed = res->fetch_fields();
+        if (arrayp(fields_mixed)) {
+            array fields = (array)fields_mixed;
+            if (sizeof(fields) > 0) {
+                mapping field = (mapping)fields[0];
+                if (field->name) {
+                    werror("Field names: %s\n", (string)field->name);
+                }
+            }
+        }
 
         // Fetch rows one at a time
-        array(mixed) row;
+        mixed row;
         while ((row = res->fetch_row())) {
-            werror("Row: %s\n", row * ", ");
+            if (arrayp(row)) {
+                array row_str = (array(string))row;
+                werror("Row: %s\n", row_str * ", ");
+            }
         }
 
         // Get number of rows
-        werror("Total rows: %d\n", res->num_rows());
+        werror("Total rows: %d\n", (int)res->num_rows());
     }
 }
 
@@ -120,7 +132,7 @@ void big_query_example() {
 void prepared_statement_example() {
     werror("\n=== Prepared Statement Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Using named parameters
     array(mapping(string:mixed)) result1 =
@@ -144,7 +156,7 @@ void prepared_statement_example() {
 void insert_example() {
     werror("\n=== INSERT Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Simple insert
     db->query("INSERT INTO users (name, email, age) "
@@ -162,7 +174,7 @@ void insert_example() {
 
     // Check inserted data
     array(mapping) count = db->query("SELECT COUNT(*) as count FROM users");
-    werror("Total users: %s\n", count[0]->count);
+    werror("Total users: %s\n", (string)count[0]->count);
 }
 
 //! Example: UPDATE operations
@@ -176,7 +188,7 @@ void insert_example() {
 void update_example() {
     werror("\n=== UPDATE Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Update single record
     db->query("UPDATE users SET age = :new_age WHERE name = :name",
@@ -185,7 +197,13 @@ void update_example() {
     // Update multiple records
     mixed affected = db->query("UPDATE users SET age = age + 1 WHERE age < 30");
 
-    werror("Updated %d records\n", intp(affected) ? affected : sizeof(affected));
+    int affected_count = 0;
+    if (intp(affected)) {
+        affected_count = (int)affected;
+    } else if (arrayp(affected)) {
+        affected_count = sizeof((array)affected);
+    }
+    werror("Updated %d records\n", affected_count);
 
     // Verify update
     array(mapping) result =
@@ -206,7 +224,7 @@ void update_example() {
 void delete_example() {
     werror("\n=== DELETE Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Delete with condition
     db->query("DELETE FROM users WHERE age > :max_age", (["max_age": 50]));
@@ -216,7 +234,7 @@ void delete_example() {
 
     // Get remaining count
     array(mapping) count = db->query("SELECT COUNT(*) as count FROM users");
-    werror("Remaining users: %s\n", count[0]->count);
+    werror("Remaining users: %s\n", (string)count[0]->count);
 }
 
 //! Example: Transaction management
@@ -230,7 +248,7 @@ void delete_example() {
 void transaction_example() {
     werror("\n=== Transaction Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Begin transaction
     db->query("BEGIN TRANSACTION");
@@ -249,7 +267,13 @@ void transaction_example() {
     if (err) {
         // Rollback on error
         db->query("ROLLBACK");
-        werror("Transaction rolled back: %s\n", err[0]);
+        // err is an array, get the first element
+        if (arrayp(err)) {
+            array err_arr = (array)err;
+            if (sizeof(err_arr) > 0) {
+                werror("Transaction rolled back: %s\n", (string)err_arr[0]);
+            }
+        }
     }
 }
 
@@ -264,7 +288,7 @@ void transaction_example() {
 void error_handling_example() {
     werror("\n=== Error Handling Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Try to query non-existent table
     mixed err = catch {
@@ -272,11 +296,16 @@ void error_handling_example() {
     };
 
     if (err) {
-        werror("Caught error: %s\n", err[0]);
+        if (arrayp(err)) {
+            array err_arr = (array)err;
+            if (sizeof(err_arr) > 0) {
+                werror("Caught error: %s\n", (string)err_arr[0]);
+            }
+        }
 
         // Get last database error
         if (db->error) {
-            werror("Database error: %s\n", db->error());
+            werror("Database error: %s\n", (string)db->error());
         }
     }
 
@@ -286,7 +315,12 @@ void error_handling_example() {
     };
 
     if (err) {
-        werror("Caught SQL error: %s\n", err[0]);
+        if (arrayp(err)) {
+            array err_arr = (array)err;
+            if (sizeof(err_arr) > 0) {
+                werror("Caught SQL error: %s\n", (string)err_arr[0]);
+            }
+        }
     }
 }
 
@@ -301,7 +335,7 @@ void error_handling_example() {
 void sql_injection_prevention() {
     werror("\n=== SQL Injection Prevention ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // DANGEROUS: Direct string concatenation (vulnerable to SQL injection)
     string unsafe_input = "'; DROP TABLE users; --";
@@ -338,7 +372,7 @@ void sql_injection_prevention() {
 void null_handling_example() {
     werror("\n=== NULL Handling Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Create table with nullable column
     db->query("CREATE TABLE IF NOT EXISTS products ("
@@ -356,9 +390,9 @@ void null_handling_example() {
 
     foreach (result, mapping row) {
         if (row->description == Val.null) {
-            werror("%s has no description (NULL)\n", row->name);
+            werror("%s has no description (NULL)\n", (string)row->name);
         } else {
-            werror("%s: %s\n", row->name, row->description || "(none)");
+            werror("%s: %s\n", (string)row->name, (string)(row->description || "(none)"));
         }
     }
 }

@@ -33,9 +33,9 @@ int main(int argc, array(string) argv) {
         "ls", "-la", "/nonexistent"  // This will generate error output
     }));
 
-    write("STDOUT:\n%s\n", result->stdout || "(empty)");
-    write("STDERR:\n%s\n", result->stderr);
-    write("Exit code: %d\n\n", result->exitcode);
+    write("STDOUT:\n%s\n", (string)(result->stdout || "(empty)"));
+    write("STDERR:\n%s\n", (string)result->stderr);
+    write("Exit code: %d\n\n", (int)result->exitcode);
 
     // Example 2: Manual pipe handling
     write("=== Example 2: Manual pipe handling ===\n");

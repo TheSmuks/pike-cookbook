@@ -38,10 +38,10 @@ int main(int argc, array(string) argv) {
     });
 
     // Display signal numbers
-    foreach(signals; int i; string sig) {
-        int signum = signum(sig);
-        if (signum > 0) {
-            write("%2d: %s\n", signum, sig);
+    foreach(signals; ; string sig) {
+        int sig_num = signum(sig);
+        if (sig_num > 0) {
+            write("%2d: %s\n", sig_num, sig);
         }
     }
 

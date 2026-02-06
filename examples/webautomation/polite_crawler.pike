@@ -180,8 +180,9 @@ int main(int argc, array(string) argv)
     write("=== Polite Crawler Example ===\n\n");
 
     if (argc < 2) {
-        werror("Usage: %s <url> [requests_per_second]\n", argv[0]);
-        return 1;
+        write("Usage: %s <url> [requests_per_second]\n", argv[0]);
+        write("Running in demo mode with https://example.com ...\n");
+        argv = ({ argv[0], "https://example.com" });
     }
 
     string url = argv[1];

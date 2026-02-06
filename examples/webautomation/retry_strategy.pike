@@ -65,27 +65,47 @@ class RetryStrategy
                                        mapping|void headers,
                                        mapping|void data)
     {
-        return retry(lambda() {
+        mixed result = retry(lambda() {
             Protocols.HTTP.Query q;
 
             if (method == "GET") {
-                q = Protocols.HTTP.get_url(url, headers);
+                mapping(string:string) get_headers = (mapping(string:string))(headers || ([]));
+                q = Protocols.HTTP.get_url(url, get_headers);
             } else if (method == "POST") {
-                if (headers && headers["Content-Type"] == "application/json") {
+                mapping(string:string|array(string)) post_headers = (mapping(string:string|array(string)))(headers || ([]));
+                mixed content_type = post_headers["Content-Type"];
+                if (stringp(content_type) && ((string)content_type) == "application/json") {
                     string body = Standards.JSON.encode(data);
-                    q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+                    q = Protocols.HTTP.do_method("POST", url, ([]), post_headers, 0, body);
                 } else {
-                    q = Protocols.HTTP.post_url(url, data || ([]), headers);
+                    // Build form data mapping
+                    mapping(string:array(string)|string) post_data = ([]);
+                    if (data && mappingp(data)) {
+                        mapping data_map = (mapping)data;
+                        foreach(data_map; mixed k; mixed v) {
+                            if (stringp(k) && stringp(v)) {
+                                post_data[(string)k] = (string)v;
+                            } else if (stringp(k) && intp(v)) {
+                                post_data[(string)k] = (string)(int)v;
+                            }
+                        }
+                    }
+                    q = Protocols.HTTP.post_url(url, post_data, (mapping(string:array(string)|string))post_headers);
                 }
             }
 
             // Retry on server errors (5xx) and network errors
             if (q && q->status >= 500) {
-                return 0;  // Will trigger retry
+                return;  // Will trigger retry by returning undefined
             }
 
             return q;
         });
+
+        if (objectp(result)) {
+            return [object(Protocols.HTTP.Query)]result;
+        }
+        return 0;
     }
 }
 
@@ -110,7 +130,8 @@ int main()
     };
 
     mixed result = retry->retry(flaky_operation);
-    write("  Result: %s\n\n", result ? result : "failed after all retries");
+    string result_str = stringp(result) ? (string)result : "failed after all retries";
+    write("  Result: %s\n\n", result_str);
 
     // Example 2: HTTP request with retry
     write("Example 2: HTTP request with retry\n");
@@ -143,7 +164,6 @@ int main()
     write("\nExample 4: Aggressive retry strategy\n");
 
     RetryConfig aggressive = RetryConfig(10, 0.5, 10.0, 1);
-    RetryStrategy aggressive_retry = RetryStrategy(aggressive);
 
     write("  Max retries: %d\n", aggressive->max_retries);
     write("  Base delay: %.1fs\n", aggressive->base_delay);

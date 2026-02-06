@@ -18,16 +18,16 @@ class RESTClient
     }
 
     // Build headers with auth
-    private mapping get_headers(mapping|void extra_headers)
+    private mapping(string:string) get_headers(mapping|void extra_headers)
     {
-        mapping headers = copy_value(default_headers);
+        mapping(string:string) headers = copy_value(default_headers);
 
         if (auth_token) {
             headers["Authorization"] = "Bearer " + auth_token;
         }
 
         if (extra_headers) {
-            headers |= extra_headers;
+            headers |= (mapping(string:string))extra_headers;
         }
 
         return headers;
@@ -39,19 +39,24 @@ class RESTClient
                                           mapping|void extra_headers)
     {
         string url = base_url + endpoint;
-        mapping headers = get_headers(extra_headers);
+        mapping(string:string|array(string)) headers = (mapping(string:string|array(string)))get_headers(extra_headers);
 
         Protocols.HTTP.Query q;
 
         if (method == "GET") {
             if (data && sizeof(data)) {
-                array(string) params = map(indices(data), lambda(string key) {
-                    return Protocols.HTTP.uri_encode(key) + "=" +
-                           Protocols.HTTP.uri_encode(data[key]);
-                });
+                array(string) params = ({});
+                foreach(indices(data), mixed key) {
+                    if (stringp(key)) {
+                        mixed val = data[key];
+                        string val_str = stringp(val) ? (string)val : sprintf("%O", val);
+                        params += ({ Protocols.HTTP.uri_encode((string)key) + "=" +
+                                     Protocols.HTTP.uri_encode(val_str) });
+                    }
+                }
                 url += "?" + (params * "&");
             }
-            q = Protocols.HTTP.get_url(url, headers);
+            q = Protocols.HTTP.get_url(url, (mapping(string:string))headers);
         }
         else if (method == "POST") {
             headers["Content-Type"] = "application/json";
@@ -187,9 +192,19 @@ int main()
     write("1. GET all posts\n");
     mapping result = client->get("/posts", (["limit": "3"]));
     if (result->success) {
-        write("   ✓ Fetched %d posts\n", sizeof(result->data));
-        if (sizeof(result->data)) {
-            write("   First: %s\n", result->data[0]->title);
+        mixed data = result->data;
+        if (arrayp(data)) {
+            write("   ✓ Fetched %d posts\n", sizeof((array)data));
+            array data_array = (array)data;
+            if (sizeof(data_array)) {
+                mixed first = data_array[0];
+                if (mappingp(first)) {
+                    mixed title = ((mapping)first)->title;
+                    write("   First: %s\n", stringp(title) ? (string)title : "N/A");
+                }
+            }
+        } else {
+            write("   ✓ Got response\n");
         }
     }
 
@@ -197,8 +212,12 @@ int main()
     write("\n2. GET post #1\n");
     result = client->get("/posts/1");
     if (result->success) {
-        mapping post = result->data;
-        write("   ✓ Title: %s\n", post->title);
+        mixed data = result->data;
+        if (mappingp(data)) {
+            mapping post = (mapping)data;
+            mixed title = post->title;
+            write("   ✓ Title: %s\n", stringp(title) ? (string)title : "N/A");
+        }
     }
 
     // POST new post
@@ -209,7 +228,16 @@ int main()
         "userId": 1
     ]));
     if (result->success) {
-        write("   ✓ Created with ID: %d\n", result->data->id);
+        mixed data = result->data;
+        if (mappingp(data)) {
+            mapping created = (mapping)data;
+            mixed id = created->id;
+            if (intp(id)) {
+                write("   ✓ Created with ID: %d\n", (int)id);
+            } else {
+                write("   ✓ Created\n");
+            }
+        }
     }
 
     // PUT update

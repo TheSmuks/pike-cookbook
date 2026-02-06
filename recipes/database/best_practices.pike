@@ -34,7 +34,7 @@
 void security_parameter_binding() {
     werror("\n=== Security: Parameter Binding ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     string username = "admin'; DROP TABLE users; --";
 
@@ -49,7 +49,7 @@ void security_parameter_binding() {
     );
 
     // GOOD: Using named parameters
-    array(mapping) result2 = db->query(
+    db->query(
         "SELECT * FROM users WHERE username = :username",
         (["username": username])
     );
@@ -68,7 +68,7 @@ void security_parameter_binding() {
 void security_password_handling() {
     werror("\n=== Security: Password Handling ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // NEVER store passwords in plain text
     string password = "secret123";
@@ -80,12 +80,12 @@ void security_password_handling() {
               "password_hash TEXT, "
               "salt TEXT)");
 
-    // Generate random salt
+    // Generate random salt using Pike's random function
     string salt = MIME.encode_base64(Crypto.Random.random_string(32));
 
     // Hash password with salt (using SHA-256 for example)
     string password_hash =
-        String.string2hex(Crypto.SHA256.hash(password + salt));
+        String.string2hex(Crypto.SHA256.hash((string(8bit))(password + salt)));
 
     // Store hash and salt
     db->query("INSERT INTO users_secure (username, password_hash, salt) "
@@ -101,9 +101,9 @@ void security_password_handling() {
 
     if (sizeof(user)) {
         string computed_hash =
-            String.string2hex(Crypto.SHA256.hash(input_password + user[0]->salt));
+            String.string2hex(Crypto.SHA256.hash((string(8bit))(input_password + user[0]->salt)));
 
-        if (computed_hash == user[0]->password_hash) {
+        if (computed_hash == (string)user[0]->password_hash) {
             werror("Password verified successfully\n");
         } else {
             werror("Invalid password\n");
@@ -129,9 +129,9 @@ void security_least_privilege() {
     // Sql.Sql db = Sql.Sql("pgsql://root:password@localhost/db");
 
     // GOOD: Connecting with application-specific user
-    Sql.Sql db = Sql.Sql(
-        "pgsql://appuser:apppass@localhost/appdb"
-    );
+    // Sql.Sql db = Sql.Sql(
+    //     "pgsql://appuser:apppass@localhost/appdb"
+    // );
 
     // Application user should only have:
     // - SELECT, INSERT, UPDATE, DELETE on application tables
@@ -152,7 +152,7 @@ void security_least_privilege() {
 void security_input_validation() {
     werror("\n=== Security: Input Validation ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // Validate email format
     string email = "user@example.com";
@@ -174,7 +174,7 @@ void security_input_validation() {
     username = replace(username, ({ "'", ";", "--", "/*", "*/" }), ({ "", "", "", "", "" }));
 
     // Now use parameter binding (still necessary)
-    array(mapping) result = db->query(
+    db->query(
         "SELECT * FROM users WHERE username = %s AND age = %d",
         username, age
     );
@@ -197,7 +197,7 @@ void security_input_validation() {
 void performance_indexes() {
     werror("\n=== Performance: Indexes ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // Create table with proper indexes
     db->query("CREATE TABLE IF NOT EXISTS products ("
@@ -235,7 +235,7 @@ void performance_indexes() {
 void performance_column_types() {
     werror("\n=== Performance: Column Types ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // GOOD: Use appropriate types
     db->query("CREATE TABLE IF NOT EXISTS orders ("
@@ -263,7 +263,7 @@ void performance_column_types() {
 void performance_query_analysis() {
     werror("\n=== Performance: Query Analysis ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // Analyze query plan
     array(mapping) plan = db->query(
@@ -290,7 +290,7 @@ void performance_query_analysis() {
 void performance_batch_operations() {
     werror("\n=== Performance: Batch Operations ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // SLOW: Individual inserts
     float slow_time = gauge {
@@ -424,14 +424,14 @@ class ConnectionPool {
 void performance_connection_pooling() {
     werror("\n=== Performance: Connection Pooling ===\n");
 
-    ConnectionPool pool = ConnectionPool("sqlite://example.db", 5);
+    ConnectionPool pool = ConnectionPool("sqlite://:memory:", 5);
 
     // Use pool
     Sql.Sql conn = pool->acquire();
 
     array(mapping) result = conn->query("SELECT COUNT(*) as count FROM products");
 
-    werror("Query result: %s\n", result[0]->count);
+    werror("Query result: %s\n", (string)result[0]->count);
 
     pool->release(conn);
 }
@@ -447,10 +447,10 @@ void performance_connection_pooling() {
 void performance_prepared_statements() {
     werror("\n=== Performance: Prepared Statements ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
 
     // Compile query once
-    object compiled = db->compile_query(
+    mixed compiled = db->compile_query(
         "SELECT * FROM products WHERE category = :category"
     );
 
@@ -458,7 +458,7 @@ void performance_prepared_statements() {
     array(string) categories = ({ "Electronics", "Books", "Clothing" });
 
     foreach (categories, string category) {
-        array(mapping) result = db->query(compiled, (["category": category]));
+        array(mapping) result = db->query((string)compiled, (["category": category]));
         werror("%s: %d products\n", category, sizeof(result));
     }
 }
@@ -479,14 +479,19 @@ class UserRepository {
 
     //! Create user repository
     //!
-    //! @param db
+    //! @param connection
     //!   Database connection
     //!
     //! @seealso
     //!   @[find_all], @[find_by_id]
 
-    void create(Sql.Sql db) {
-        this::db = db;
+    void create(string|object(Sql.Sql) connection) {
+        if (objectp(connection)) {
+            db = [object(Sql.Sql)]connection;
+        } else {
+            // If called with a string (db URL), create connection
+            db = Sql.Sql([string]connection);
+        }
     }
 
     //! Find all users
@@ -551,13 +556,15 @@ class UserRepository {
     //! @seealso
     //!   @[update]
 
-    int create(string username, string email) {
+    int create_user(string username, string email) {
         db->query(
             "INSERT INTO users (username, email) VALUES (:username, :email)",
             (["username": username, "email": email])
         );
 
-        return db->master_sql->last_insert_id();
+        // Get last insert ID - method varies by database
+        mixed last_id = db->last_insert_id();
+        return intp(last_id) ? [int]last_id : 0;
     }
 
     //! Update user
@@ -573,7 +580,7 @@ class UserRepository {
     //!   @[create], @[delete]
 
     void update(int id, string|void username, string|void email) {
-        array(mapping) updates = ({});
+        array(string) updates = ({});
         mapping bindings = (["id": id]);
 
         if (username) {
@@ -614,21 +621,27 @@ class UserRepository {
 void maintainability_repository() {
     werror("\n=== Maintainability: Repository Pattern ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
+    db->query("CREATE TABLE IF NOT EXISTS users ("
+              "id INTEGER PRIMARY KEY, "
+              "username TEXT UNIQUE NOT NULL, "
+              "email TEXT UNIQUE NOT NULL, "
+              "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP"
+             ")");
     UserRepository users = UserRepository(db);
 
     // Create user
-    int user_id = users->create("john_doe", "john@example.com");
+    int user_id = users->create_user("john_doe", "john@example.com");
     werror("Created user with ID: %d\n", user_id);
 
     // Find user
     mapping user = users->find_by_id(user_id);
-    werror("Found user: %s (%s)\n", user->username, user->email);
+    werror("Found user: %s (%s)\n", (string)user->username, (string)user->email);
 
     // Update user
     users->update(user_id, "john_updated");
     user = users->find_by_id(user_id);
-    werror("Updated user: %s\n", user->username);
+    werror("Updated user: %s\n", (string)user->username);
 
     // List all users
     array(mapping) all_users = users->find_all();
@@ -647,9 +660,9 @@ void maintainability_repository() {
 //!   @[UserRepository]
 
 class Migration {
-    string name;
-    string up_sql;
-    string down_sql;
+    string name = "";
+    string up_sql = "";
+    string down_sql = "";
 }
 
 //! Migration manager for database schema versioning
@@ -692,7 +705,11 @@ class MigrationManager {
     //!   @[migrate], @[rollback]
 
     void add_migration(string name, string up_sql, string down_sql) {
-        migrations += ({ Migration(name, up_sql, down_sql) });
+        Migration m = Migration();
+        m->name = name;
+        m->up_sql = up_sql;
+        m->down_sql = down_sql;
+        migrations += ({ m });
     }
 
     //! Run all pending migrations
@@ -707,7 +724,7 @@ class MigrationManager {
         // Get applied migrations
         array(mapping) applied = db->query("SELECT name FROM schema_migrations");
         array(string) applied_names = map(applied, lambda(mapping m) {
-            return m->name;
+            return (string)m->name;
         });
 
         // Apply pending migrations
@@ -726,7 +743,7 @@ class MigrationManager {
 
                 if (err) {
                     db->query("ROLLBACK");
-                    werror("Migration failed: %s\n", err[0]);
+                    werror("Migration failed: %s\n", describe_error(err));
                 }
             }
         }
@@ -748,10 +765,10 @@ class MigrationManager {
         );
 
         foreach (applied, mapping m) {
-            Migration migration = search_migration_by_name(m->name);
+            Migration migration = search_migration_by_name((string)m->name);
 
             if (migration) {
-                werror("Rolling back migration: %s\n", m->name);
+                werror("Rolling back migration: %s\n", (string)m->name);
 
                 db->query("BEGIN TRANSACTION");
 
@@ -764,7 +781,7 @@ class MigrationManager {
 
                 if (err) {
                     db->query("ROLLBACK");
-                    werror("Rollback failed: %s\n", err[0]);
+                    werror("Rollback failed: %s\n", describe_error(err));
                 }
             }
         }
@@ -788,7 +805,7 @@ class MigrationManager {
 void maintainability_migrations() {
     werror("\n=== Maintainability: Database Migrations ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite:///tmp/test.db");
     MigrationManager manager = MigrationManager(db);
 
     // Define migrations
@@ -882,8 +899,9 @@ class LoggingDatabase {
     //!   @[typed_query]
 
     array(mapping) query(string query, mixed... extraargs) {
-        log_query(query, sizeof(extraargs) && mappingp(extraargs[0]) ?
-                 extraargs[0] : 0);
+        mapping|void bindings = sizeof(extraargs) && mappingp(extraargs[0]) ?
+                               (mapping)extraargs[0] : UNDEFINED;
+        log_query(query, bindings);
         return db->query(query, @extraargs);
     }
 
@@ -900,8 +918,9 @@ class LoggingDatabase {
     //!   @[query]
 
     array(mapping) typed_query(string query, mixed... extraargs) {
-        log_query(query, sizeof(extraargs) && mappingp(extraargs[0]) ?
-                 extraargs[0] : 0);
+        mapping|void bindings = sizeof(extraargs) && mappingp(extraargs[0]) ?
+                               (mapping)extraargs[0] : UNDEFINED;
+        log_query(query, bindings);
         return db->typed_query(query, @extraargs);
     }
 }
@@ -918,7 +937,7 @@ void maintainability_logging() {
     LoggingDatabase db = LoggingDatabase(raw_db, "/tmp/db_queries.log");
 
     // Queries will be logged
-    array(mapping) result = db->query("SELECT * FROM users LIMIT 5");
+    db->query("SELECT * FROM users LIMIT 5");
 
     werror("Query executed and logged\n");
     werror("Check log file: %s\n", "/tmp/db_queries.log");

@@ -29,7 +29,7 @@ class GraphQLClient
             payload->variables = variables;
         }
 
-        mapping headers = copy_value(default_headers);
+        mapping(string:string) headers = copy_value(default_headers);
 
         if (auth_token) {
             headers["Authorization"] = "Bearer " + auth_token;
@@ -39,22 +39,35 @@ class GraphQLClient
             "POST",
             endpoint,
             ([]),
-            headers,
+            (mapping(string:string))headers,
             0,
             Standards.JSON.encode(payload)
         );
 
         if (q->status >= 200 && q->status < 300) {
-            mapping response = Standards.JSON.decode(q->data());
+            mixed decoded = Standards.JSON.decode(q->data());
 
-            if (response->errors) {
-                werror("GraphQL Errors:\n");
-                foreach(response->errors, mapping err) {
-                    werror("  %s\n", err->message);
+            if (mappingp(decoded)) {
+                mapping response = (mapping)decoded;
+
+                if (response->errors) {
+                    werror("GraphQL Errors:\n");
+                    mixed errors = response->errors;
+                    if (arrayp(errors)) {
+                        foreach((array)errors, mixed err) {
+                            if (mappingp(err)) {
+                                mapping m = (mapping)err;
+                                mixed msg = m->message;
+                                werror("  %s\n", stringp(msg) ? (string)msg : "");
+                            }
+                        }
+                    }
                 }
+
+                return response;
             }
 
-            return response;
+            return (["error": "Invalid response"]);
         } else {
             werror("HTTP Error: %d\n", q->status);
             return (["error": sprintf("HTTP %d", q->status)]);
@@ -71,13 +84,6 @@ class GraphQLClient
 int main()
 {
     write("=== GraphQL Client Example ===\n\n");
-
-    // Example with public GitHub GraphQL API
-    string endpoint = "https://api.github.com/graphql";
-
-    // Note: You need a real GitHub token for this to work
-    // string token = getenv("GITHUB_TOKEN");
-    // GraphQLClient client = GraphQLClient(endpoint, token);
 
     // Example query structure
     string example_query = #"
@@ -134,10 +140,23 @@ void public_graphql_example()
 
     if (response->data) {
         write("Recent SpaceX launches:\n");
-        foreach(response->data->launchesPast, mapping launch) {
-            write("  - %s (%s)\n",
-                  launch->mission_name,
-                  launch->launch_date_local[0..9]);
+        mixed data = response->data;
+        if (mappingp(data)) {
+            mapping m = (mapping)data;
+            mixed launches = m->launchesPast;
+            if (arrayp(launches)) {
+                foreach((array)launches, mixed launch) {
+                    if (mappingp(launch)) {
+                        mapping l = (mapping)launch;
+                        mixed name = l->mission_name;
+                        mixed date = l->launch_date_local;
+                        string name_str = stringp(name) ? (string)name : "";
+                        string date_str = stringp(date) ? (string)date : "";
+                        string date_short = sizeof(date_str) >= 10 ? date_str[0..9] : date_str;
+                        write("  - %s (%s)\n", name_str, date_short);
+                    }
+                }
+            }
         }
     }
 }

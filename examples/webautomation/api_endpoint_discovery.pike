@@ -119,9 +119,10 @@ class APIDiscovery
 int main(int argc, array(string) argv)
 {
     if (argc < 2) {
-        werror("Usage: %s <url>\n", argv[0]);
-        werror("Example: %s https://example.com\n", argv[0]);
-        return 1;
+        write("Usage: %s <url>\n", argv[0]);
+        write("Example: %s https://example.com\n", argv[0]);
+        write("Running in demo mode with https://example.com ...\n");
+        argv = ({ argv[0], "https://example.com" });
     }
 
     string url = argv[1];

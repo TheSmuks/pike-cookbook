@@ -37,8 +37,8 @@ int main(int argc, array(string) argv) {
     write("Method 2: Process.run (captures output)\n");
     mapping result = Process.run(({"ls", "-la", "/tmp"}));
 
-    write("STDOUT:\n%s\n", result->stdout);
-    write("Exit code: %d\n\n", result->exitcode);
+    write("STDOUT:\n%s\n", (string)result->stdout);
+    write("Exit code: %d\n\n", (int)result->exitcode);
 
     // Method 3: Using Process.spawn for shell commands
     write("Method 3: Process.spawn\n");

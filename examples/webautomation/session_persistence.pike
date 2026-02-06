@@ -72,8 +72,9 @@ class CookieJar
 
         foreach(cookies; string name; mapping attrs) {
             // Simple domain matching (should be more robust)
-            if (has_value(domain, (string)attrs->domain)) {
-                result[name] = attrs->value;
+            mixed domain_val = attrs->domain;
+            if (domain_val && has_value(domain, (string)domain_val)) {
+                result[name] = (string)attrs->value;
             }
         }
 
@@ -114,7 +115,7 @@ class WebSession
     // Perform GET request with session
     Protocols.HTTP.Query get(string url)
     {
-        mapping headers = copy_value(default_headers);
+        mapping(string:string|int|array(string)) headers = copy_value(default_headers);
 
         string cookie_str = jar->cookie_header(url);
         if (cookie_str) {
@@ -132,7 +133,7 @@ class WebSession
     // Perform POST request with session
     Protocols.HTTP.Query post(string url, mapping data)
     {
-        mapping headers = copy_value(default_headers);
+        mapping(string:string|array(string)) headers = copy_value(default_headers);
         headers["Content-Type"] = "application/json";
 
         string cookie_str = jar->cookie_header(url);
@@ -153,8 +154,9 @@ class WebSession
     // Update cookie jar from response
     void update_cookies(Protocols.HTTP.Query q)
     {
-        if (q->headers["set-cookie"]) {
-            jar->set_cookie(q->headers["set-cookie"]);
+        mixed set_cookie_header = q->headers["set-cookie"];
+        if (set_cookie_header) {
+            jar->set_cookie((string)set_cookie_header);
         }
     }
 
@@ -171,20 +173,55 @@ int main()
     WebSession session = WebSession();
 
     write("=== Multi-step workflow with session ===\n\n");
+    write("Note: This example uses httpbin.org for testing.\n");
 
     // Step 1: Login
     write("Step 1: Setting session cookie\n");
-    Protocols.HTTP.Query q = session->get(
-        "https://httpbin.org/cookies/set/session/token12345"
-    );
+    Protocols.HTTP.Query q = 0;
+
+    mixed err = catch {
+        q = session->get(
+            "https://httpbin.org/cookies/set/session/token12345"
+        );
+    };
+
+    if (err || !q) {
+        write("Network unavailable - skipping network-dependent steps\n");
+        write("With network access, this would demonstrate:\n");
+        write("  1. Setting session cookies via HTTP headers\n");
+        write("  2. Maintaining cookies across requests\n");
+        write("  3. Making authenticated API calls\n");
+        write("  4. Session cleanup on logout\n");
+        return 0;
+    }
+
     write("Status: %d\n", q->status);
 
     // Step 2: Use session
     write("\nStep 2: Accessing protected resource with session\n");
     q = session->get("https://httpbin.org/cookies");
-    if (q->status == 200) {
-        mapping data = Standards.JSON.decode(q->data());
-        write("Session active: %d\n", sizeof(data->cookies) > 0);
+    if (q && q->status == 200) {
+        mixed parse_err = catch {
+            mixed json_result = Standards.JSON.decode(q->data());
+            // Check if JSON result is a mapping (not array or other type)
+            if (mappingp(json_result)) {
+                mapping data = (mapping)json_result;
+                mixed cookies_val = data->cookies;
+                // Handle both mapping and array for cookies
+                if (mappingp(cookies_val)) {
+                    write("Session active: %d\n", sizeof((mapping)cookies_val) > 0);
+                } else if (arrayp(cookies_val)) {
+                    write("Session active: %d\n", sizeof((array)cookies_val) > 0);
+                } else {
+                    write("Session active: 0\n");
+                }
+            } else {
+                write("Session active: 0\n");
+            }
+        };
+        if (parse_err) {
+            write("Note: Could not parse response\n");
+        }
     }
 
     // Step 3: Make authenticated POST request
@@ -193,12 +230,16 @@ int main()
         "action": "update_profile",
         "data": "test data"
     ]));
-    write("Status: %d\n", q->status);
+    if (q) {
+        write("Status: %d\n", q->status);
+    }
 
     // Step 4: Logout
     write("\nStep 4: Logout (clear session)\n");
     q = session->get("https://httpbin.org/cookies/delete?session");
-    write("Status: %d\n", q->status);
+    if (q) {
+        write("Status: %d\n", q->status);
+    }
 
     return 0;
 }

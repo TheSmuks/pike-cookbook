@@ -171,8 +171,13 @@ class FormWindow {
     }
 }
 
-int main() {
-    // Initialize NCurses
+int main(int argc, array(string) argv) {
+    // Initialize NCurses terminal
+    // cbreak: disable line buffering
+    // noecho: don't echo input
+    // nonl: disable newline translation
+    // intrflush: flush interrupt on break
+    // keypad: enable function keys and arrow keys
     initscr();
     cbreak();
     noecho();
@@ -192,7 +197,7 @@ int main() {
     int max_y, max_x;
     getmaxyx(stdscr, max_y, max_x);
 
-    // Create main window
+    // Create main window with padding
     NCursesWindow main_win = NCursesWindow(max_y - 5, max_x - 10, 2, 5);
     main_win->draw_box();
     main_win->draw_title("Pike NCurses Demo");
@@ -203,7 +208,7 @@ int main() {
     main_win->refresh();
     getch();
 
-    // Create menu
+    // Create interactive menu
     MenuWindow menu = MenuWindow(12, 40, 5, (max_x - 40) / 2, ({
         "View System Information",
         "Edit Configuration",
@@ -225,7 +230,7 @@ int main() {
         getch();
     }
 
-    // Create form
+    // Create form for data entry
     FormWindow form = FormWindow(15, 50, 5, (max_x - 50) / 2, ({
         "Name",
         "Email",
@@ -236,20 +241,21 @@ int main() {
     mapping(string:string) data = form->edit();
     form->destroy();
 
+    // Display form results
     if (data) {
         main_win->erase();
         main_win->draw_box();
         main_win->draw_title("Form Data");
 
         int y = max_y / 2 - 5;
-        foreach (indices(data), string field) {
-            main_win->mvaddstr(y++, 10, sprintf("%-15s: %s", field, data[field]));
+        foreach (data; string field; string value) {
+            main_win->mvaddstr(y++, 10, sprintf("%-15s: %s", field, value));
         }
         main_win->refresh();
         getch();
     }
 
-    // Cleanup
+    // Cleanup: restore terminal state
     endwin();
 
     write("NCurses demo completed.\n");

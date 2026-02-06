@@ -414,9 +414,10 @@ class SiteScraper
 int main(int argc, array(string) argv)
 {
     if (argc < 2) {
-        werror("Usage: %s <url> [type]\n", argv[0]);
-        werror("Types: products, articles, custom\n");
-        return 1;
+        write("Usage: %s <url> [type]\n", argv[0]);
+        write("Types: products, articles, custom\n");
+        write("Running in demo mode with https://example.com ...\n");
+        argv = ({ argv[0], "https://example.com", "articles" });
     }
 
     string url = argv[1];

@@ -18,28 +18,35 @@ class WebhookSender
     {
         string body = Standards.JSON.encode(payload);
 
-        mapping headers = ([
+        mapping(string:string) headers = ([
             "Content-Type": "application/json",
             "User-Agent": "Pike WebhookSender/1.0"
         ]);
 
         // Add signature if secret provided
         if (secret) {
-            object hmac = Crypto.HMAC(Crypto.SHA256)(secret);
-            string sig = hmac(body);
-            string sig_hex = String.string2hex(sig);
+            object hmac = Crypto.HMAC(Crypto.SHA256)((string(8bit))secret);
+            mixed sig_mixed = hmac((string(8bit))body);
+            string sig = stringp(sig_mixed) ? (string)sig_mixed : "";
+            string sig_hex = String.string2hex((string(8bit))sig);
             headers["X-Webhook-Signature"] = "sha256=" + sig_hex;
         }
 
         if (extra_headers) {
-            headers |= extra_headers;
+            headers |= (mapping(string:string))extra_headers;
+        }
+
+        // Build headers for HTTP request (values can be string or array of strings)
+        mapping(string:string|array(string)) http_headers = ([]);
+        foreach(headers; string key; string val) {
+            http_headers[key] = val;
         }
 
         Protocols.HTTP.Query q = Protocols.HTTP.do_method(
             "POST",
             url,
             ([]),
-            headers,
+            http_headers,
             0,
             body
         );
@@ -65,9 +72,12 @@ int main()
 {
     write("=== Webhook Sender Example ===\n\n");
 
-    // Example: Send webhook to local server
-    string url = "http://localhost:8080/webhook";
+    // Example: Send webhook to httpbin for testing (echoes back request)
+    string url = "https://httpbin.org/post";
     string secret = "my_webhook_secret";
+
+    write("Using httpbin.org as webhook echo server for testing.\n");
+    write("In production, replace with your actual webhook URL.\n\n");
 
     WebhookSender sender = WebhookSender(url, secret);
 
@@ -89,7 +99,7 @@ int main()
         ])
     ]));
 
-    write("  %s\n", success ? "✓ Sent" : "✗ Failed");
+    write("  %s\n", success ? "✓ Sent" : "✗ Failed (expected if no webhook server running)");
 
     // Send deployment event
     write("\nSending deployment event...\n");
@@ -104,7 +114,7 @@ int main()
         ])
     ]));
 
-    write("  %s\n", success ? "✓ Sent" : "✗ Failed");
+    write("  %s\n", success ? "✓ Sent" : "✗ Failed (expected if no webhook server running)");
 
     // Send custom webhook with headers
     write("\nSending custom webhook...\n");
@@ -117,7 +127,10 @@ int main()
         "X-Source": "pike-webhook-sender"
     ]));
 
-    write("  %s\n", success ? "✓ Sent" : "✗ Failed");
+    write("  %s\n", success ? "✓ Sent" : "✗ Failed (expected if no webhook server running)");
+
+    write("\nNote: Webhook delivery requires a server to receive requests.\n");
+    write("This example demonstrates the webhook payload format.\n");
 
     return 0;
 }

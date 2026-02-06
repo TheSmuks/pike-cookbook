@@ -23,30 +23,55 @@ int main()
         "</html>\n";
 
     // Parse with Parser.XML.Tree (for XHTML/well-formed XML)
-    Parser.XML.Tree.RootNode xml_root = Parser.XML.Tree.parse_input(xhtml);
-    Parser.XML.Tree.Node root = xml_root->get_children()[0];
+    object xml_root = Parser.XML.Tree.parse_input(xhtml);
+    mixed root_mixed = xml_root->get_children();
+    if (!arrayp(root_mixed) || !sizeof((array)root_mixed)) {
+        werror("Failed to parse XML\n");
+        return 1;
+    }
+    array root_array = (array)root_mixed;
+    object root = (object)root_array[0];
 
     // Extract title
-    array(Parser.XML.Tree.Node) titles = root->get_elements("title");
-    if (sizeof(titles)) {
-        write("Title: %s\n", titles[0]->get_text());
+    mixed titles_mixed = root->get_elements("title");
+    if (arrayp(titles_mixed) && sizeof((array)titles_mixed)) {
+        object title_elem = (object)((array)titles_mixed)[0];
+        mixed text = title_elem->get_text();
+        write("Title: %s\n", stringp(text) ? (string)text : "");
     }
 
     // Extract all paragraphs
-    array(Parser.XML.Tree.Node) paragraphs = root->get_elements("p");
+    mixed paragraphs_mixed = root->get_elements("p");
     write("\n--- Paragraphs ---\n");
-    foreach(paragraphs, Parser.XML.Tree.Node p) {
-        string id = p->get_attributes()->id || "no-id";
-        write("  [%s]: %s\n", id, p->get_text());
+    if (arrayp(paragraphs_mixed)) {
+        array paragraphs_array = (array)paragraphs_mixed;
+        foreach(paragraphs_array, mixed p) {
+            if (!objectp(p)) continue;
+            object p_obj = (object)p;
+            mixed attrs_mixed = p_obj->get_attributes();
+            if (!mappingp(attrs_mixed)) continue;
+            mapping attrs = (mapping)attrs_mixed;
+            mixed id_mixed = attrs->id;
+            string id = stringp(id_mixed) ? (string)id_mixed : "no-id";
+            mixed text = p_obj->get_text();
+            string text_str = stringp(text) ? (string)text : "";
+            write("  [%s]: %s\n", id, text_str);
+        }
     }
 
     // Extract list items
-    array(Parser.XML.Tree.Node) lists = root->get_elements("ul");
-    if (sizeof(lists)) {
-        array(Parser.XML.Tree.Node) items = lists[0]->get_elements("li");
-        write("\n--- List Items ---\n");
-        foreach(items, Parser.XML.Tree.Node item) {
-            write("  - %s\n", item->get_text());
+    mixed lists_mixed = root->get_elements("ul");
+    if (arrayp(lists_mixed) && sizeof((array)lists_mixed)) {
+        object list_obj = (object)((array)lists_mixed)[0];
+        mixed items_mixed = list_obj->get_elements("li");
+        if (arrayp(items_mixed)) {
+            write("\n--- List Items ---\n");
+            foreach((array)items_mixed, mixed item) {
+                if (objectp(item)) {
+                    mixed text = ((object)item)->get_text();
+                    write("  - %s\n", stringp(text) ? (string)text : "");
+                }
+            }
         }
     }
 
