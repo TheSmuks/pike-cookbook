@@ -39,7 +39,12 @@ int main(int argc, array(string) argv) {
     // In child, fork_result is 0
     int child_pid;
     if (objectp(fork_result)) {
-        child_pid = fork_result->pid();
+        mixed pid_func = ((object)fork_result)->pid;
+        if (functionp(pid_func)) {
+            child_pid = (int)pid_func();
+        } else {
+            child_pid = (int)pid_func;
+        }
     } else {
         child_pid = 0;  // We're in the child
     }
@@ -87,7 +92,17 @@ int main(int argc, array(string) argv) {
 #endif
 
         // Wait for child
-        int result = fork_result->wait();
+        int result;
+        if (objectp(fork_result)) {
+            mixed wait_func = ((object)fork_result)->wait;
+            if (functionp(wait_func)) {
+                result = (int)wait_func();
+            } else {
+                result = (int)wait_func;
+            }
+        } else {
+            result = -1;
+        }
         write("\nChild %d exited. Result: %d\n", child_pid, result);
     }
 

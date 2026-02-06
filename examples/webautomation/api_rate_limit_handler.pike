@@ -26,9 +26,9 @@ class JSONAPIClient
             headers["Authorization"] = "Bearer " + token;
         }
 
-        Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, headers);
+        Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, (mapping(string:string))headers);
 
-        return APIResponse(q->status == 200, q->data(), q->status);
+        return APIResponse(q->status == 200, (string)q->data(), q->status);
     }
 
     APIResponse post(string endpoint, mapping data)
@@ -45,9 +45,9 @@ class JSONAPIClient
         }
 
         string body = Standards.JSON.encode(data);
-        Protocols.HTTP.Query q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("POST", url, ([]), (mapping(string:string))headers, 0, body);
 
-        return APIResponse(q->status == 200, q->data(), q->status);
+        return APIResponse(q->status == 200, (string)q->data(), q->status);
     }
 
     APIResponse put(string endpoint, mapping data)
@@ -64,9 +64,9 @@ class JSONAPIClient
         }
 
         string body = Standards.JSON.encode(data);
-        Protocols.HTTP.Query q = Protocols.HTTP.do_method("PUT", url, ([]), headers, 0, body);
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("PUT", url, ([]), (mapping(string:string))headers, 0, body);
 
-        return APIResponse(q->status == 200, q->data(), q->status);
+        return APIResponse(q->status == 200, (string)q->data(), q->status);
     }
 
     APIResponse delete(string endpoint)
@@ -81,9 +81,9 @@ class JSONAPIClient
             headers["Authorization"] = "Bearer " + token;
         }
 
-        Protocols.HTTP.Query q = Protocols.HTTP.do_method("DELETE", url, ([]), headers, 0, 0);
+        Protocols.HTTP.Query q = Protocols.HTTP.do_method("DELETE", url, ([]), (mapping(string:string))headers, 0, 0);
 
-        return APIResponse(q->status == 200 || q->status == 204, q->data(), q->status);
+        return APIResponse(q->status == 200 || q->status == 204, (string)q->data(), q->status);
     }
 }
 
@@ -97,15 +97,19 @@ class APIResponse
     void create(int succ, mixed d, int stat)
     {
         success = succ;
-        data = d;
         status = stat;
 
-        // Parse JSON if present
-        if (succ && stringp(d) && sizeof(d)) {
-            mixed parsed = Standards.JSON.decode(d);
+        // Ensure data is always a string before JSON decode
+        if (stringp(d)) {
+            string s = (string)d;
+            mixed parsed = Standards.JSON.decode(s);
             if (mappingp(parsed)) {
                 data = parsed;
+            } else {
+                data = s;
             }
+        } else {
+            data = "";
         }
     }
 }
@@ -194,8 +198,8 @@ int main()
         APIResponse resp = client->get("/posts/" + i);
 
         if (resp->success && mappingp(resp->data)) {
-            mapping post = resp->data;
-            write("  ✓ %s\n", post->title || "(no title)");
+            mapping post = (mapping)resp->data;
+            write("  ✓ %s\n", (string)post->title || "(no title)");
         }
     }
 

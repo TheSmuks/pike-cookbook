@@ -183,17 +183,19 @@ void postgresql_example() {
     );
 
     // Alternative: connect with authentication
-    Sql.Sql pgsql_auth = Sql.Sql(
-        "pgsql://user:password@localhost:5432/testdb"
-    );
+    // Note: Example shows auth syntax
+    // Sql.Sql pgsql_auth = Sql.Sql(
+    //     "pgsql://user:password@localhost:5432/testdb"
+    // );
 
     // Alternative: use options mapping
-    Sql.Sql pgsql_options = Sql.Sql("pgsql://host", "database",
-        "user", "password", ([
-            "use_ssl": 1,
-            "reconnect": -1,
-            "cache_autoprepared_statements": 1
-        ]));
+    // Note: Example shows options syntax
+    // Sql.Sql pgsql_options = Sql.Sql("pgsql://host", "database",
+    //     "user", "password", ([
+    //         "use_ssl": 1,
+    //         "reconnect": -1,
+    //         "cache_autoprepared_statements": 1
+    //     ]));
 
     werror("PostgreSQL server: %s\n", pgsql->server_info());
     werror("PostgreSQL host: %s\n", pgsql->host_info());
@@ -220,14 +222,16 @@ void mysql_example() {
     );
 
     // Alternative: connect with authentication
-    Sql.Sql mysql_auth = Sql.Sql(
-        "mysql://root:password@localhost:3306/testdb"
-    );
+    // Note: Example shows auth syntax
+    // Sql.Sql mysql_auth = Sql.Sql(
+    //     "mysql://root:password@localhost:3306/testdb"
+    // );
 
     // Alternative: MySQL with SSL
-    Sql.Sql mysql_ssl = Sql.Sql(
-        "mysqls://user:password@localhost:3306/testdb"
-    );
+    // Note: Example shows SSL syntax
+    // Sql.Sql mysql_ssl = Sql.Sql(
+    //     "mysqls://user:password@localhost:3306/testdb"
+    // );
 
     werror("MySQL server: %s\n", mysql->server_info());
     werror("MySQL host: %s\n", mysql->host_info());
@@ -245,10 +249,11 @@ void sqlite_example() {
     werror("\n=== SQLite Connection Example ===\n");
 
     // SQLite uses file path as database
-    Sql.Sql sqlite = Sql.Sql("sqlite://test.db");
+    Sql.Sql sqlite = Sql.Sql("sqlite://:memory:");
 
     // In-memory SQLite database
-    Sql.Sql sqlite_memory = Sql.Sql("sqlite://:memory:");
+    // Note: Example shows in-memory syntax
+    // Sql.Sql sqlite_memory = Sql.Sql("sqlite://:memory:");
 
     werror("SQLite database: %s\n", sqlite->server_info());
 }
@@ -262,7 +267,7 @@ void database_manager_example() {
     werror("\n=== Database Manager Example ===\n");
 
     // Use SQLite for this example
-    DatabaseManager db = DatabaseManager("sqlite://example.db");
+    DatabaseManager db = DatabaseManager("sqlite://:memory:");
 
     werror("Connection status: %s\n", db.status());
     werror("Server info: %s\n", db.server_info());
@@ -379,7 +384,7 @@ void connection_pool_example() {
     werror("\n=== Connection Pool Example ===\n");
 
     // Create a pool of 5 connections
-    ConnectionPool pool = ConnectionPool("sqlite://pool.db", 5);
+    ConnectionPool pool = ConnectionPool("sqlite://:memory:", 5);
 
     // Get connections from pool
     Sql.Sql conn1 = pool->get_connection();

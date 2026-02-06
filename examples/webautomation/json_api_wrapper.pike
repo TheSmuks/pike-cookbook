@@ -19,16 +19,16 @@ class RESTClient
     }
 
     // Build headers with auth
-    private mapping get_headers(mapping|void extra_headers)
+    private mapping(string:string) get_headers(mapping|void extra_headers)
     {
-        mapping headers = copy_value(default_headers);
+        mapping(string:string) headers = copy_value(default_headers);
 
         if (auth_token) {
             headers["Authorization"] = "Bearer " + auth_token;
         }
 
         if (extra_headers) {
-            headers |= extra_headers;
+            headers |= (mapping(string:string))extra_headers;
         }
 
         return headers;
@@ -40,37 +40,42 @@ class RESTClient
                                           mapping|void extra_headers)
     {
         string url = base_url + endpoint;
-        mapping headers = get_headers(extra_headers);
+        mapping(string:string) headers = get_headers(extra_headers);
 
         Protocols.HTTP.Query q;
 
         if (method == "GET") {
             if (data && sizeof(data)) {
-                array(string) params = map(indices(data), lambda(string key) {
-                    return Protocols.HTTP.uri_encode(key) + "=" +
-                           Protocols.HTTP.uri_encode(data[key]);
-                });
+                array(string) params =({});
+                foreach(indices(data), mixed key) {
+                    if (stringp(key)) {
+                        mixed val = data[key];
+                        string val_str = stringp(val) ? (string)val : sprintf("%O", val);
+                        params += ({ Protocols.HTTP.uri_encode((string)key) + "=" +
+                                     Protocols.HTTP.uri_encode(val_str) });
+                    }
+                }
                 url += "?" + (params * "&");
             }
-            q = Protocols.HTTP.get_url(url, headers);
+            q = Protocols.HTTP.get_url(url, (mapping(string:int|array(string)|string))headers);
         }
         else if (method == "POST") {
             headers["Content-Type"] = "application/json";
             string body = data ? Standards.JSON.encode(data) : "{}";
-            q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+            q = Protocols.HTTP.do_method("POST", url, ([]), (mapping(string:array(string)|string))headers, 0, body);
         }
         else if (method == "PUT") {
             headers["Content-Type"] = "application/json";
             string body = data ? Standards.JSON.encode(data) : "{}";
-            q = Protocols.HTTP.do_method("PUT", url, ([]), headers, 0, body);
+            q = Protocols.HTTP.do_method("PUT", url, ([]), (mapping(string:array(string)|string))headers, 0, body);
         }
         else if (method == "DELETE") {
-            q = Protocols.HTTP.do_method("DELETE", url, ([]), headers);
+            q = Protocols.HTTP.do_method("DELETE", url, ([]), (mapping(string:array(string)|string))headers);
         }
         else if (method == "PATCH") {
             headers["Content-Type"] = "application/json";
             string body = data ? Standards.JSON.encode(data) : "{}";
-            q = Protocols.HTTP.do_method("PATCH", url, ([]), headers, 0, body);
+            q = Protocols.HTTP.do_method("PATCH", url, ([]), (mapping(string:array(string)|string))headers, 0, body);
         }
 
         return q;
@@ -238,14 +243,14 @@ class JSONAPIClient
                 break;
             }
 
-            array items = data;
-            if (!sizeof(items)) {
+            array items_array = (array)data;
+            if (!sizeof(items_array)) {
                 break;
             }
 
-            all_items += items;
+            all_items += items_array;
 
-            if (sizeof(items) < per_page) {
+            if (sizeof(items_array) < per_page) {
                 break;  // Last page
             }
 
@@ -313,11 +318,16 @@ class JSONAPIClient
                 return APIResponse(0, 0, 0, "Unknown method: " + method);
         }
 
+        mixed success = result->success;
+        mixed status = result->status;
+        mixed response_data = result->data;
+        mixed error = result->error;
+
         return APIResponse(
-            result->success,
-            result->status,
-            result->data,
-            result->error
+            intp(success) ? (int)success : 0,
+            intp(status) ? (int)status : 0,
+            response_data,
+            stringp(error) ? (string)error : 0
         );
     }
 
@@ -354,11 +364,17 @@ int main()
     APIResponse resp = api->get("/users/1");
 
     if (resp->success) {
-        mapping user = resp->data;
-        write("   ✓ Name: %s\n", user->name);
-        write("   ✓ Email: %s\n", user->email);
+        mixed data = resp->data;
+        if (mappingp(data)) {
+            mapping user = (mapping)data;
+            mixed name = user->name;
+            mixed email = user->email;
+            write("   ✓ Name: %s\n", stringp(name) ? (string)name : "N/A");
+            write("   ✓ Email: %s\n", stringp(email) ? (string)email : "N/A");
+        }
     } else {
-        werror("   ✗ Error: %s\n", resp->error);
+        mixed error = resp->error;
+        werror("   ✗ Error: %s\n", stringp(error) ? (string)error : "Unknown error");
     }
 
     // GET with retry
@@ -366,7 +382,13 @@ int main()
     resp = api->fetch_with_retry("GET", "/posts", (["_limit": "5"]), 2);
 
     if (resp->success) {
-        write("   ✓ Fetched %d posts\n", sizeof(resp->data));
+        mixed data = resp->data;
+        if (arrayp(data)) {
+            array data_array = (array)data;
+            write("   ✓ Fetched %d posts\n", sizeof(data_array));
+        } else {
+            write("   ✓ Got response (not an array)\n");
+        }
     }
 
     // POST new item
@@ -379,7 +401,16 @@ int main()
     ]));
 
     if (resp->success) {
-        write("   ✓ Created comment with ID: %d\n", resp->data->id);
+        mixed data = resp->data;
+        if (mappingp(data)) {
+            mapping result_map = (mapping)data;
+            mixed id = result_map->id;
+            if (intp(id)) {
+                write("   ✓ Created comment with ID: %d\n", (int)id);
+            } else {
+                write("   ✓ Created comment\n");
+            }
+        }
     }
 
     // GET all with pagination simulation

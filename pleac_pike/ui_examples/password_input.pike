@@ -2,7 +2,11 @@
 #pragma strict_types
 // Recipe: Reading Passwords Securely
 
-// Secure password input using termios
+// Check if termios module is available
+#if constant(Stdio.File.tcgetattr) || constant(Stdio.File.tcsetattr)
+
+// Secure password input using termios (legacy approach)
+// This method saves and restores full terminal state
 string get_password(string|void prompt) {
     string p = prompt || "Password: ";
 
@@ -11,7 +15,8 @@ string get_password(string|void prompt) {
 
     // Create new settings without echo
     mapping new_settings = copy_value(old_settings);
-    // Note: ECHO flag handling - in Pike 8, use modern approach below
+    // Note: For full termios control, modify the appropriate flags
+    // For simpler cases, use get_password_modern() below
 
     // Apply new settings
     Stdio.stdin->tcsetattr(new_settings);
@@ -22,10 +27,10 @@ string get_password(string|void prompt) {
     // Read password
     string password = Stdio.stdin->gets();
 
-    // Restore original settings
+    // Restore original settings (CRITICAL: always restore terminal state)
     Stdio.stdin->tcsetattr(old_settings);
 
-    // Output newline since user couldn't
+    // Output newline since user couldn't see their typing
     write("\n");
 
     return password || "";
@@ -61,18 +66,19 @@ int confirm_password(string prompt) {
     return 0;
 }
 
-int main() {
-    if (!Stdio.stdin->isatty || !Stdio.stdin->isatty()) {
+int main(int argc, array(string) argv) {
+    // Check for interactive terminal using function type check
+    if (!functionp(Stdio.stdin->isatty) || !Stdio.stdin->isatty()) {
         write("Password input requires an interactive terminal\n");
         return 1;
     }
 
-    // Simple password
+    // Simple password input demo
     write("=== Simple Password Input ===\n");
     string password = get_password_modern("Enter your password: ");
     write(sprintf("Password entered (length: %d)\n", sizeof(password)));
 
-    // Password confirmation
+    // Password confirmation demo
     write("\n=== Password Confirmation ===\n");
     if (confirm_password("Set new password: ")) {
         write("Password successfully set!\n");
@@ -80,19 +86,20 @@ int main() {
         write("Password setup failed\n");
     }
 
-    // Password strength check
+    // Password strength checker demo
     write("\n=== Password Strength Check ===\n");
     string pw = get_password("Enter password to check: ");
 
     int strength = 0;
     if (sizeof(pw) >= 8) strength++;
     if (sizeof(pw) >= 12) strength++;
+    // Check for mixed case
     if (has_value(pw, lower_case(pw)) && has_value(pw, upper_case(pw))) strength++;
-    // Check for special characters
+    // Check for special characters using Pike's String methods
     string special_chars = "!@#$%^&*()_+-=[]{}|;:,.<>?";
     int has_special = 0;
-    for (int i = 0; i < sizeof(special_chars); i++) {
-        if (has_value(pw, special_chars[i..i])) {
+    foreach (special_chars / "";; string ch) {
+        if (has_value(pw, ch)) {
             has_special = 1;
             break;
         }
@@ -104,3 +111,17 @@ int main() {
 
     return 0;
 }
+
+#else
+
+int main() {
+    write("Termios module not available.\n");
+    write("This example requires terminal I/O control for secure password input.\n");
+    write("Password input without termios is insecure and not recommended.\n");
+    write("\nFor testing purposes, you can use regular input (not secure):\n");
+    write("  write('Password: ');\n");
+    write("  string password = Stdio.stdin->gets();\n");
+    return 0;
+}
+
+#endif

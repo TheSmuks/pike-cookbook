@@ -88,10 +88,11 @@ class WebCrawler
 
         int pos = 0;
         while (pos < sizeof(html)) {
-            array(mixed) match = re->match(html, pos);
-            if (!match || sizeof(match) < 2) break;
+            mixed match_result = re->match(html, pos);
+            if (!match_result || !arrayp(match_result) || sizeof((array)match_result) < 2) break;
 
-            string href = match[1];
+            array(mixed) match = (array(mixed))match_result;
+            string href = (string)match[1];
 
             // Convert relative URLs to absolute
             if (has_prefix(href, "/")) {
@@ -116,7 +117,7 @@ class WebCrawler
             }
 
             links += ({ href });
-            pos = search(html, match[0], pos) + sizeof(match[0]);
+            pos = search(html, (string)match[0], pos) + sizeof((string)match[0]);
         }
 
         return links;
@@ -209,7 +210,7 @@ class WebCrawler
 
                 // Track depth for discovered links
                 if (current_depth < max_depth && arrayp(result->links)) {
-                    foreach(result->links, string link) {
+                    foreach((array(string))result->links, string link) {
                         string norm_link = normalize_url(link);
                         if (!url_depth[norm_link]) {
                             url_depth[norm_link] = current_depth + 1;
@@ -249,12 +250,17 @@ class WebCrawler
             "URL,Status,Size,Content Type,Depth,Links"
         });
 
-        foreach(results; string url; mapping data) {
-            int link_count = arrayp(data->links) ? sizeof(data->links) : 0;
+        foreach(results; string url; mixed data) {
+            if (!mappingp(data)) continue;
+            mapping m = (mapping)data;
+            int link_count = arrayp(m->links) ? sizeof((array)m->links) : 0;
+            int status = intp(m->status) ? (int)m->status : 0;
+            int size = intp(m->size) ? (int)m->size : 0;
+            string content_type = stringp(m->content_type) ? (string)m->content_type : "unknown";
+            int depth = intp(m->depth) ? (int)m->depth : 0;
             lines += ({
                 sprintf("\"%s\",%d,%d,\"%s\",%d,%d",
-                       url, data->status, data->size,
-                       data->content_type, data->depth, link_count)
+                       url, status, size, content_type, depth, link_count)
             });
         }
 
@@ -265,9 +271,10 @@ class WebCrawler
 int main(int argc, array(string) argv)
 {
     if (argc < 2) {
-        werror("Usage: %s <url> [max_depth] [max_pages] [requests_per_second]\n", argv[0]);
-        werror("Example: %s https://example.com 2 50 2\n", argv[0]);
-        return 1;
+        write("Usage: %s <url> [max_depth] [max_pages] [requests_per_second]\n", argv[0]);
+        write("Example: %s https://example.com 2 50 2\n", argv[0]);
+        write("Running in demo mode with https://example.com (depth 1, 10 pages) ...\n");
+        argv = ({ argv[0], "https://example.com", "1", "10", "2" });
     }
 
     string url = argv[1];
@@ -276,7 +283,7 @@ int main(int argc, array(string) argv)
     int rps = argc > 4 ? (int)argv[4] : 2;
 
     WebCrawler crawler = WebCrawler(url, depth, max_pages, rps);
-    mapping results = crawler->run();
+    crawler->run();
 
     // Save results
     string output_file = "crawl_results.json";

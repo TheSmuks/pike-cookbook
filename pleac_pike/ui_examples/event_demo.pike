@@ -58,19 +58,22 @@ class PeriodicTask {
 }
 
 int main(int argc, array(string) argv) {
-    // Demonstrate timer-based event loop
+    // Demonstrates Pike's event-driven programming using call_out
+    // call_out schedules functions to run after a delay (in seconds)
+
     write("=== Timer Demo ===\n");
-    TimerDemo timers = TimerDemo();
+    TimerDemo();  // Creates and starts timer automatically
 
     // Wait for timers to complete
+    // Note: sleep() allows call_out callbacks to execute
     sleep(6);
 
     write("\n=== Timeout Example ===\n");
-    TimeoutExample timeout = TimeoutExample();
+    TimeoutExample();  // Creates and starts timeout
     sleep(4);
 
     write("\n=== Periodic Task Example ===\n");
-    PeriodicTask periodic = PeriodicTask();
+    PeriodicTask();  // Creates and starts periodic task
     sleep(6);
 
     write("\nAll demos completed!\n");

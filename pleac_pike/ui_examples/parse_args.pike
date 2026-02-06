@@ -21,15 +21,18 @@ int feature_flag = 0;
 array(string) items = ({});
 
 int main(int argc, array(string) argv) {
-    // Modern Pike 8 Getopt parsing
-    foreach(Getopt.find_all_options(argv, ({
+    // Modern Pike 8.0 Getopt parsing
+    // find_all_options returns array of option arrays: ({name, value})
+    array(array(mixed)) options = Getopt.find_all_options(argv, ({
         ({"help", Getopt.NO_ARG, ({"-h", "--help"})}),
         ({"verbose", Getopt.NO_ARG, ({"-v", "--verbose"})}),
         ({"output", Getopt.HAS_ARG, ({"-o", "--output"})}),
         ({"number", Getopt.HAS_ARG, ({"-n", "--number"})}),
         ({"enable_flag", Getopt.NO_ARG, ({"--enable-flag"})}),
         ({"list", Getopt.HAS_ARG, ({"--list"})}),
-    })), array(string) opt) {
+    }));
+
+    foreach (options;; array(mixed) opt) {
         switch(opt[0]) {
             case "help":
                 write(USAGE);
@@ -38,7 +41,7 @@ int main(int argc, array(string) argv) {
                 verbose = 1;
                 break;
             case "output":
-                output_file = opt[1];
+                output_file = (string)opt[1];
                 break;
             case "number":
                 number = (int)opt[1];
@@ -47,7 +50,8 @@ int main(int argc, array(string) argv) {
                 feature_flag = 1;
                 break;
             case "list":
-                items = opt[1] / ",";
+                // Split comma-separated list using Pike's division operator
+                items = ((string)opt[1]) / ",";
                 break;
         }
     }

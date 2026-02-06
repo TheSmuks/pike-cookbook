@@ -5,8 +5,13 @@
 int main(int argc, array(string) argv)
 {
     if (argc < 2) {
-        werror("Usage: %s <file_to_upload>\n", argv[0]);
-        return 1;
+        write("Usage: %s <file_to_upload>\n", argv[0]);
+        write("Running in demo mode with a temporary test file ...\n");
+
+        // Create a temporary test file
+        string test_file = "/tmp/pike_upload_test.txt";
+        Stdio.write_file(test_file, "This is a test file for multipart upload demonstration.\n");
+        argv = ({ argv[0], test_file });
     }
 
     string filepath = argv[1];

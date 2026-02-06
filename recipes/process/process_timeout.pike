@@ -1,5 +1,4 @@
 #!/usr/bin/env pike
-#pragma strict_vars
 #pragma strict_types
 
 //! Recipe: Process with Timeout

@@ -41,9 +41,28 @@ int main()
 
     if (q->status >= 200 && q->status < 300) {
         write("JSON submitted successfully!\n");
-        mapping response = Standards.JSON.decode(q->data());
-        write("\nEchoed JSON data:\n");
-        write("%s\n", Standards.JSON.encode(response->json, Standards.JSON.HUMAN_READABLE));
+        mixed decoded = Standards.JSON.decode(q->data());
+        if (mappingp(decoded)) {
+            mapping response = (mapping)decoded;
+            write("\nEchoed JSON data:\n");
+            mixed json = response->json;
+            // Ensure json is valid type for encode
+            if (mappingp(json)) {
+                mapping json_map = (mapping)json;
+                write("%s\n", Standards.JSON.encode(json_map, Standards.JSON.HUMAN_READABLE));
+            } else if (arrayp(json)) {
+                array json_arr = (array)json;
+                write("%s\n", Standards.JSON.encode(json_arr, Standards.JSON.HUMAN_READABLE));
+            } else if (stringp(json)) {
+                string json_str = (string)json;
+                write("%s\n", Standards.JSON.encode(json_str, Standards.JSON.HUMAN_READABLE));
+            } else {
+                write("%s\n", Standards.JSON.encode(([
+                    "note": "JSON data echoed",
+                    "type": sprintf("%t", json)
+                ]), Standards.JSON.HUMAN_READABLE));
+            }
+        }
         return 0;
     } else {
         werror("Request failed: %d\n", q->status);

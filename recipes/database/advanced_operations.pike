@@ -29,7 +29,7 @@
 void join_example() {
     werror("\n=== JOIN Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Create tables
     db->query("CREATE TABLE IF NOT EXISTS departments ("
@@ -68,7 +68,7 @@ void join_example() {
     werror("Employees with departments:\n");
     foreach (inner_join, mapping row) {
         werror("  %s - %s: $%.2f\n",
-               row->employee, row->department, (float)row->salary);
+               (string)row->employee, (string)row->department, (float)row->salary);
     }
 }
 
@@ -83,7 +83,7 @@ void join_example() {
 void left_join_example() {
     werror("\n=== LEFT JOIN Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Add employee without department
     db->query("INSERT INTO employees (name, department_id, salary) "
@@ -99,7 +99,7 @@ void left_join_example() {
     werror("All employees (including unassigned):\n");
     foreach (left_join, mapping row) {
         werror("  %s - %s\n",
-               row->employee, row->department || "(No department)");
+               (string)row->employee, (string)(row->department || "(No department)"));
     }
 }
 
@@ -114,7 +114,7 @@ void left_join_example() {
 void aggregation_example() {
     werror("\n=== Aggregation Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Count employees per department
     array(mapping) count_result =
@@ -131,7 +131,7 @@ void aggregation_example() {
     werror("Department statistics:\n");
     foreach (count_result, mapping row) {
         werror("  %s: %d employees, avg salary: $%.2f (range: $%.2f - $%.2f)\n",
-               row->department, (int)row->employee_count,
+               (string)row->department, (int)row->employee_count,
                (float)row->avg_salary,
                (float)row->min_salary,
                (float)row->max_salary);
@@ -148,7 +148,7 @@ void aggregation_example() {
 
     werror("\nDepartments with avg salary > $60000:\n");
     foreach (having_result, mapping row) {
-        werror("  %s: $%.2f\n", row->department, (float)row->avg_salary);
+        werror("  %s: $%.2f\n", (string)row->department, (float)row->avg_salary);
     }
 }
 
@@ -163,7 +163,7 @@ void aggregation_example() {
 void union_subquery_example() {
     werror("\n=== UNION and Subquery Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Create projects table
     db->query("CREATE TABLE IF NOT EXISTS projects ("
@@ -188,7 +188,7 @@ void union_subquery_example() {
 
     werror("Top 5 by amount (employees + projects):\n");
     foreach (union_result, mapping row) {
-        werror("  %s (%s): $%.2f\n", row->name, row->type, (float)row->amount);
+        werror("  %s (%s): $%.2f\n", (string)row->name, (string)row->type, (float)row->amount);
     }
 
     // Subquery
@@ -199,7 +199,7 @@ void union_subquery_example() {
 
     werror("\nEmployees earning above average:\n");
     foreach (subquery_result, mapping row) {
-        werror("  %s: $%.2f\n", row->name, (float)row->salary);
+        werror("  %s: $%.2f\n", (string)row->name, (float)row->salary);
     }
 
     // EXISTS subquery
@@ -214,7 +214,7 @@ void union_subquery_example() {
 
     werror("\nDepartments with employees earning > $70000:\n");
     foreach (exists_result, mapping row) {
-        werror("  %s\n", row->department);
+        werror("  %s\n", (string)row->department);
     }
 }
 
@@ -270,7 +270,7 @@ void window_function_example() {
 void cte_example() {
     werror("\n=== Common Table Expression Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Simple CTE
     array(mapping) cte_result =
@@ -285,7 +285,7 @@ void cte_example() {
 
     werror("High salary employees with departments:\n");
     foreach (cte_result, mapping row) {
-        werror("  %s - %s\n", row->name, row->department);
+        werror("  %s - %s\n", (string)row->name, (string)row->department);
     }
 
     // Recursive CTE (hierarchical data)
@@ -318,7 +318,9 @@ void cte_example() {
 
     werror("\nCategory hierarchy:\n");
     foreach (hierarchy, mapping row) {
-        werror("  %*s%s\n", (int)row->level * 2, "", row->name);
+        int indent = (int)row->level * 2;
+        string indent_str = " " * indent;
+        werror("  %s%s\n", indent_str, (string)row->name);
     }
 }
 
@@ -333,7 +335,7 @@ void cte_example() {
 void query_compilation_example() {
     werror("\n=== Query Compilation Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Compile a query for reuse
     string|object compiled_query = db->compile_query(
@@ -360,19 +362,19 @@ void query_compilation_example() {
 void performance_monitoring_example() {
     werror("\n=== Performance Monitoring Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Time a query
     array(float) times = ({});
     for (int i = 0; i < 10; i++) {
-        float start = gauge {
+        mixed start = gauge {
             db->query("SELECT * FROM employees WHERE salary > :min_salary",
                      (["min_salary": 60000]));
         };
-        times += ({start});
+        times += ({(float)start});
     }
 
-    float avg_time = `+( @times) / sizeof(times);
+    float avg_time = (float)(`+( @times) / sizeof(times));
     werror("Average query time: %.6f seconds\n", avg_time);
 
     // Explain query plan (SQLite)
@@ -398,7 +400,7 @@ void performance_monitoring_example() {
 void batch_operations_example() {
     werror("\n=== Batch Operations Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // Batch insert using transaction
     db->query("BEGIN TRANSACTION");
@@ -432,7 +434,7 @@ void batch_operations_example() {
 void introspection_example() {
     werror("\n=== Database Introspection Example ===\n");
 
-    Sql.Sql db = Sql.Sql("sqlite://example.db");
+    Sql.Sql db = Sql.Sql("sqlite://:memory:");
 
     // List all tables
     array(string) tables = db->list_tables();
@@ -442,10 +444,19 @@ void introspection_example() {
     array(mapping) fields = db->list_fields("employees");
     werror("\nFields in 'employees':\n");
     foreach (fields, mapping field) {
+        // Check if flags exists and has not_null field
+        mixed flags = field->flags;
+        string not_null_suffix = "";
+        if (mappingp(flags)) {
+            mapping flags_map = (mapping)flags;
+            if (flags_map->not_null) {
+                not_null_suffix = " NOT NULL";
+            }
+        }
         werror("  %s: %s%s\n",
-               field->name,
-               field->type,
-               field->flags->not_null ? " NOT NULL" : "");
+               (string)field->name,
+               (string)field->type,
+               not_null_suffix);
     }
 
     // List databases (PostgreSQL/MySQL)

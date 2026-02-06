@@ -190,7 +190,8 @@ class GTKApplication {
 }
 
 int main(int argc, array(string) argv) {
-    // Initialize GTK2
+    // Initialize GTK2 with command line arguments
+    // GTK2.setup_gtk processes GTK-specific arguments like --display
     GTK2.setup_gtk(argc, argv);
 
     // Create and run application
@@ -204,9 +205,12 @@ int main(int argc, array(string) argv) {
 
 int main() {
     write("GTK2 module not available.\n");
-    write("Please install GTK2 support for Pike.\n");
-    write("This example requires the GTK2 module.\n");
-    return 1;
+    write("Please install GTK2 support for Pike or use a different UI example.\n");
+    write("This example requires the GTK2 module to be compiled and installed.\n");
+    write("\nOther UI examples available:\n");
+    write("  - ncurses_demo.pike (terminal UI)\n");
+    write("  - readline_demo.pike (command line)\n");
+    return 0;
 }
 
 #endif

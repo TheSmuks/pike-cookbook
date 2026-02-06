@@ -33,9 +33,9 @@ class LoginSession
         if (method == "GET") {
             string full_url = url;
             if (data && sizeof(data)) {
-                array(string) params = map(indices(data), lambda(string key) {
-                    return Protocols.HTTP.uri_encode(key) + "=" +
-                           Protocols.HTTP.uri_encode(data[key]);
+                array(string) params = (array(string))map(indices(data), lambda(mixed key) {
+                    return Protocols.HTTP.uri_encode((string)key) + "=" +
+                           Protocols.HTTP.uri_encode((string)data[key]);
                 });
                 full_url += "?" + (params * "&");
             }
@@ -45,23 +45,36 @@ class LoginSession
                 string body = Standards.JSON.encode(data);
                 q = Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
             } else {
-                q = Protocols.HTTP.post_url(url, data || ([]), headers);
+                mapping(string:string|int|array(string)) post_data = (mapping(string:string|int|array(string)))(data || ([]));
+                q = Protocols.HTTP.post_url(url, post_data, headers);
             }
         }
 
         // Extract cookies from response
-        if (q->headers["set-cookie"]) {
-            parse_cookies(q->headers["set-cookie"]);
+        mixed set_cookie = q->headers["set-cookie"];
+        if (set_cookie) {
+            parse_cookies(set_cookie);
         }
 
         return q;
     }
 
     // Parse Set-Cookie header
-    void parse_cookies(string cookie_header)
+    void parse_cookies(mixed cookie_header)
     {
-        // Handle multiple cookies
-        array(string) cookie_strings = cookie_header / "\n";
+        // Handle multiple cookies (may be array or string)
+        array(string) cookie_strings;
+        if (arrayp(cookie_header)) {
+            // Cast each element to string
+            cookie_strings = Array.map((array)cookie_header, lambda(mixed item) {
+                if (stringp(item)) return (string)item;
+                return sprintf("%O", item);
+            });
+        } else if (stringp(cookie_header)) {
+            cookie_strings = ((string)cookie_header) / "\n";
+        } else {
+            return;
+        }
 
         foreach(cookie_strings, string cookie_str) {
             // Parse: name=value; attributes
@@ -92,6 +105,11 @@ int main()
     // 1. GET login page
     write("1. Fetching login page...\n");
     Protocols.HTTP.Query q = session->request("GET", "https://httpbin.org/cookies/set/session/abc123");
+    if (!q) {
+        werror("   Failed to connect (network error)\n");
+        write("   This example requires network access to httpbin.org\n");
+        return 0;
+    }
     write("   Status: %d\n", q->status);
 
     // 2. Check authentication
@@ -105,12 +123,32 @@ int main()
     // 3. Access protected resource
     write("\n3. Accessing protected resource...\n");
     q = session->request("GET", "https://httpbin.org/cookies");
+    if (!q) {
+        werror("   Failed to connect (network error)\n");
+        return 0;
+    }
     write("   Status: %d\n", q->status);
     if (q->status == 200) {
         write("   Cookies sent:\n");
-        mapping response = Standards.JSON.decode(q->data());
-        foreach(response->cookies; string cookie; mapping data) {
-            write("     %s: %s\n", data->Name, data->Value);
+        mixed result = catch {
+            mixed decoded = Standards.JSON.decode(q->data());
+            if (mappingp(decoded)) {
+                mapping response = (mapping)decoded;
+                if (response->cookies) {
+                    if (mappingp(response->cookies)) {
+                        mapping cookie_map = (mapping)response->cookies;
+                        foreach(values(cookie_map), mixed data) {
+                            if (mappingp(data)) {
+                                mapping cookie_data = (mapping)data;
+                                write("     %s: %s\n", (string)cookie_data->Name, (string)cookie_data->Value);
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        if (result) {
+            werror("   Failed to parse response\n");
         }
     }
 

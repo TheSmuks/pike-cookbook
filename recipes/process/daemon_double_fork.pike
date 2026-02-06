@@ -42,7 +42,12 @@ int main(int argc, array(string) argv) {
     // In child, fork1 is 0
     int pid1;
     if (objectp(fork1)) {
-        pid1 = fork1->pid();
+        mixed pid_func = ((object)fork1)->pid;
+        if (functionp(pid_func)) {
+            pid1 = (int)pid_func();
+        } else {
+            pid1 = (int)pid_func;
+        }
     } else {
         pid1 = 0;  // We're in the child
     }
@@ -73,7 +78,12 @@ int main(int argc, array(string) argv) {
     // In child (daemon), fork2 is 0
     int pid2;
     if (objectp(fork2)) {
-        pid2 = fork2->pid();
+        mixed pid_func = ((object)fork2)->pid;
+        if (functionp(pid_func)) {
+            pid2 = (int)pid_func();
+        } else {
+            pid2 = (int)pid_func;
+        }
     } else {
         pid2 = 0;  // We're in the child
     }

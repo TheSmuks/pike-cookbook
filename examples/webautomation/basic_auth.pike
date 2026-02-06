@@ -72,8 +72,9 @@ class CookieJar
 
         foreach(cookies; string name; mapping attrs) {
             // Simple domain matching (should be more robust)
-            if (has_value(domain, (string)attrs->domain)) {
-                result[name] = attrs->value;
+            mixed domain_val = attrs->domain;
+            if (domain_val && has_value(domain, (string)domain_val)) {
+                result[name] = (string)attrs->value;
             }
         }
 
@@ -103,9 +104,16 @@ class CookieJar
 }
 
 
-int main()
+int main(int argc, array(string) argv)
 {
     string url = "https://httpbin.org/basic-auth/user/pass";
+
+    if (argc > 1) {
+        url = argv[1];
+    } else {
+        write("Using default demo URL: https://httpbin.org/basic-auth/user/pass\n");
+        write("Usage: %s [url]\n", argv[0]);
+    }
 
     // Prepare Basic Auth header
     // Format: "Basic base64(username:password)"
@@ -167,21 +175,21 @@ class AuthenticatedSession
             headers["Cookie"] = cookie_str;
         }
 
-        Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, headers);
+        Protocols.HTTP.Query q = Protocols.HTTP.get_url(url, (mapping(string:string))headers);
         return q;
     }
 
     // Make authenticated POST request
     Protocols.HTTP.Query post(string url, mapping data)
     {
-        mapping headers = ([
+        mapping(string:string) headers = ([
             "Authorization": get_auth_header(),
             "Content-Type": "application/json",
             "User-Agent": "Pike AuthSession/1.0"
         ]);
 
         string body = Standards.JSON.encode(data);
-        return Protocols.HTTP.do_method("POST", url, ([]), headers, 0, body);
+        return Protocols.HTTP.do_method("POST", url, ([]), (mapping(string:string))headers, 0, body);
     }
 }
 

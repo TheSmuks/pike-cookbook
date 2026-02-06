@@ -59,7 +59,7 @@ int main(int argc, array(string) argv) {
     );
 
     write("Original:\n%s", text);
-    write("After sort | uniq:\n%s", unique->stdout);
+    write("After sort | uniq:\n%s", (string)unique->stdout);
 
     // Example 3: Using spawn with custom filtering
     write("\nExample 3: Custom filter pipeline\n");

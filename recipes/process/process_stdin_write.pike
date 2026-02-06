@@ -36,7 +36,7 @@ int main(int argc, array(string) argv) {
         ])
     );
 
-    write("Output:\n%s\n", result->stdout);
+    write("Output:\n%s\n", (string)result->stdout);
 
     // Example 2: Manual stdin pipe
     write("\n=== Example 2: Manual stdin pipe ===\n");

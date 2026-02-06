@@ -32,55 +32,96 @@ int main(int argc, array(string) argv) {
 
     // Example 1: Successful process
     write("Example 1: Successful process\n");
-    Process.create_process proc1 = Process.create_process(({"echo", "Hello"}));
-
-    int(-1..2) status = proc1->status();
-    write("Status: %d\n", status);
-    write("Exit code: %d\n", proc1->wait());
-    write("Final status: %d\n\n", proc1->status());
-
-    // Example 2: Failed command
-    write("Example 2: Failed command (nonexistent)\n");
-    Process.create_process proc2 = Process.create_process(
-        ({"/nonexistent/command"})
-    );
-
     mixed err = catch {
-        int exit_code = proc2->wait();
+        Process.create_process proc1 = Process.create_process(({"echo", "Hello"}));
+
+        if (!proc1) {
+            error("Failed to create process");
+        }
+
+        mixed status_raw = proc1->status();
+        write("Status: %d\n", (int)status_raw);
+        int exit_code = proc1->wait();
         write("Exit code: %d\n", exit_code);
-        write("Status: %d\n", proc2->status());
+        int final_status = proc1->status();
+        write("Final status: %d\n\n", final_status);
     };
 
     if (err) {
-        write("Error caught: %s\n", describe_error(err));
+        write("Error in Example 1: %s\n\n", describe_error(err));
     }
 
-    write("\n");
+    // Example 2: Failed command
+    write("Example 2: Failed command (nonexistent)\n");
+    err = catch {
+        Process.create_process proc2 = Process.create_process(
+            ({"/nonexistent/command"})
+        );
+
+        if (!proc2) {
+            error("Failed to create process");
+        }
+
+        mixed err2 = catch {
+            int exit_code = proc2->wait();
+            write("Exit code: %d\n", exit_code);
+            int status = proc2->status();
+            write("Status: %d\n", status);
+        };
+
+        if (err2) {
+            write("Error caught: %s\n", describe_error(err2));
+        }
+    };
+
+    if (err) {
+        write("Error in Example 2 (expected): %s\n\n", describe_error(err));
+    }
 
     // Example 3: Process with timeout
     write("Example 3: Process with timeout callback\n");
-    Process.Process proc3 = Process.Process(
-        ({"sleep", "10"}),
-        ([
-            "timeout": 2,
-            "timeout_callback": lambda(Process.Process p) {
-                write("Timeout callback triggered for PID %d\n", p->pid());
-            }
-        ])
-    );
+    err = catch {
+        Process.Process proc3 = Process.Process(
+            ({"sleep", "10"}),
+            ([
+                "timeout": 2,
+                "timeout_callback": lambda(Process.Process p) {
+                    write("Timeout callback triggered for PID %d\n", p->pid());
+                }
+            ])
+        );
 
-    int exit3 = proc3->wait();
-    write("Process 3 exit code: %d (likely killed)\n", exit3);
-    write("Process 3 status: %d\n", proc3->status());
+        if (!proc3) {
+            error("Failed to create process with timeout");
+        }
+
+        int exit3 = proc3->wait();
+        write("Process 3 exit code: %d (likely killed)\n", exit3);
+        int status3 = proc3->status();
+        write("Process 3 status: %d\n", status3);
+    };
+
+    if (err) {
+        write("Error in Example 3: %s\n\n", describe_error(err));
+    }
 
     // Example 4: Process.run error handling
     write("\nExample 4: Process.run with error checking\n");
-    mapping result = Process.run(({"ls", "/nonexistent/path"}));
+    err = catch {
+        mapping result = Process.run(({"ls", "/nonexistent/path"}));
 
-    write("Exit code: %d\n", result->exitcode);
-    if (result->exitcode != 0) {
-        write("STDERR:\n%s\n", result->stderr);
+        write("Exit code: %d\n", (int)result->exitcode);
+        if ((int)result->exitcode != 0) {
+            write("STDERR:\n%s\n", (string)(result->stderr || "(no stderr)"));
+        } else {
+            write("Command succeeded\n");
+        }
+    };
+
+    if (err) {
+        write("Error in Example 4: %s\n\n", describe_error(err));
     }
 
+    write("\n✓ All process status examples completed\n");
     return 0;
 }

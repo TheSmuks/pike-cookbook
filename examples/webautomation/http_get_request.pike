@@ -5,8 +5,9 @@
 int main(int argc, array(string) argv)
 {
     if (argc < 2) {
-        werror("Usage: %s <url>\n", argv[0]);
-        return 1;
+        write("Usage: %s <url>\n", argv[0]);
+        write("Running in demo mode with https://httpbin.org/get ...\n");
+        argv = ({ argv[0], "https://httpbin.org/get" });
     }
 
     string url = argv[1];
@@ -17,7 +18,8 @@ int main(int argc, array(string) argv)
     if (q->status == 200) {
         write("Success!\n");
         write("Status: %d %s\n", q->status, q->status_desc);
-        write("Content-Type: %s\n", q->headers["content-type"] || "unknown");
+        mixed ct = q->headers["content-type"];
+        write("Content-Type: %s\n", stringp(ct) ? (string)ct : "unknown");
         write("Content-Length: %d bytes\n", sizeof(q->data()));
         write("\n--- Body (first 500 chars) ---\n");
         write(q->data()[0..499]);

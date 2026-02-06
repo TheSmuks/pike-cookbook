@@ -18,14 +18,14 @@ int main()
     string html = q->data();
 
     // Simple extraction using regex (for basic cases)
-    array(string) titles = ({});
     string pattern = "<title>([^<]*)</title>";
 
     object re = Regexp.SimpleRegexp(pattern);
-    array(string) matches = re->split(html);
+    mixed matches = re->split(html);
 
-    if (sizeof(matches) > 1) {
-        write("Page Title: %s\n", matches[1]);
+    if (arrayp(matches) && sizeof((array)matches) > 1) {
+        array(string) match_array = (array(string))matches;
+        write("Page Title: %s\n", match_array[1]);
     }
 
     // Extract all links
@@ -36,14 +36,15 @@ int main()
 
     void scan_links(string s) {
         while (1) {
-            array(string) parts = re->split(s);
-            if (!parts || sizeof(parts) < 3) break;
+            mixed parts = re->split(s);
+            if (!arrayp(parts) || sizeof((array)parts) < 3) break;
 
-            write("  %s -> %s\n", parts[2], parts[1]);
+            array(string) parts_array = (array(string))parts;
+            write("  %s -> %s\n", parts_array[2], parts_array[1]);
             match_count++;
 
             // Continue from after this match
-            int pos = search(s, parts[0]) + sizeof(parts[0]);
+            int pos = search(s, parts_array[0]) + sizeof(parts_array[0]);
             if (pos >= sizeof(s)) break;
             s = s[pos..];
         }

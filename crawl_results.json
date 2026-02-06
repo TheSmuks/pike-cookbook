@@ -1,1 +1,1 @@
-{"https://example.com":{"size":513,"links":[],"status":200,"content_type":"text/html","depth":0,"url":"https://example.com"}}
+{"https://example.com":{"depth":0,"links":[],"url":"https://example.com","size":513,"content_type":"text/html","status":200}}

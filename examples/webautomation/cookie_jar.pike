@@ -73,8 +73,9 @@ class CookieJar
 
         foreach(cookies; string name; mapping attrs) {
             // Simple domain matching (should be more robust)
-            if (has_value(domain, attrs->domain)) {
-                result[name] = attrs->value;
+            mixed domain_val = attrs->domain;
+            if (domain_val && has_value(domain, (string)domain_val)) {
+                result[name] = (string)attrs->value;
             }
         }
 
@@ -107,10 +108,10 @@ class CookieJar
     {
         write("\n=== Cookie Jar ===\n");
         foreach(cookies; string name; mapping attrs) {
-            write("%s: %s\n", name, attrs->value);
-            write("  Domain: %s\n", attrs->domain);
-            write("  Path: %s\n", attrs->path);
-            write("  Secure: %s\n", attrs->secure ? "yes" : "no");
+            write("%s: %s\n", name, (string)attrs->value);
+            write("  Domain: %s\n", (string)attrs->domain);
+            write("  Path: %s\n", (string)attrs->path);
+            write("  Secure: %s\n", (int)attrs->secure ? "yes" : "no");
         }
         write("==================\n\n");
     }
@@ -144,10 +145,33 @@ int main()
     );
 
     if (q->status == 200) {
-        mapping response = Standards.JSON.decode(q->data());
-        write("Server received cookies:\n");
-        foreach(response->cookies; string _; mapping c) {
-            write("  %s = %s\n", c->Name, c->Value);
+        mixed decoded = Standards.JSON.decode(q->data());
+        if (mappingp(decoded)) {
+            mapping response = (mapping)decoded;
+            mixed cookies_mixed = response->cookies;
+            write("Server received cookies:\n");
+            if (mappingp(cookies_mixed)) {
+                mapping cookies_map = (mapping)cookies_mixed;
+                foreach(values(cookies_map), mixed c) {
+                    if (mappingp(c)) {
+                        mapping cookie = (mapping)c;
+                        mixed name = cookie->Name;
+                        mixed value = cookie->Value;
+                        write("  %s = %s\n", stringp(name) ? (string)name : "?",
+                                             stringp(value) ? (string)value : "?");
+                    }
+                }
+            } else if (arrayp(cookies_mixed)) {
+                foreach((array)cookies_mixed, mixed c) {
+                    if (mappingp(c)) {
+                        mapping cookie = (mapping)c;
+                        mixed name = cookie->Name;
+                        mixed value = cookie->Value;
+                        write("  %s = %s\n", stringp(name) ? (string)name : "?",
+                                             stringp(value) ? (string)value : "?");
+                    }
+                }
+            }
         }
     }
 
