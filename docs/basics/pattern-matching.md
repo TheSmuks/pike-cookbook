@@ -37,7 +37,7 @@ constant common_prefix = String.common_prefix;
 string src = "This is a test string";
 string dst;
 
-// Method 1: Using String.replace() - more efficient than regex for simple cases
+// Method 1: Using replace() - more efficient than regex for simple cases
 dst = replace(src, (["test": "replacement"]));
 // "This is a replacement string"
 

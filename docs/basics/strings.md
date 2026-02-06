@@ -302,7 +302,7 @@ write("Found '%s' at positions: %s\n", needle, (string)positions);
 string text = "The quick brown fox jumps over the lazy dog";
 
 // Simple replacement
-string replaced = String.replace(text, "fox", "cat");
+string replaced = replace(text, "fox", "cat");
 // Result: "The quick brown cat jumps over the lazy dog"
 
 // Multiple replacements using mapping
@@ -314,7 +314,7 @@ mapping replacements = ([
 
 string result = text;
 foreach(indices(replacements);; string key) {
-    result = String.replace(result, key, replacements[key]);
+    result = replace(result, key, replacements[key]);
 }
 write("Multiple replacements: %s\n", result);
 ```
@@ -443,7 +443,7 @@ array(string) lines = csv / "\n";
 
 foreach(lines;; string line) {
     if (!sizeof(line)) continue;
-    array(string) fields = String.split(line, ",");
+    array(string) fields = line / ",";
     write("%s is %d years old\n", fields[0], (int)fields[1]);
 }
 

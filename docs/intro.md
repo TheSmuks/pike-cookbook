@@ -36,6 +36,7 @@ This cookbook is organized into four main sections, each building on the previou
 **Foundation skills for Pike programming**
 
 Start here if you're new to Pike or need a refresher:
+- [Pike Idioms](/docs/basics/idioms) - Essential Pike patterns and coding conventions
 - [Strings](/docs/basics/strings) - Text processing and manipulation
 - [Numbers](/docs/basics/numbers) - Mathematical operations and numeric types
 - [Arrays](/docs/basics/arrays) - Lists, sequences, and array operations
@@ -67,6 +68,7 @@ Build networked applications and web tools:
 
 Master Pike's powerful features:
 - [Classes and Objects](/docs/advanced/classes) - OOP and class design
+- [Visibility Modifiers](/docs/advanced/visibility) - Access control and inheritance
 - [Modules](/docs/advanced/modules) - Code organization and libraries
 - [References](/docs/advanced/references) - Advanced data structures
 - [Processes](/docs/advanced/processes) - Process management and IPC

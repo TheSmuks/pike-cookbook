@@ -726,7 +726,11 @@ signal(signum("SIGINT"), sigterm_handler);
 // Daemonize
 Process.daemon(0, 0);
 
-Stdio.File log = Stdio.File("/tmp/sigrand.log", "wac");
+Stdio.File log = Stdio.File();
+if (!log->open("/tmp/sigrand.log", "wac")) {
+    werror("Failed to open log file: %s\n", strerror(log->errno()));
+    return;
+}
 
 while (running) {
     int rand_num = random(100);

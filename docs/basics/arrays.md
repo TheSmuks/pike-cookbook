@@ -371,7 +371,11 @@ foreach(sort(indices(getenv()));; string var) {
 }
 
 // Process file line by line
-Stdio.File file = Stdio.File("data.txt", "r");
+Stdio.File file = Stdio.File();
+if (!file->open("data.txt", "r")) {
+    werror("Failed to open data.txt: %s\n", strerror(file->errno()));
+    return;
+}
 foreach(file->line_iterator();; string line) {
     if (sizeof(String.trim_whites(line))) {
         write("Processing: %s\n", line);
