@@ -1,0 +1,37 @@
+name: Changelog Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  changelog-check:
+    name: Changelog Entry Required
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for changelog entry
+        uses: dangoslen/changelog-enforcer@v3
+        with:
+          # Required: the file where changelog entries are added
+          changePath: 'CHANGELOG.md'
+          
+          # Skip changelog check for these patterns
+          skipLabels: 'skip-changelog,skip ci'
+          
+          # Message shown when no changelog entry is found
+          failureMessage: >
+            No changelog entry found in CHANGELOG.md for this PR.
+            
+            Please add an entry in the [Unreleased] section describing your changes.
+            This helps users understand what has changed.
+            
+            See CONTRIBUTING.md for guidelines.
+          
+          # Require the entry to be in [Unreleased] section
+          requireUnreleased: true
