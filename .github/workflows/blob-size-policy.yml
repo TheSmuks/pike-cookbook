@@ -1,0 +1,64 @@
+name: Blob Size Policy
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  blob-size-check:
+    name: Check for Oversized Files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check file sizes
+        run: |
+          # Get the list of files changed in this PR
+          FILES=$(git diff --name-only origin/main...HEAD 2>/dev/null || git diff --name-only HEAD~1...HEAD)
+          
+          # Size limits (in KB)
+          MAX_IMAGE_SIZE=500      # 500 KB for images
+          MAX_DOC_SIZE=100        # 100 KB for documentation
+          MAX_CODE_SIZE=50       # 50 KB for code files
+          
+          OVERSIZED_FILES=""
+          
+          for file in $FILES; do
+            # Skip deleted files
+            if [ ! -f "$file" ]; then
+              continue
+            fi
+            
+            SIZE=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null)
+            SIZE_KB=$((SIZE / 1024))
+            
+            # Check based on file type
+            if echo "$file" | grep -qE '\.(png|jpg|jpeg|gif|svg|ico)$'; then
+              LIMIT=$MAX_IMAGE_SIZE
+            elif echo "$file" | grep -qE '\.(md|mdx|markdown)$'; then
+              LIMIT=$MAX_DOC_SIZE
+            else
+              LIMIT=$MAX_CODE_SIZE
+            fi
+            
+            if [ $SIZE_KB -gt $LIMIT ]; then
+              OVERSIZED_FILES="$OVERSIZED_FILES\n  - $file (${SIZE_KB}KB > ${LIMIT}KB limit)"
+            fi
+          done
+          
+          if [ -n "$OVERSIZED_FILES" ]; then
+            echo "❌ The following files exceed size limits:"
+            echo -e "$OVERSIZED_FILES"
+            echo ""
+            echo "Please consider:"
+            echo "  - Compressing images"
+            echo "  - Splitting large files"
+            echo "  - Moving large assets to external storage"
+            exit 1
+          else
+            echo "✅ All file sizes are within limits"
+          fi
