@@ -147,7 +147,7 @@ int open_file(string filename)
 {
     Stdio.File f = Stdio.File();
     if (!f->open(filename, "r")) {
-        error("Failed to open file: %s", filename);
+        error(sprintf("Failed to open file: %s", filename));
     }
     return f->fd();
 }

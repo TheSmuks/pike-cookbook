@@ -84,15 +84,32 @@ void sigchld_handler(int sig)
 class Conn
 {
     Stdio.File fd;
+    string write_buf = "";
     void create(Stdio.File f) { fd = f; fd->set_nonblocking(read_cb, 0, close_cb); }
 
     void read_cb(mixed _, string data)
     {
         werror("[conn] received: %O\n", String.trim_whites(data));
-        fd->write("OK\n");
+        write_buf = "OK\n";
+        fd->set_nonblocking(read_cb, write_cb, close_cb);
     }
 
-    void close_cb(mixed _) { fd->close(); }
+    void write_cb(mixed _)
+    {
+        int written = fd->write(write_buf);
+        if (written < 0) { fd->close(); return; }
+        if (written > 0)
+            write_buf = write_buf[written..];
+        if (!sizeof(write_buf))
+            fd->set_nonblocking(read_cb, 0, close_cb);
+    }
+
+    void close_cb(mixed _)
+    {
+        if (fd->errno())
+            werror("[conn] error: %s\n", strerror(fd->errno()));
+        fd->close();
+    }
 }
 
 void accept_cb(mixed _)
@@ -223,8 +240,8 @@ Call `daemonize()` at the start of `main()` before binding the socket.
 
 ---
 
-:::danger Signal handlers run in the main thread
-Keep signal handlers short — set a flag and return. Do not call `write()`, `werror()`, or any I/O from a signal handler. The main loop polls the flag and does the real work safely.
+:::tip Signal handlers are deferred, not raw POSIX
+Pike's `signal()` does NOT install a raw POSIX signal handler. It sets a flag that the Pike backend picks up and dispatches as a normal function call in the interpreter context. This means `werror()`, `sprintf()`, memory allocation, and other Pike operations are safe inside the handler. You still want to keep handlers short for responsiveness, but there is no risk of crashing the runtime with I/O calls.
 :::
 
 :::tip Combine with the IPC Daemon pattern

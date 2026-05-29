@@ -635,8 +635,10 @@ sock->set_option(Stdio.NO_DELAY, 1);
 // Set socket buffer sizes
 sock->set_buffer(65536, 65536); // read_buf, write_buf
 
-// Set socket timeout
-sock->set_nonblocking(1, 0, 0); // nonblocking mode
+// Enable nonblocking mode without callbacks.
+// Use set_nonblocking() with no args to just toggle the mode.
+// For I/O-driven servers, pass callbacks: set_nonblocking(read_cb, write_cb, close_cb).
+sock->set_nonblocking();
 
 // Enable broadcast for UDP
 Stdio.UDP udp = Stdio.UDP();
