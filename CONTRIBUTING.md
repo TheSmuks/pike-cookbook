@@ -142,6 +142,10 @@ To sign the CLA:
 - Keep paragraphs short and focused
 - Use active voice
 
+## Additional Resources
+
+See [AGENTS.md](AGENTS.md) for full code style, conventions, and AI agent guidelines.
+
 ## Questions?
 
 Open an issue for discussion before starting significant work. This helps ensure your contribution aligns with project goals.

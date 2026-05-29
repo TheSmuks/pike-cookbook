@@ -1,0 +1,117 @@
+# Pike Cookbook Architecture Rules
+# Calibrated for Docusaurus documentation + Pike code examples
+
+# File patterns to ignore (not checked for size/complexity)
+ignore_patterns:
+  # Docusaurus build outputs
+  - "build/**"
+  - ".docusaurus/**"
+  - ".dist/**"
+  
+  # Third-party content
+  - "docs/**"
+  - "pleac_pike/**"
+  - "static/**"
+  
+  # Binary and generated files
+  - "*.html"
+  - "*.png"
+  - "*.jpg"
+  - "*.ico"
+  - "*.pdf"
+  
+  # Node modules and dependencies
+  - "node_modules/**"
+  - "bun.lock"
+  
+  # Development artifacts
+  - "*.md.bak"
+  - "*.html.bak"
+  - "debug_*.py"
+  
+  # IDE and OS files
+  - ".vscode/**"
+  - ".idea/**"
+  - ".DS_Store"
+
+# File size limits (in lines)
+max_file_lines:
+  # Pike: recipes can be substantial but should be split if over 400 lines
+  # Current longest: recipes/database/best_practices.pike (973 lines)
+  # Most examples are 50-200 lines
+  pike: 400
+  
+  # TypeScript: Docusaurus components are typically small (< 200 lines)
+  typescript: 200
+  tsx: 200
+  javascript: 150
+  
+  # Markdown: Documentation pages should be scannable
+  markdown: 300
+  mdx: 300
+  
+  # Configuration files
+  json: 100
+  yaml: 100
+  yml: 100
+  
+  # Other
+  default: 200
+
+# Function/method size limits (in lines)
+max_function_lines:
+  pike: 60
+  typescript: 40
+  tsx: 40
+  javascript: 30
+  default: 40
+
+# Cyclomatic complexity limits (if using complexity tools)
+max_complexity:
+  pike: 10
+  typescript: 8
+  tsx: 8
+  javascript: 8
+  default: 10
+
+# Naming conventions
+naming_conventions:
+  pike:
+    variables: "lower_snake_case"
+    functions: "lower_snake_case"
+    classes: "PascalCase"
+    constants: "UPPER_SNAKE_CASE"
+    files: "lower_snake_case"
+  
+  typescript:
+    variables: "camelCase"
+    functions: "camelCase"
+    classes: "PascalCase"
+    interfaces: "PascalCase"
+    constants: "UPPER_SNAKE_CASE"
+    files: "PascalCase"
+  
+  markdown:
+    files: "kebab-case"
+
+# Required patterns
+required_patterns:
+  pike:
+    - pattern: "^#pragma strict_types"
+      message: "All Pike files must start with #pragma strict_types"
+  
+  typescript:
+    - pattern: "^import"
+      message: "TypeScript files should use ES modules"
+
+# Blocked patterns
+blocked_patterns:
+  pike:
+    - pattern: "\\bany\\b"
+      message: "Avoid 'any' type - use specific types"
+  
+  typescript:
+    - pattern: "\\bany\\b"
+      message: "Avoid 'any' type - use specific types or unknown"
+    - pattern: "// @ts-ignore"
+      message: "Avoid @ts-ignore - fix the type error instead"
