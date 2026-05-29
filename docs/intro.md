@@ -30,7 +30,19 @@ Pike is particularly well-suited for network programming, text processing, and r
 
 ## How to Use This Cookbook
 
-This cookbook is organized into four main sections, each building on the previous:
+This cookbook has two types of content:
+
+- **Templates** — copy-paste-ready scaffolds for common tasks (daemon, TCP server, worker pool).
+- **Recipes** — topic-by-topic reference with examples and explanations.
+
+### Templates
+**Grab the code and go**
+
+Need a working starting point right now? These are complete, tested programs you can paste into a file and run:
+- [IPC Daemon](/docs/templates/ipc-daemon) - Fire-and-forget job queue with encode_value + %4H framing over Unix socket
+- [TCP Server](/docs/templates/tcp-server) - Non-blocking accept loop with callback-driven I/O
+- [Worker Pool](/docs/templates/worker-pool) - Thread.Queue + thread pool for concurrent job processing
+- [Signal-Handling Daemon](/docs/templates/signal-handler) - Graceful shutdown, SIGHUP reload, SIGCHLD reaping
 
 ### Basic Recipes
 **Foundation skills for Pike programming**

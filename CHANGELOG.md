@@ -9,31 +9,24 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 
 ### Added
 
-- `AGENTS.md` - Cross-agent configuration for Pike Cookbook development
-- `ARCHITECTURE.md` - Pointer to detailed architecture documentation
-- `docs/architecture.md` - Mermaid diagrams and component documentation
-- `.template-version` - Template version tracking (0.7.0)
-- `docs/decisions/001-template-adoption.md` - ADR for ai-project-template adoption
-- `.omp/` - OMP agent and rule definitions
-  - `.omp/agents/code-reviewer.md` - Pike + TypeScript code review guidelines
-  - `.omp/agents/changelog-updater.md` - Automated changelog maintenance
-  - `.omp/rules/conventional-commits.md` - Commit message rules
-  - `.omp/rules/changelog-required.md` - Changelog enforcement rules
-- `.github/workflows/commit-lint.yml` - Conventional commit validation
-- `.github/workflows/changelog-check.yml` - Changelog entry enforcement
-- `.github/workflows/blob-size-policy.yml` - File size limits in PRs
+- `docs/templates/` — copy-paste-ready scaffolds for common Pike patterns:
+  - IPC Daemon (encode_value + %4H framing, fire-and-forget job queue)
+  - TCP Server (non-blocking accept loop with callback-driven I/O)
+  - Worker Pool (Thread.Queue + thread pool for concurrent processing)
+  - Signal-Handling Daemon (graceful shutdown, SIGHUP reload, SIGCHLD reaping)
+- Templates section in sidebar — prominent placement, not buried in Advanced
+- Templates overview on the Introduction page
 
 ### Changed
 
-- `CONTRIBUTING.md` - Added reference to AGENTS.md for full conventions
-
-### Deprecated
-
-- Nothing yet
+- Sidebar categories are now individually collapsible — collapse what you don't need, keep what you do
+- Network & Web ordering adjusted: Sockets first (most referenced), then CGI, Web Automation, Internet Services
 
 ### Removed
 
-- Nothing yet
+- 22 root-level junk files: conversion scripts (html_to_markdown*.py), AI session reports, test data, orphaned docs
+- Test artifacts from examples/webautomation/ (crawl results, feed aggregation data, improvement report)
+- Misnamed recipes/process/ipi_shared_memory.pike (content duplicated ipc_pipe.pike)
 
 ### Fixed
 

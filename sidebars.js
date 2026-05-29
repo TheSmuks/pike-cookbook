@@ -7,9 +7,21 @@ module.exports = {
     },
     {
       type: 'category',
-      label: 'Documentation',
+      label: 'Templates',
       collapsible: true,
       collapsed: false,
+      items: [
+        'templates/ipc-daemon',
+        'templates/tcp-server',
+        'templates/worker-pool',
+        'templates/signal-handler',
+      ],
+    },
+    {
+      type: 'category',
+      label: 'Documentation',
+      collapsible: true,
+      collapsed: true,
       items: [
         'autodoc-format',
       ],
@@ -48,8 +60,8 @@ module.exports = {
       collapsible: true,
       collapsed: false,
       items: [
-        'network/cgi-programming',
         'network/sockets',
+        'network/cgi-programming',
         'network/web-automation',
         'network/internet-services',
       ],
