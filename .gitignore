@@ -58,3 +58,10 @@ pleac_pike/*.html.bak
 # OS
 .DS_Store
 Thumbs.db
+
+# Bun
+bun.lockb
+bun-bin/
+.bun/
+
+# OMP (Oh My Pi agent config)
