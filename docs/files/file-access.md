@@ -498,10 +498,10 @@ if (!content) {
 }
 
 // Method 2: Use catch()
-mixed error = catch {
+mixed err = catch {
     Stdio.File file = Stdio.File();
     if (!file->open(path, "r")) {
-        error("Failed to open %s: %s\n", path, strerror(file->errno()));
+        error(sprintf("Failed to open %s: %s\n", path, strerror(file->errno())));
     }
 
     // ... process file ...
@@ -509,8 +509,8 @@ mixed error = catch {
     file->close();
 };
 
-if (error) {
-    werror("Error: %s\n", describe_error(error));
+if (err) {
+    werror("Error: %s\n", describe_error(err));
     exit(1);
 }
 

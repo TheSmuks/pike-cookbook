@@ -867,7 +867,7 @@ void save_data(mixed data, string filename) {
     string encoded = encode_value(data);
     Stdio.File file = Stdio.File();
     if (!file->open(filename, "wc")) {
-        error("Cannot open %s for writing: %s", filename, strerror(file->errno()));
+        error(sprintf("Cannot open %s for writing: %s", filename, strerror(file->errno())));
     }
     file->write(encoded);
     file->close();
@@ -878,7 +878,7 @@ void save_data(mixed data, string filename) {
 mixed load_data(string filename) {
     Stdio.File file = Stdio.File();
     if (!file->open(filename, "r")) {
-        error("Cannot open %s for reading: %s", filename, strerror(file->errno()));
+        error(sprintf("Cannot open %s for reading: %s", filename, strerror(file->errno())));
     }
     string encoded = file->read();
     file->close();
