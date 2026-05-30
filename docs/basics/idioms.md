@@ -587,11 +587,13 @@ int main() {
 ### Non-blocking I/O
 
 ```pike
-// Set up callbacks for non-blocking socket
+// Set up callbacks for non-blocking socket.
+// close_callback fires on EOF or read-error — check errno() to distinguish.
+// It does NOT fire on local close().
 sock->set_nonblocking(
     read_callback,   // Called when data is available
     write_callback,  // Called when write buffer is empty
-    close_callback   // Called on connection close
+    close_callback   // Called on EOF or read-error (not local close)
 );
 ```
 

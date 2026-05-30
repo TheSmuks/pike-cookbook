@@ -37,15 +37,11 @@ if (files) {
     werror("Directory not found or not readable\n");
 }
 
-// Method 2: Using file system object
-Stdio.File dir = Stdio.File("/path/to/directory");
-
-if (dir) {
-    array(string) contents = dir->get_dir();
-    foreach(contents;; string item) {
-        write("%s\n", item);
-    }
-    dir->close();
+// Method 2: Using Filesystem.System for directory traversal
+object dir = Filesystem.System("/path/to/directory");
+array(string) contents = dir->get_dir();
+foreach(contents;; string item) {
+    write("%s\n", item);
 }
 ```
 

@@ -617,10 +617,10 @@ class EventApplication {
         return Pike.Backend()->call_out(callback, delay);
     }
 
-    // Monitor file descriptor
-    void add_io(Stdio.File file, function callback) {
-        file->set_callback(callback);
-        file->set_nonblocking(1, 0, Pike.POLLIN);
+    // Monitor file descriptor for readable data.
+    // set_nonblocking(read_cb, write_cb, close_cb) — pass 0 for unused callbacks.
+    void add_io(Stdio.File file, function(mixed, string:int|void) callback) {
+        file->set_nonblocking(callback, 0, 0);
     }
 
     // Run event loop

@@ -107,6 +107,8 @@ class Conn
 
     void close_cb(mixed _)
     {
+        if (fd->errno())
+            werror("[conn] error: %s\n", strerror(fd->errno()));
         fd->close();
     }
 }

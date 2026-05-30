@@ -55,6 +55,11 @@ class Conn
     void write_cb(mixed _)
     {
         int written = fd->write(write_buf);
+        if (written < 0) {
+            // OS error (EPIPE, ECONNRESET, etc.) — close connection.
+            fd->close();
+            return;
+        }
         if (written > 0)
             write_buf = write_buf[written..];
         if (!sizeof(write_buf))
@@ -63,7 +68,10 @@ class Conn
 
     void close_cb(mixed _)
     {
-        werror("[server] disconnect from %s\n", peer);
+        if (fd->errno())
+            werror("[server] error from %s: %s\n", peer, strerror(fd->errno()));
+        else
+            werror("[server] disconnect from %s\n", peer);
         fd->close();
     }
 }
@@ -136,12 +144,13 @@ void read_cb(mixed _, string data)
 void handle_line(string line)
 {
     if (line == "QUIT") {
-        fd->write("Bye!\n");
-        fd->close();
+        write_buf = "Bye!\n";
+        fd->set_nonblocking(read_cb, write_cb, close_cb);
         return;
     }
     // ... your protocol here
-    fd->write(sprintf("OK: %s\n", line));
+    write_buf += sprintf("OK: %s\n", line);
+    fd->set_nonblocking(read_cb, write_cb, close_cb);
 }
 ```
 

@@ -22,6 +22,11 @@ and this project adheres to [Conventional Commits](https://www.conventionalcommi
 - Sidebar categories are now individually collapsible — collapse what you don't need, keep what you do
 - Network & Web ordering adjusted: Sockets first (most referenced), then CGI, Web Automation, Internet Services
 
+### Fixed
+
+- Templates validated against Pike 8.0.1116 source (Stdio.pmod, Thread.pmod): write_cb error handling, nonblocking write patterns, Thread.Queue timeout, signal handler safety
+- 7 inaccuracies in existing cookbook pages: wrong error() signatures, fake API calls (Stdio.File->get_dir()), incorrect set_nonblocking() args, variable shadowing
+
 ### Removed
 
 - 22 root-level junk files: conversion scripts (html_to_markdown*.py), AI session reports, test data, orphaned docs

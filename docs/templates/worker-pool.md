@@ -155,20 +155,31 @@ void worker_thread()
 
 ### With Timeouts on Wait
 
-If you need to shut down idle workers after a timeout, use `read()` with a callback pattern instead:
+If you need to shut down idle workers after a timeout, combine `try_read()` with `sleep()`. `Thread.Queue.read()` blocks indefinitely with no timeout parameter, so use non-blocking `try_read()` in a polling loop:
 
 ```pike
 // Worker exits if no job arrives within 30 seconds.
+#define IDLE_TIMEOUT 30.0
+
 void worker_thread()
 {
+    float idle = 0.0;
     while (true) {
-        mixed job;
-        if (mixed e = catch { job = queue->read(); }) {
-            // Queue was destroyed or other error.
-            return;
+        mixed job = queue->try_read();
+        if (zero_type(job)) {
+            // No job available — poll with short sleep.
+            if (idle >= IDLE_TIMEOUT) {
+                werror("[worker] idle timeout — exiting\n");
+                return;
+            }
+            sleep(0.5);
+            idle += 0.5;
+            continue;
         }
-        if (job == 0) return;
-        process_job(job);
+        idle = 0.0;
+        if (job == 0) return;   // sentinel: shut down
+        if (mixed e = catch { process_job(job); })
+            werror("[worker] job failed: %O\n", e);
     }
 }
 ```
